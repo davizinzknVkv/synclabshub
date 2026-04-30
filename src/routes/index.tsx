@@ -1,10 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
 import { EyeOff, Eye, ArrowRight } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { NotificationContainer, notify } from "@/components/Notification";
-import { setSession } from "@/lib/auth";
+import { setSession, getSession, saveCreds, loadCreds } from "@/lib/auth";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -25,12 +25,20 @@ const API_BASE_URL = "https://edusp-api.ip.tv";
 
 function Index() {
   const navigate = useNavigate();
-  const [raNumero, setRaNumero] = useState("");
-  const [raDigito, setRaDigito] = useState("");
-  const [raUf, setRaUf] = useState("SP");
-  const [pwd, setPwd] = useState("");
+  const saved = loadCreds();
+  const [raNumero, setRaNumero] = useState(saved?.raNumero || "");
+  const [raDigito, setRaDigito] = useState(saved?.raDigito || "");
+  const [raUf, setRaUf] = useState(saved?.raUf || "SP");
+  const [pwd, setPwd] = useState(saved?.pwd || "");
   const [showPwd, setShowPwd] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // Auto-redirect if already logged in
+  useEffect(() => {
+    if (getSession()) {
+      navigate({ to: "/dashboard" });
+    }
+  }, [navigate]);
 
   const fullRa = `${raNumero}${raDigito}${raUf}`;
 
@@ -68,6 +76,9 @@ function Index() {
       });
       const roomData = roomRes.ok ? await roomRes.json() : { rooms: [] };
 
+      // Save credentials for next time
+      saveCreds({ raNumero, raDigito, raUf, pwd });
+
       setSession({
         ra: fullRa,
         authToken: data.auth_token,
@@ -83,7 +94,7 @@ function Index() {
     } finally {
       setLoading(false);
     }
-  }, [raNumero, raDigito, fullRa, pwd, loading, navigate]);
+  }, [raNumero, raDigito, raUf, fullRa, pwd, loading, navigate]);
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-background overflow-hidden">
