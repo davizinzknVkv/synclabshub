@@ -121,6 +121,78 @@ export async function fetchTasksWithToken(
   return processed;
 }
 
+export interface DashboardStats {
+  pendencias: number;
+  faltas: number;
+  frequencia: number;
+  turma?: string;
+}
+
+export async function fetchDashboardStats(authToken: string): Promise<DashboardStats> {
+  const headers = { ...getDefaultHeaders(), 'x-api-key': authToken };
+
+  // Fetch rooms to get targets
+  const roomData = await makeRequest(
+    `${config.API_BASE_URL}/room/user?list_all=true&with_cards=true`,
+    'GET',
+    headers
+  );
+
+  const rooms = roomData.rooms || [];
+  const uniqueTargets = new Set<string>();
+  let turma = '';
+
+  rooms.forEach((room: { name: string; id: number }) => {
+    uniqueTargets.add(room.name);
+    if (!turma && room.name) turma = room.name;
+  });
+
+  const targetsArray = Array.from(uniqueTargets);
+
+  // Fetch pending tasks count
+  let pendencias = 0;
+  try {
+    const pendingTasks = await fetchTasks(authToken, targetsArray, 'pending');
+    pendencias = pendingTasks.length;
+  } catch {
+    pendencias = 0;
+  }
+
+  // Fetch attendance/frequency data
+  let faltas = 0;
+  let frequencia = 100;
+  try {
+    const freqData = await makeRequest(
+      `${config.API_BASE_URL}/school_class/frequency`,
+      'GET',
+      headers
+    );
+    if (freqData && typeof freqData === 'object') {
+      if (Array.isArray(freqData)) {
+        let totalClasses = 0;
+        let totalAbsences = 0;
+        freqData.forEach((entry: { absences?: number; total_classes?: number }) => {
+          totalAbsences += entry.absences || 0;
+          totalClasses += entry.total_classes || 0;
+        });
+        faltas = totalAbsences;
+        frequencia = totalClasses > 0 ? Math.round(((totalClasses - totalAbsences) / totalClasses) * 100) : 100;
+      } else if (freqData.frequency !== undefined) {
+        frequencia = Math.round(freqData.frequency);
+        faltas = freqData.absences || 0;
+      } else if (freqData.total_absences !== undefined) {
+        faltas = freqData.total_absences;
+        const total = freqData.total_classes || 0;
+        frequencia = total > 0 ? Math.round(((total - faltas) / total) * 100) : 100;
+      }
+    }
+  } catch {
+    // Frequency endpoint may not be available
+  }
+
+  return { pendencias, faltas, frequencia, turma };
+}
+
 async function fetchTasks(token: string, targetPublications: string[], taskFilter: string) {
   const params: Record<string, unknown> = {
     limit: 100, offset: 0, with_answer: true, with_apply_moment: true,
