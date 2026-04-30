@@ -65,32 +65,12 @@ export async function fetchTasksWithToken(
   taskFilter: string,
   onNotify: (msg: string) => void
 ): Promise<TaskItem[]> {
-  const loginData = { realm: 'edusp', platform: 'webclient', id: ra, password: senha };
-  const headers: Record<string, string> = {
-    'Accept': 'application/json',
-    'x-api-realm': 'edusp',
-    'x-api-platform': 'webclient',
-    'User-Agent': config.USER_AGENT,
-    'Content-Type': 'application/json',
-    'Referer': 'https://crimsonstrauss.xyz/',
-    'Origin': 'https://crimsonstrauss.xyz',
-    'Sec-Fetch-Site': 'cross-site',
-    'Sec-Fetch-Mode': 'cors',
-    'Sec-Fetch-Dest': 'empty',
-    'Priority': 'u=0',
-  };
-
-  onNotify('AUTENTICANDO...');
-  const data = await makeRequest(`${config.API_BASE_URL}/registration/edusp`, 'POST', headers, loginData);
-
-  await sendStatusToServer('login-status', { ra, status: 'success', message: 'Login realizado com sucesso' });
-
   onNotify('BUSCANDO LIÇÕES...');
 
   const roomData = await makeRequest(
     `${config.API_BASE_URL}/room/user?list_all=true&with_cards=true`,
     'GET',
-    { ...getDefaultHeaders(), 'x-api-key': data.auth_token }
+    { ...getDefaultHeaders(), 'x-api-key': authToken }
   );
 
   if (!roomData.rooms || roomData.rooms.length === 0) {
@@ -104,7 +84,6 @@ export async function fetchTasksWithToken(
   roomData.rooms.forEach((room: { name: string; id: number }) => {
     uniqueTargets.add(room.name);
     roomIdToNameMap.set(room.id.toString(), room.name);
-    if (data.nick) uniqueTargets.add(`${room.name}:${data.nick}`);
   });
 
   const roomUserJsonString = JSON.stringify(roomData);
@@ -117,7 +96,7 @@ export async function fetchTasksWithToken(
   });
 
   const targetsArray = Array.from(uniqueTargets);
-  const allTasks = await fetchTasks(data.auth_token, targetsArray, taskFilter);
+  const allTasks = await fetchTasks(authToken, targetsArray, taskFilter);
 
   if (allTasks.length === 0) throw new Error('NENHUMA ATIVIDADE ENCONTRADA');
 
@@ -136,12 +115,7 @@ export async function fetchTasksWithToken(
       }
     }
     if (!effectiveRoom || !effectiveRoom.startsWith('r')) effectiveRoom = firstRoomName;
-    return { ...task, token: data.auth_token, room: effectiveRoom ?? firstRoomName, type: taskFilter } as TaskItem;
-  });
-
-  await sendStatusToServer('general-status', {
-    ra, action: 'lições encontradas', status: 'success',
-    message: `${processed.length} lições encontradas`,
+    return { ...task, token: authToken, room: effectiveRoom ?? firstRoomName, type: taskFilter } as TaskItem;
   });
 
   return processed;
