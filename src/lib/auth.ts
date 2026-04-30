@@ -1,5 +1,4 @@
-// Simple client-side auth state (no persistence needed beyond session)
-import { useState, useCallback, createContext, useContext } from "react";
+import { useState, useCallback } from "react";
 
 export interface UserSession {
   ra: string;
@@ -9,7 +8,18 @@ export interface UserSession {
   rooms: Array<{ id: number; name: string }>;
 }
 
-let _session: UserSession | null = null;
+const STORAGE_KEY = "sync_labs_session";
+const CREDS_KEY = "sync_labs_creds";
+
+function loadSession(): UserSession | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return null;
+}
+
+let _session: UserSession | null = loadSession();
 
 export function getSession(): UserSession | null {
   return _session;
@@ -17,10 +27,40 @@ export function getSession(): UserSession | null {
 
 export function setSession(session: UserSession | null) {
   _session = session;
+  if (session) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
+  } else {
+    localStorage.removeItem(STORAGE_KEY);
+  }
 }
 
 export function clearSession() {
   _session = null;
+  localStorage.removeItem(STORAGE_KEY);
+}
+
+// Save/load login credentials (RA + password)
+export interface SavedCreds {
+  raNumero: string;
+  raDigito: string;
+  raUf: string;
+  pwd: string;
+}
+
+export function saveCreds(creds: SavedCreds) {
+  localStorage.setItem(CREDS_KEY, JSON.stringify(creds));
+}
+
+export function loadCreds(): SavedCreds | null {
+  try {
+    const raw = localStorage.getItem(CREDS_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return null;
+}
+
+export function clearCreds() {
+  localStorage.removeItem(CREDS_KEY);
 }
 
 export function useSession() {
