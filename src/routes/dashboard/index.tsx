@@ -15,7 +15,7 @@ export const Route = createFileRoute("/dashboard/")({
 
 const SCRIPTS = [
   { name: "Tarefa SP", icon: "📝", url: "/dashboard/tarefas" },
-  { name: "Redação Paulista", icon: "✍️", url: "#" },
+  { name: "Redação Paulista", icon: "✍️", url: "/dashboard/redacao" },
   { name: "Leia SP", icon: "📖", url: "#" },
   { name: "Khan Academy", icon: "🎓", url: "#" },
   { name: "Alura", icon: "💻", url: "#" },

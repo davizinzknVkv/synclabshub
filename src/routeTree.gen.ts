@@ -13,6 +13,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as DashboardTarefasRouteImport } from './routes/dashboard/tarefas'
+import { Route as DashboardRedacaoRouteImport } from './routes/dashboard/redacao'
 
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
@@ -34,15 +35,22 @@ const DashboardTarefasRoute = DashboardTarefasRouteImport.update({
   path: '/tarefas',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardRedacaoRoute = DashboardRedacaoRouteImport.update({
+  id: '/redacao',
+  path: '/redacao',
+  getParentRoute: () => DashboardRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/dashboard/redacao': typeof DashboardRedacaoRoute
   '/dashboard/tarefas': typeof DashboardTarefasRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard/redacao': typeof DashboardRedacaoRoute
   '/dashboard/tarefas': typeof DashboardTarefasRoute
   '/dashboard': typeof DashboardIndexRoute
 }
@@ -50,15 +58,27 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/dashboard/redacao': typeof DashboardRedacaoRoute
   '/dashboard/tarefas': typeof DashboardTarefasRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/dashboard/tarefas' | '/dashboard/'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/dashboard/redacao'
+    | '/dashboard/tarefas'
+    | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard/tarefas' | '/dashboard'
-  id: '__root__' | '/' | '/dashboard' | '/dashboard/tarefas' | '/dashboard/'
+  to: '/' | '/dashboard/redacao' | '/dashboard/tarefas' | '/dashboard'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/dashboard/redacao'
+    | '/dashboard/tarefas'
+    | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -96,15 +116,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardTarefasRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/redacao': {
+      id: '/dashboard/redacao'
+      path: '/redacao'
+      fullPath: '/dashboard/redacao'
+      preLoaderRoute: typeof DashboardRedacaoRouteImport
+      parentRoute: typeof DashboardRoute
+    }
   }
 }
 
 interface DashboardRouteChildren {
+  DashboardRedacaoRoute: typeof DashboardRedacaoRoute
   DashboardTarefasRoute: typeof DashboardTarefasRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardRedacaoRoute: DashboardRedacaoRoute,
   DashboardTarefasRoute: DashboardTarefasRoute,
   DashboardIndexRoute: DashboardIndexRoute,
 }
