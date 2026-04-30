@@ -3,7 +3,7 @@ import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { CheckSquare, Filter } from "lucide-react";
 import { getSession } from "@/lib/auth";
-import { loginAndFetchTasks, sendTasksToCatalyst } from "@/lib/api";
+import { fetchTasksWithToken, sendTasksToCatalyst } from "@/lib/api";
 import type { TaskItem } from "@/lib/api";
 import { NotificationContainer, notify } from "@/components/Notification";
 import { TaskModal } from "@/components/TaskModal";
@@ -28,9 +28,8 @@ function TarefasPage() {
     setLoading(true);
     setTaskFilter(filter);
     try {
-      const result = await loginAndFetchTasks(session.ra, "", filter, notify);
-      // token is already set from session
-      const withToken = result.map(t => ({ ...t, token: session.authToken }));
+      const result = await fetchTasksWithToken(session.authToken, filter, notify);
+      const withToken = result.map((t: TaskItem) => ({ ...t, token: session.authToken }));
       setTasks(withToken);
       setFetched(true);
       notify(`${withToken.length} LIÇÕES ENCONTRADAS`);
