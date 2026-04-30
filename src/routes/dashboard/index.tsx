@@ -1,7 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle, Heart, Calendar, TrendingUp, CheckSquare, ArrowRight } from "lucide-react";
+import { CheckCircle, Heart, Calendar, TrendingUp, CheckSquare, ArrowRight, Loader2 } from "lucide-react";
 import { getSession } from "@/lib/auth";
+import { fetchDashboardStats } from "@/lib/api";
+import type { DashboardStats } from "@/lib/api";
 
 export const Route = createFileRoute("/dashboard/")({
   component: DashboardHome,
@@ -21,7 +24,51 @@ const SCRIPTS = [
 
 function DashboardHome() {
   const session = getSession();
-  const displayName = session?.nick || session?.ra?.slice(0, 8) || "Aluno";
+  const displayName = session?.nick || session?.ra || "Aluno";
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [loadingStats, setLoadingStats] = useState(true);
+
+  useEffect(() => {
+    if (!session) return;
+    setLoadingStats(true);
+    fetchDashboardStats(session.authToken)
+      .then(setStats)
+      .catch(() => setStats({ pendencias: 0, faltas: 0, frequencia: 100 }))
+      .finally(() => setLoadingStats(false));
+  }, [session?.authToken]);
+
+  const statCards = [
+    {
+      icon: CheckCircle,
+      label: "Pendências",
+      value: loadingStats ? null : String(stats?.pendencias ?? 0),
+      color: "text-red-400",
+      borderColor: "border-red-500/30",
+    },
+    {
+      icon: Heart,
+      label: "Doação",
+      value: "♥",
+      color: "text-pink-400",
+      borderColor: "border-pink-500/30",
+    },
+    {
+      icon: Calendar,
+      label: "Faltas",
+      value: loadingStats ? null : String(stats?.faltas ?? 0),
+      color: "text-blue-400",
+      borderColor: "border-blue-500/30",
+    },
+    {
+      icon: TrendingUp,
+      label: "Frequência",
+      value: loadingStats ? null : `${stats?.frequencia ?? 100}%`,
+      color: "text-green-400",
+      borderColor: "border-green-500/30",
+      subtitle: stats && stats.frequencia >= 75 ? "Sua presença é ótima." : stats && stats.frequencia < 75 ? "Atenção com as faltas!" : undefined,
+      subtitleColor: stats && stats.frequencia >= 75 ? "text-green-400" : "text-red-400",
+    },
+  ];
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-8">
@@ -39,19 +86,16 @@ function DashboardHome() {
             <h1 className="text-2xl font-bold text-foreground">
               Olá, <span className="uppercase">{displayName}</span>
             </h1>
-            <p className="text-sm text-muted-foreground">Bem-vindo ao Sync Labs Hub</p>
+            <p className="text-sm text-muted-foreground">
+              {stats?.turma || "Bem-vindo ao Sync Labs Hub"}
+            </p>
           </div>
         </motion.div>
       </div>
 
       {/* Stats cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { icon: CheckCircle, label: "Pendências", value: "—", color: "text-red-400", borderColor: "border-red-500/30" },
-          { icon: Heart, label: "Doação", value: "♥", color: "text-pink-400", borderColor: "border-pink-500/30" },
-          { icon: Calendar, label: "Faltas", value: "—", color: "text-blue-400", borderColor: "border-blue-500/30" },
-          { icon: TrendingUp, label: "Frequência", value: "100%", color: "text-green-400", borderColor: "border-green-500/30" },
-        ].map((stat, i) => (
+        {statCards.map((stat, i) => (
           <motion.div
             key={stat.label}
             initial={{ opacity: 0, y: 20 }}
@@ -60,8 +104,17 @@ function DashboardHome() {
             className={`bg-card border ${stat.borderColor} rounded-xl p-5`}
           >
             <stat.icon size={20} className={stat.color} />
-            <p className="text-3xl font-bold text-foreground mt-3">{stat.value}</p>
+            {stat.value === null ? (
+              <div className="mt-3 flex items-center gap-2">
+                <Loader2 size={20} className="animate-spin text-muted-foreground" />
+              </div>
+            ) : (
+              <p className="text-3xl font-bold text-foreground mt-3">{stat.value}</p>
+            )}
             <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
+            {"subtitle" in stat && stat.subtitle && (
+              <p className={`text-xs mt-1 ${stat.subtitleColor}`}>{stat.subtitle}</p>
+            )}
           </motion.div>
         ))}
       </div>
