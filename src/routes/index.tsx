@@ -1,19 +1,17 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { EyeOff, Eye, ArrowRight } from "lucide-react";
 import logo from "@/assets/logo.png";
-import { loginAndFetchTasks, sendTasksToCatalyst } from "@/lib/api";
-import type { TaskItem } from "@/lib/api";
 import { NotificationContainer, notify } from "@/components/Notification";
-import { TaskModal } from "@/components/TaskModal";
+import { setSession } from "@/lib/auth";
 
 export const Route = createFileRoute("/")({
   component: Index,
   head: () => ({
     meta: [
-      { title: "SYNC LABS HUB - A Revolução da Sala do Futuro" },
-      { name: "description", content: "SYNC LABS HUB - Sala do Futuro CMSP WEB / Tarefas SP" },
+      { title: "SYNC LABS HUB - Login" },
+      { name: "description", content: "SYNC LABS HUB - Sua plataforma de estudos" },
     ],
   }),
 });
@@ -23,46 +21,72 @@ const UF_LIST = [
   "PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SE","TO"
 ];
 
+const API_BASE_URL = "https://edusp-api.ip.tv";
+
 function Index() {
+  const navigate = useNavigate();
   const [raNumero, setRaNumero] = useState("");
   const [raDigito, setRaDigito] = useState("");
   const [raUf, setRaUf] = useState("SP");
   const [pwd, setPwd] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [tasks, setTasks] = useState<TaskItem[]>([]);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [taskFilter, setTaskFilter] = useState<"pending" | "expired">("pending");
 
   const fullRa = `${raNumero}${raDigito}${raUf}`;
 
   const handleLogin = useCallback(async () => {
-    if (loading) { notify("OPERAÇÃO EM ANDAMENTO"); return; }
+    if (loading) return;
     if (!raNumero.trim()) { notify("PREENCHA O NÚMERO DO RA"); return; }
     if (!raDigito.trim()) { notify("PREENCHA O DÍGITO"); return; }
     if (!pwd.trim()) { notify("PREENCHA A SENHA"); return; }
 
     setLoading(true);
     try {
-      const result = await loginAndFetchTasks(fullRa, pwd.trim(), taskFilter, notify);
-      setTasks(result);
-      setModalOpen(true);
-      notify(`${result.length} LIÇÕES ENCONTRADAS`);
+      notify("AUTENTICANDO...");
+      const res = await fetch(`${API_BASE_URL}/registration/edusp`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "x-api-realm": "edusp",
+          "x-api-platform": "webclient",
+        },
+        body: JSON.stringify({ realm: "edusp", platform: "webclient", id: fullRa, password: pwd.trim() }),
+      });
+      if (!res.ok) throw new Error("RA OU SENHA INVÁLIDOS");
+      const data = await res.json();
+
+      // Fetch rooms
+      const roomRes = await fetch(`${API_BASE_URL}/room/user?list_all=true&with_cards=true`, {
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "x-api-realm": "edusp",
+          "x-api-platform": "webclient",
+          "x-api-key": data.auth_token,
+        },
+      });
+      const roomData = roomRes.ok ? await roomRes.json() : { rooms: [] };
+
+      setSession({
+        ra: fullRa,
+        authToken: data.auth_token,
+        nick: data.nick || data.name,
+        name: data.name,
+        rooms: (roomData.rooms || []).map((r: { id: number; name: string }) => ({ id: r.id, name: r.name })),
+      });
+
+      notify("LOGIN REALIZADO COM SUCESSO");
+      navigate({ to: "/dashboard" });
     } catch (err) {
-      notify(err instanceof Error ? err.message : "RA OU SENHA INVÁLIDOS");
+      notify(err instanceof Error ? err.message : "ERRO NO LOGIN");
     } finally {
       setLoading(false);
     }
-  }, [raNumero, raDigito, fullRa, pwd, loading, taskFilter]);
-
-  const handleSubmit = useCallback(async (selectedTasks: TaskItem[], isDraft: boolean, minTime: number, maxTime: number) => {
-    setModalOpen(false);
-    await sendTasksToCatalyst(selectedTasks, isDraft, minTime, maxTime, fullRa, notify);
-  }, [fullRa]);
+  }, [raNumero, raDigito, fullRa, pwd, loading, navigate]);
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-background overflow-hidden">
-      {/* Red glow at top */}
       <div className="absolute top-0 left-0 right-0 h-96 bg-glow-red pointer-events-none" />
 
       <motion.div
@@ -71,7 +95,6 @@ function Index() {
         transition={{ duration: 0.8, ease: "easeOut" }}
         className="relative z-10 flex flex-col items-center w-full max-w-lg px-4"
       >
-        {/* Logo */}
         <motion.img
           src={logo}
           alt="SYNC LABS"
@@ -81,16 +104,13 @@ function Index() {
           transition={{ delay: 0.2, duration: 0.6 }}
         />
 
-        {/* Title */}
         <h1 className="title-display text-5xl font-bold mb-1">Sync Labs</h1>
         <p className="text-sm tracking-[0.25em] uppercase text-muted-foreground mb-10">
           Sua plataforma de estudos
         </p>
 
-        {/* Decorative red line */}
         <div className="w-16 h-0.5 bg-primary rounded-full mb-8 opacity-60" />
 
-        {/* Login Card */}
         <div className="w-full bg-card/80 backdrop-blur-sm border border-border rounded-xl p-6 space-y-5">
           {/* RA Fields */}
           <div>
@@ -154,30 +174,6 @@ function Index() {
             </div>
           </div>
 
-          {/* Task filter */}
-          <div className="flex gap-2">
-            <button
-              onClick={() => setTaskFilter("pending")}
-              className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-colors border ${
-                taskFilter === "pending"
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "border-border bg-surface text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Pendentes
-            </button>
-            <button
-              onClick={() => setTaskFilter("expired")}
-              className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-colors border ${
-                taskFilter === "expired"
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "border-border bg-surface text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Expiradas
-            </button>
-          </div>
-
           {/* Entrar button */}
           <button
             onClick={handleLogin}
@@ -194,23 +190,12 @@ function Index() {
           </button>
         </div>
 
-        {/* Footer links */}
         <div className="mt-8 flex items-center gap-4 text-sm text-muted-foreground">
-          <a
-            href="https://discord.gg/yXYKSZAK9Z"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 hover:text-foreground transition-colors"
-          >
+          <a href="https://discord.gg/yXYKSZAK9Z" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-foreground transition-colors">
             💬 Discord
           </a>
           <span className="text-border">•</span>
-          <a
-            href="https://pixgg.com/marcos10pc"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 hover:text-foreground transition-colors"
-          >
+          <a href="https://pixgg.com/marcos10pc" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-foreground transition-colors">
             ❤️ Doações
           </a>
         </div>
@@ -218,7 +203,6 @@ function Index() {
         <p className="mt-6 text-xs tracking-[0.2em] uppercase text-muted-foreground">2026</p>
       </motion.div>
 
-      <TaskModal open={modalOpen} tasks={tasks} onClose={() => setModalOpen(false)} onSubmit={handleSubmit} />
       <NotificationContainer />
     </div>
   );
