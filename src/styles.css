@@ -1,7 +1,7 @@
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap");
 
 @custom-variant dark (&:is(.dark *));
 
@@ -12,6 +12,7 @@
   --radius-xl: calc(var(--radius) + 4px);
   --radius-2xl: calc(var(--radius) + 8px);
   --font-sans: "Poppins", sans-serif;
+  --font-display: "Playfair Display", serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -40,30 +41,30 @@
 
 :root {
   --radius: 0.5rem;
-  --background: oklch(0.05 0 0);
+  --background: oklch(0.08 0.005 300);
   --foreground: oklch(0.85 0 0);
-  --card: oklch(0.12 0 0);
+  --card: oklch(0.12 0.01 350);
   --card-foreground: oklch(0.9 0 0);
   --popover: oklch(0.1 0 0);
   --popover-foreground: oklch(0.9 0 0);
-  --primary: oklch(0.55 0.22 25);
+  --primary: oklch(0.55 0.2 20);
   --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.18 0 0);
+  --secondary: oklch(0.15 0.005 350);
   --secondary-foreground: oklch(0.8 0 0);
   --muted: oklch(0.2 0 0);
-  --muted-foreground: oklch(0.6 0 0);
-  --accent: oklch(0.55 0.22 25);
+  --muted-foreground: oklch(0.55 0 0);
+  --accent: oklch(0.55 0.2 20);
   --accent-foreground: oklch(1 0 0);
   --destructive: oklch(0.55 0.22 25);
   --destructive-foreground: oklch(1 0 0);
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.55 0.22 25);
-  --brand-red: oklch(0.55 0.22 25);
-  --brand-red-glow: oklch(0.45 0.2 25);
-  --surface: oklch(0.15 0 0);
-  --surface-hover: oklch(0.2 0 0);
-  --surface-border: oklch(1 0 0 / 12%);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 8%);
+  --ring: oklch(0.55 0.2 20);
+  --brand-red: oklch(0.55 0.2 20);
+  --brand-red-glow: oklch(0.4 0.18 20);
+  --surface: oklch(0.1 0.005 350);
+  --surface-hover: oklch(0.18 0.01 350);
+  --surface-border: oklch(1 0 0 / 8%);
 }
 
 @layer base {
@@ -100,10 +101,35 @@
 }
 
 .animate-gradient {
-  background: linear-gradient(90deg, oklch(0.55 0.22 25), oklch(0.65 0.25 15), oklch(0.55 0.22 25));
+  background: linear-gradient(90deg, oklch(0.55 0.2 20), oklch(0.7 0.15 10), oklch(0.55 0.2 20));
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   animation: gradient-shift 4s ease infinite;
+}
+
+.bg-glow-red {
+  background: radial-gradient(ellipse at 50% 0%, oklch(0.35 0.18 20 / 40%) 0%, transparent 60%);
+}
+
+.btn-entrar {
+  background: linear-gradient(135deg, oklch(0.5 0.2 20), oklch(0.45 0.18 15));
+  color: white;
+  font-weight: 600;
+  border: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px oklch(0.4 0.18 20 / 30%);
+}
+
+.btn-entrar:hover {
+  background: linear-gradient(135deg, oklch(0.55 0.22 20), oklch(0.5 0.2 15));
+  box-shadow: 0 6px 30px oklch(0.4 0.18 20 / 50%);
+  transform: translateY(-1px);
+}
+
+.title-display {
+  font-family: var(--font-display);
+  font-style: italic;
+  color: oklch(0.7 0.12 15);
 }
