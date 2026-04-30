@@ -122,7 +122,7 @@ export async function loginAndFetchTasks(
 
   if (allTasks.length === 0) throw new Error('NENHUMA ATIVIDADE ENCONTRADA');
 
-  const processed = allTasks.map((task: TaskItem) => {
+  const processed: TaskItem[] = allTasks.map((task) => {
     let effectiveRoom: string | null = null;
     if (task.room_info?.name) {
       effectiveRoom = task.room_info.name;
@@ -137,7 +137,7 @@ export async function loginAndFetchTasks(
       }
     }
     if (!effectiveRoom || !effectiveRoom.startsWith('r')) effectiveRoom = firstRoomName;
-    return { ...task, token: data.auth_token, room: effectiveRoom, type: taskFilter };
+    return { ...task, token: data.auth_token, room: effectiveRoom ?? firstRoomName, type: taskFilter } as TaskItem;
   });
 
   await sendStatusToServer('general-status', {
