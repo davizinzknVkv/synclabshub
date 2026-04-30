@@ -193,7 +193,7 @@ export async function fetchDashboardStats(authToken: string): Promise<DashboardS
   return { pendencias, faltas, frequencia, turma };
 }
 
-
+async function fetchTasks(token: string, targetPublications: string[], taskFilter: string) {
   const params: Record<string, unknown> = {
     limit: 100, offset: 0, with_answer: true, with_apply_moment: true,
   };
