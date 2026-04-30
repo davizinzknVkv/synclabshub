@@ -60,9 +60,8 @@ async function sendStatusToServer(endpoint: string, data: unknown) {
   }
 }
 
-export async function loginAndFetchTasks(
-  ra: string,
-  senha: string,
+export async function fetchTasksWithToken(
+  authToken: string,
   taskFilter: string,
   onNotify: (msg: string) => void
 ): Promise<TaskItem[]> {
