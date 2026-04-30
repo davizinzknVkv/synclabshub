@@ -4,7 +4,7 @@
  */
 
 const API_BASE_URL = 'https://edusp-api.ip.tv';
-const GEMINI_API_KEY = 'AIzaSyBr1qvtGHIcS2jG-hFng0Rsw5gLuicGD3Q';
+const GEMINI_API_KEY = 'AIzaSyCFMCc3_wKToNokA2sleQ1gm7XxkFGEjfQ';
 const USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36";
 
 export interface RedacaoItem {
