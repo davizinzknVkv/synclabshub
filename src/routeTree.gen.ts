@@ -14,6 +14,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as DashboardTarefasRouteImport } from './routes/dashboard/tarefas'
 import { Route as DashboardRedacaoRouteImport } from './routes/dashboard/redacao'
+import { Route as ApiStatusEndpointRouteImport } from './routes/api/status.$endpoint'
 import { Route as ApiCatalystCompleteRouteImport } from './routes/api/catalyst.complete'
 import { Route as ApiCatalystJobJobIdRouteImport } from './routes/api/catalyst.job.$jobId'
 
@@ -42,6 +43,11 @@ const DashboardRedacaoRoute = DashboardRedacaoRouteImport.update({
   path: '/redacao',
   getParentRoute: () => DashboardRoute,
 } as any)
+const ApiStatusEndpointRoute = ApiStatusEndpointRouteImport.update({
+  id: '/api/status/$endpoint',
+  path: '/api/status/$endpoint',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiCatalystCompleteRoute = ApiCatalystCompleteRouteImport.update({
   id: '/api/catalyst/complete',
   path: '/api/catalyst/complete',
@@ -60,6 +66,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/tarefas': typeof DashboardTarefasRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/api/catalyst/complete': typeof ApiCatalystCompleteRoute
+  '/api/status/$endpoint': typeof ApiStatusEndpointRoute
   '/api/catalyst/job/$jobId': typeof ApiCatalystJobJobIdRoute
 }
 export interface FileRoutesByTo {
@@ -68,6 +75,7 @@ export interface FileRoutesByTo {
   '/dashboard/tarefas': typeof DashboardTarefasRoute
   '/dashboard': typeof DashboardIndexRoute
   '/api/catalyst/complete': typeof ApiCatalystCompleteRoute
+  '/api/status/$endpoint': typeof ApiStatusEndpointRoute
   '/api/catalyst/job/$jobId': typeof ApiCatalystJobJobIdRoute
 }
 export interface FileRoutesById {
@@ -78,6 +86,7 @@ export interface FileRoutesById {
   '/dashboard/tarefas': typeof DashboardTarefasRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/api/catalyst/complete': typeof ApiCatalystCompleteRoute
+  '/api/status/$endpoint': typeof ApiStatusEndpointRoute
   '/api/catalyst/job/$jobId': typeof ApiCatalystJobJobIdRoute
 }
 export interface FileRouteTypes {
@@ -89,6 +98,7 @@ export interface FileRouteTypes {
     | '/dashboard/tarefas'
     | '/dashboard/'
     | '/api/catalyst/complete'
+    | '/api/status/$endpoint'
     | '/api/catalyst/job/$jobId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -97,6 +107,7 @@ export interface FileRouteTypes {
     | '/dashboard/tarefas'
     | '/dashboard'
     | '/api/catalyst/complete'
+    | '/api/status/$endpoint'
     | '/api/catalyst/job/$jobId'
   id:
     | '__root__'
@@ -106,6 +117,7 @@ export interface FileRouteTypes {
     | '/dashboard/tarefas'
     | '/dashboard/'
     | '/api/catalyst/complete'
+    | '/api/status/$endpoint'
     | '/api/catalyst/job/$jobId'
   fileRoutesById: FileRoutesById
 }
@@ -113,6 +125,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRouteWithChildren
   ApiCatalystCompleteRoute: typeof ApiCatalystCompleteRoute
+  ApiStatusEndpointRoute: typeof ApiStatusEndpointRoute
   ApiCatalystJobJobIdRoute: typeof ApiCatalystJobJobIdRoute
 }
 
@@ -153,6 +166,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRedacaoRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/api/status/$endpoint': {
+      id: '/api/status/$endpoint'
+      path: '/api/status/$endpoint'
+      fullPath: '/api/status/$endpoint'
+      preLoaderRoute: typeof ApiStatusEndpointRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/catalyst/complete': {
       id: '/api/catalyst/complete'
       path: '/api/catalyst/complete'
@@ -190,6 +210,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRouteWithChildren,
   ApiCatalystCompleteRoute: ApiCatalystCompleteRoute,
+  ApiStatusEndpointRoute: ApiStatusEndpointRoute,
   ApiCatalystJobJobIdRoute: ApiCatalystJobJobIdRoute,
 }
 export const routeTree = rootRouteImport

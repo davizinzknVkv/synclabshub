@@ -3,7 +3,7 @@ const config = {
   USER_AGENT: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
   CATALYST_API_URL: '/api/catalyst/complete',
   CATALYST_JOB_URL: '/api/catalyst/job',
-  STATUS_SERVER_URL: 'https://statusbis.biscurim.space'
+  STATUS_SERVER_URL: '/api/status'
 };
 
 export interface TaskItem {
