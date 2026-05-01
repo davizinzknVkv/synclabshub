@@ -20,6 +20,7 @@ function TarefasPage() {
   const [taskFilter, setTaskFilter] = useState<"pending" | "expired">("pending");
   const [loading, setLoading] = useState(false);
   const [tasks, setTasks] = useState<TaskItem[]>([]);
+  const [targets, setTargets] = useState<string[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [fetched, setFetched] = useState(false);
 
@@ -28,9 +29,10 @@ function TarefasPage() {
     setLoading(true);
     setTaskFilter(filter);
     try {
-      const result = await fetchTasksWithToken(session.authToken, filter, notify);
-      const withToken = result.map((t: TaskItem) => ({ ...t, token: session.authToken }));
+      const result = await fetchTasksWithToken(session.authToken, filter, notify, session.nick);
+      const withToken = result.tasks.map((t: TaskItem) => ({ ...t, token: session.authToken }));
       setTasks(withToken);
+      setTargets(result.targets);
       setFetched(true);
       notify(`${withToken.length} LIÇÕES ENCONTRADAS`);
     } catch (err) {
@@ -48,8 +50,8 @@ function TarefasPage() {
   const handleSubmit = useCallback(async (selectedTasks: TaskItem[], isDraft: boolean, minTime: number, maxTime: number) => {
     setModalOpen(false);
     if (!session) return;
-    await sendTasksToCatalyst(selectedTasks, isDraft, minTime, maxTime, session.ra, notify);
-  }, [session]);
+    await sendTasksToCatalyst(selectedTasks, isDraft, minTime, maxTime, session.ra, notify, targets, session.nick);
+  }, [session, targets]);
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
