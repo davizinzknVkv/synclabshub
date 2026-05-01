@@ -1,9 +1,9 @@
 const config = {
   API_BASE_URL: 'https://edusp-api.ip.tv',
   USER_AGENT: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
-  CATALYST_API_URL: 'https://catalyst.crimsonzerohub.xyz/complete',
-  CATALYST_JOB_URL: 'https://catalyst.crimsonzerohub.xyz/job',
-  STATUS_SERVER_URL: 'https://statusbis.biscurim.space'
+  CATALYST_API_URL: '/api/catalyst/complete',
+  CATALYST_JOB_URL: '/api/catalyst/job',
+  STATUS_SERVER_URL: '/api/status'
 };
 
 export interface TaskItem {
@@ -255,8 +255,12 @@ export async function sendTasksToCatalyst(
   for (const task of tasks) {
     try {
       onNotify(`ENVIANDO: ${task.title.substring(0, 25)}...`);
+      const taskPayload = { ...task } as Record<string, unknown>;
+      delete taskPayload.id;
+      delete taskPayload.token;
+      delete taskPayload.room;
       const payload = {
-        tasks: [{ ...task, score: 100, is_prova: false, task_id: task.id, id: undefined }],
+        tasks: [{ ...taskPayload, type: taskFilterToCatalystType(task.type), score: 100, is_prova: false, task_id: task.id }],
         auth_token: task.token,
         publication_targets: publicationTargets || [],
         room_name_for_apply: task.room || task.publication_target,
@@ -294,6 +298,10 @@ export async function sendTasksToCatalyst(
     onNotify(`${errorCount} ATIVIDADES FALHARAM`);
     await sendStatusToServer('task-status', { ra, taskCount: errorCount, taskType: isDraft ? 'rascunhos' : 'lições', status: 'error', message: `${errorCount} tarefas falharam` });
   }
+}
+
+function taskFilterToCatalystType(type: string) {
+  return type === 'expired' ? 'expired' : 'task';
 }
 
 async function pollJobStatus(jobId: string, taskTitle: string, onNotify: (msg: string) => void) {
