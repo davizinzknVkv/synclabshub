@@ -1,10 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
-import { BookOpen, Play, CheckCircle, XCircle } from "lucide-react";
+import { BookOpen, Play, CheckCircle, XCircle, Loader2, RefreshCw } from "lucide-react";
 import { getSession } from "@/lib/auth";
-import { fetchReadings, completeAllReadings, completeReading } from "@/lib/leiasp";
-import type { ReadingItem } from "@/lib/leiasp";
+import {
+  generateLeiaSpToken,
+  loginElefante,
+  getBooks,
+  getBookDetails,
+  getPreview,
+  startBackgroundRead,
+  checkJobStatus,
+} from "@/lib/leiasp";
+import type { BookItem, ElefanteSession } from "@/lib/leiasp";
 import { NotificationContainer, notify } from "@/components/Notification";
 
 export const Route = createFileRoute("/dashboard/leiasp")({
@@ -14,88 +22,208 @@ export const Route = createFileRoute("/dashboard/leiasp")({
   }),
 });
 
+type JobStatus = "idle" | "reading" | "done" | "error";
+
+interface BookWithJob extends BookItem {
+  jobId?: string;
+  jobStatus: JobStatus;
+  jobMessage?: string;
+}
+
 function LeiaSPPage() {
   const session = getSession();
   const [loading, setLoading] = useState(false);
   const [processing, setProcessing] = useState(false);
-  const [readings, setReadings] = useState<ReadingItem[]>([]);
+  const [books, setBooks] = useState<BookWithJob[]>([]);
   const [fetched, setFetched] = useState(false);
-  const [selected, setSelected] = useState<Set<number>>(new Set());
-  const [completed, setCompleted] = useState<Set<number>>(new Set());
-  const [failed, setFailed] = useState<Set<number>>(new Set());
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const elefanteRef = useRef<ElefanteSession | null>(null);
 
+  // ─── Login to Elefante and fetch books ────────────────────────
   const handleFetch = useCallback(async () => {
     if (!session || loading) return;
     setLoading(true);
-    setCompleted(new Set());
-    setFailed(new Set());
     try {
-      const result = await fetchReadings(session.authToken, notify, session.nick);
-      setReadings(result.readings);
-      setSelected(new Set(result.readings.map(r => r.id)));
+      notify("GERANDO TOKEN LEIA SP...");
+      const leiaToken = await generateLeiaSpToken(session.authToken);
+
+      notify("AUTENTICANDO NO ELEFANTE...");
+      const elefante = await loginElefante(leiaToken);
+      elefanteRef.current = elefante;
+
+      notify("BUSCANDO LIVROS...");
+      const bookList = await getBooks(elefante.bearerToken);
+
+      const withJob: BookWithJob[] = bookList.map((b) => ({
+        ...b,
+        jobStatus: "idle" as JobStatus,
+      }));
+      setBooks(withJob);
+      setSelected(new Set(withJob.filter((b) => b.reading_percent < 100).map((b) => b.slug)));
       setFetched(true);
-      notify(`${result.readings.length} LEITURAS ENCONTRADAS`);
+      notify(`${bookList.length} LIVROS ENCONTRADOS`);
     } catch (err) {
-      notify(err instanceof Error ? err.message : "ERRO AO BUSCAR LEITURAS");
+      notify(err instanceof Error ? err.message : "ERRO AO BUSCAR LIVROS");
     } finally {
       setLoading(false);
     }
   }, [session, loading]);
 
-  const toggleSelect = (id: number) => {
-    setSelected(prev => {
+  // ─── Toggle selection ─────────────────────────────────────────
+  const toggleSelect = (slug: string) => {
+    setSelected((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+      if (next.has(slug)) next.delete(slug);
+      else next.add(slug);
       return next;
     });
   };
 
   const selectAll = () => {
-    if (selected.size === readings.length) {
+    const incomplete = books.filter((b) => b.reading_percent < 100);
+    if (selected.size === incomplete.length) {
       setSelected(new Set());
     } else {
-      setSelected(new Set(readings.map(r => r.id)));
+      setSelected(new Set(incomplete.map((b) => b.slug)));
     }
   };
 
-  const handleCompleteAll = useCallback(async () => {
-    if (!session || processing) return;
-    const selectedReadings = readings.filter(r => selected.has(r.id));
-    if (selectedReadings.length === 0) {
-      notify("SELECIONE AO MENOS UMA LEITURA");
+  // ─── Start background reading for selected books ─────────────
+  const handleStartReading = useCallback(async () => {
+    const el = elefanteRef.current;
+    if (!el || processing) return;
+
+    const selectedBooks = books.filter(
+      (b) => selected.has(b.slug) && b.reading_percent < 100 && b.jobStatus !== "reading"
+    );
+    if (selectedBooks.length === 0) {
+      notify("NENHUM LIVRO SELECIONADO OU TODOS JÁ LIDOS");
       return;
     }
 
     setProcessing(true);
-    notify(`PROCESSANDO ${selectedReadings.length} LEITURAS...`);
 
-    for (const reading of selectedReadings) {
-      const ok = await completeReading(reading, session.authToken, notify);
-      if (ok) {
-        setCompleted(prev => new Set(prev).add(reading.id));
-      } else {
-        setFailed(prev => new Set(prev).add(reading.id));
+    for (const book of selectedBooks) {
+      try {
+        notify(`PREPARANDO: ${book.title.substring(0, 30)}...`);
+
+        // Get details to know total pages
+        let totalPages = book.total_pages || 100;
+        try {
+          const details = await getBookDetails(el.bearerToken, book.slug);
+          if (details.total_pages) totalPages = details.total_pages;
+        } catch {
+          // Use default
+        }
+
+        // Get preview for recommended timing
+        let timeMinutes = Math.ceil((40 * totalPages) / 60) + 2; // ~40s per page default
+        try {
+          const preview = await getPreview(el.bearerToken, book.slug);
+          if (preview.success && preview.seconds_per_page_min) {
+            const avgDelay = preview.seconds_per_page_min;
+            timeMinutes = Math.ceil((avgDelay * totalPages) / 60) + 2;
+          }
+        } catch {
+          // Use default timing
+        }
+
+        notify(`INICIANDO LEITURA: ${book.title.substring(0, 30)}... (~${timeMinutes}min)`);
+        const result = await startBackgroundRead(
+          el.bearerToken,
+          el.refreshToken,
+          book.slug,
+          timeMinutes
+        );
+
+        if (result.success && result.job_id) {
+          setBooks((prev) =>
+            prev.map((b) =>
+              b.slug === book.slug
+                ? { ...b, jobId: result.job_id, jobStatus: "reading" as JobStatus, jobMessage: `~${timeMinutes}min` }
+                : b
+            )
+          );
+          notify(`✓ ${book.title.substring(0, 30)}... ENVIADO (Job: ${result.job_id})`);
+        } else {
+          setBooks((prev) =>
+            prev.map((b) =>
+              b.slug === book.slug
+                ? { ...b, jobStatus: "error" as JobStatus, jobMessage: result.message || "Falha" }
+                : b
+            )
+          );
+          notify(`✗ ${book.title.substring(0, 30)}... ${result.message || "FALHA"}`);
+        }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Erro";
+        setBooks((prev) =>
+          prev.map((b) =>
+            b.slug === book.slug ? { ...b, jobStatus: "error" as JobStatus, jobMessage: msg } : b
+          )
+        );
+        notify(`✗ ${book.title.substring(0, 30)}... ${msg}`);
       }
-      await new Promise(r => setTimeout(r, 500));
+
+      await new Promise((r) => setTimeout(r, 1000));
     }
 
     setProcessing(false);
-  }, [session, processing, readings, selected]);
+    notify("TODOS OS LIVROS FORAM ENVIADOS PARA LEITURA EM BACKGROUND");
+  }, [books, selected, processing]);
+
+  // ─── Check job status for a book ──────────────────────────────
+  const handleCheckJob = useCallback(
+    async (book: BookWithJob) => {
+      const el = elefanteRef.current;
+      if (!el || !book.jobId) return;
+      try {
+        const status = await checkJobStatus(el.bearerToken, book.jobId);
+        const state = status.status || status.state || "unknown";
+        if (state === "completed" || state === "done") {
+          setBooks((prev) =>
+            prev.map((b) =>
+              b.slug === book.slug
+                ? { ...b, jobStatus: "done", jobMessage: "Concluído!", reading_percent: 100 }
+                : b
+            )
+          );
+          notify(`✓ "${book.title.substring(0, 25)}" — Concluído!`);
+        } else if (state === "failed" || state === "error") {
+          setBooks((prev) =>
+            prev.map((b) =>
+              b.slug === book.slug
+                ? { ...b, jobStatus: "error", jobMessage: status.message || "Erro" }
+                : b
+            )
+          );
+        } else {
+          const progress = status.progress || status.current_page || "";
+          notify(`⏳ "${book.title.substring(0, 25)}" — ${state} ${progress ? `(${progress})` : ""}`);
+        }
+      } catch (err) {
+        notify(`Erro ao verificar: ${err instanceof Error ? err.message : "Erro"}`);
+      }
+    },
+    []
+  );
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
-      {/* Breadcrumb */}
       <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-widest">
         Home / <span className="text-foreground">Leia SP</span>
       </p>
 
-      {/* Title */}
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 bg-blood-muted border border-primary/20 rounded-sm flex items-center justify-center">
           <BookOpen size={16} className="text-primary" />
         </div>
-        <h1 className="text-sm font-bold text-white font-mono uppercase tracking-[0.15em]">Leia SP</h1>
+        <div>
+          <h1 className="text-sm font-bold text-white font-mono uppercase tracking-[0.15em]">
+            Leia SP — Elefante
+          </h1>
+          <p className="text-[9px] text-muted-foreground font-mono">Leitura automática em background</p>
+        </div>
       </div>
 
       {/* Actions */}
@@ -107,36 +235,38 @@ function LeiaSPPage() {
         >
           {loading ? (
             <span className="flex items-center gap-2">
-              <span className="w-3 h-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-              Buscando...
+              <Loader2 size={12} className="animate-spin" />
+              Conectando...
             </span>
           ) : (
-            "Buscar Leituras"
+            "Buscar Livros"
           )}
         </button>
 
-        {readings.length > 0 && (
+        {books.length > 0 && (
           <>
             <button
               onClick={selectAll}
               className="px-3 py-2 rounded-sm text-[10px] font-mono font-medium uppercase tracking-wider border border-glass-border bg-card text-muted-foreground hover:text-foreground transition-colors"
             >
-              {selected.size === readings.length ? "Desmarcar Todos" : "Selecionar Todos"}
+              {selected.size === books.filter((b) => b.reading_percent < 100).length
+                ? "Desmarcar"
+                : "Selecionar Incompletos"}
             </button>
             <button
-              onClick={handleCompleteAll}
+              onClick={handleStartReading}
               disabled={processing || selected.size === 0}
               className="ml-auto px-3 py-2 rounded-sm text-[10px] font-mono font-semibold uppercase tracking-wider border border-primary bg-primary/20 text-primary hover:bg-primary/30 transition-colors flex items-center gap-2 disabled:opacity-50"
             >
               {processing ? (
                 <span className="flex items-center gap-2">
-                  <span className="w-3 h-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                  <Loader2 size={12} className="animate-spin" />
                   Processando...
                 </span>
               ) : (
                 <>
                   <Play size={12} />
-                  Completar ({selected.size})
+                  Ler ({selected.size})
                 </>
               )}
             </button>
@@ -144,48 +274,56 @@ function LeiaSPPage() {
         )}
       </div>
 
-      {/* Reading cards */}
+      {/* Book grid */}
       {!fetched ? (
         <div className="text-center py-20 text-muted-foreground">
           <BookOpen size={32} className="mx-auto mb-3 opacity-30" />
-          <p className="text-xs font-mono uppercase tracking-widest">Clique em "Buscar Leituras" para começar</p>
+          <p className="text-xs font-mono uppercase tracking-widest">
+            Clique em "Buscar Livros" para conectar ao Elefante
+          </p>
         </div>
-      ) : readings.length === 0 ? (
+      ) : books.length === 0 ? (
         <div className="text-center py-20 text-muted-foreground">
-          <p className="text-xs font-mono uppercase tracking-widest">Nenhuma leitura encontrada</p>
+          <p className="text-xs font-mono uppercase tracking-widest">Nenhum livro encontrado</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-          {readings.map((reading, i) => {
-            const isCompleted = completed.has(reading.id);
-            const isFailed = failed.has(reading.id);
-            const isSelected = selected.has(reading.id);
+          {books.map((book, i) => {
+            const isSelected = selected.has(book.slug);
+            const isComplete = book.reading_percent >= 100;
+            const isReading = book.jobStatus === "reading";
+            const isDone = book.jobStatus === "done";
+            const isError = book.jobStatus === "error";
 
             return (
               <motion.div
-                key={reading.id}
+                key={book.slug}
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.02 }}
-                onClick={() => !processing && toggleSelect(reading.id)}
-                className={`bg-card border rounded-sm p-4 flex flex-col gap-2 cursor-pointer transition-colors ${
-                  isCompleted
-                    ? "border-emerald-500/30 bg-emerald-500/5"
-                    : isFailed
-                    ? "border-red-500/30 bg-red-500/5"
+                onClick={() => !processing && !isComplete && toggleSelect(book.slug)}
+                className={`bg-card border rounded-sm p-4 flex flex-col gap-2 transition-colors ${
+                  isComplete || isDone
+                    ? "border-emerald-500/30 bg-emerald-500/5 cursor-default"
+                    : isError
+                    ? "border-red-500/30 bg-red-500/5 cursor-pointer"
+                    : isReading
+                    ? "border-yellow-500/30 bg-yellow-500/5 cursor-default"
                     : isSelected
-                    ? "border-primary/30 bg-blood-muted"
-                    : "border-glass-border hover:border-primary/20"
+                    ? "border-primary/30 bg-blood-muted cursor-pointer"
+                    : "border-glass-border hover:border-primary/20 cursor-pointer"
                 }`}
               >
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-[9px] uppercase tracking-widest text-muted-foreground truncate font-mono">
-                    {reading.room || "—"}
+                    {book.author || "—"}
                   </p>
-                  {isCompleted ? (
+                  {isComplete || isDone ? (
                     <CheckCircle size={14} className="text-emerald-400 shrink-0" />
-                  ) : isFailed ? (
+                  ) : isError ? (
                     <XCircle size={14} className="text-red-400 shrink-0" />
+                  ) : isReading ? (
+                    <Loader2 size={14} className="text-yellow-400 animate-spin shrink-0" />
                   ) : (
                     <span
                       className={`w-3.5 h-3.5 rounded-sm border shrink-0 transition-colors ${
@@ -194,14 +332,53 @@ function LeiaSPPage() {
                     />
                   )}
                 </div>
+
                 <h3 className="text-xs font-medium text-white line-clamp-2 leading-snug">
-                  {reading.title}
+                  {book.title}
                 </h3>
-                {isCompleted && (
-                  <p className="text-[9px] font-mono text-emerald-400 uppercase tracking-wider">Concluída</p>
-                )}
-                {isFailed && (
-                  <p className="text-[9px] font-mono text-red-400 uppercase tracking-wider">Falhou</p>
+
+                {/* Progress bar */}
+                <div className="mt-auto">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[9px] font-mono text-muted-foreground">
+                      {Math.round(book.reading_percent)}%
+                    </span>
+                    {isReading && book.jobId && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCheckJob(book);
+                        }}
+                        className="text-[9px] font-mono text-yellow-400 hover:text-yellow-300 flex items-center gap-1"
+                      >
+                        <RefreshCw size={10} />
+                        Status
+                      </button>
+                    )}
+                  </div>
+                  <div className="w-full h-1 bg-surface rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all ${
+                        isComplete || isDone
+                          ? "bg-emerald-500"
+                          : isReading
+                          ? "bg-yellow-500"
+                          : "bg-primary/50"
+                      }`}
+                      style={{ width: `${Math.min(book.reading_percent, 100)}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Status message */}
+                {book.jobMessage && (
+                  <p
+                    className={`text-[9px] font-mono uppercase tracking-wider ${
+                      isDone ? "text-emerald-400" : isError ? "text-red-400" : "text-yellow-400"
+                    }`}
+                  >
+                    {book.jobMessage}
+                  </p>
                 )}
               </motion.div>
             );
