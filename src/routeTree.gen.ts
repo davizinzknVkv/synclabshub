@@ -13,6 +13,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as DashboardTarefasRouteImport } from './routes/dashboard/tarefas'
+import { Route as DashboardStatusRouteImport } from './routes/dashboard/status'
 import { Route as DashboardRedacaoRouteImport } from './routes/dashboard/redacao'
 import { Route as ApiStatusEndpointRouteImport } from './routes/api/status.$endpoint'
 import { Route as ApiProxySplatRouteImport } from './routes/api/proxy.$'
@@ -37,6 +38,11 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
 const DashboardTarefasRoute = DashboardTarefasRouteImport.update({
   id: '/tarefas',
   path: '/tarefas',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardStatusRoute = DashboardStatusRouteImport.update({
+  id: '/status',
+  path: '/status',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardRedacaoRoute = DashboardRedacaoRouteImport.update({
@@ -69,6 +75,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/dashboard/redacao': typeof DashboardRedacaoRoute
+  '/dashboard/status': typeof DashboardStatusRoute
   '/dashboard/tarefas': typeof DashboardTarefasRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/api/catalyst/complete': typeof ApiCatalystCompleteRoute
@@ -79,6 +86,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard/redacao': typeof DashboardRedacaoRoute
+  '/dashboard/status': typeof DashboardStatusRoute
   '/dashboard/tarefas': typeof DashboardTarefasRoute
   '/dashboard': typeof DashboardIndexRoute
   '/api/catalyst/complete': typeof ApiCatalystCompleteRoute
@@ -91,6 +99,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/dashboard/redacao': typeof DashboardRedacaoRoute
+  '/dashboard/status': typeof DashboardStatusRoute
   '/dashboard/tarefas': typeof DashboardTarefasRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/api/catalyst/complete': typeof ApiCatalystCompleteRoute
@@ -104,6 +113,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/dashboard/redacao'
+    | '/dashboard/status'
     | '/dashboard/tarefas'
     | '/dashboard/'
     | '/api/catalyst/complete'
@@ -114,6 +124,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/dashboard/redacao'
+    | '/dashboard/status'
     | '/dashboard/tarefas'
     | '/dashboard'
     | '/api/catalyst/complete'
@@ -125,6 +136,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/dashboard/redacao'
+    | '/dashboard/status'
     | '/dashboard/tarefas'
     | '/dashboard/'
     | '/api/catalyst/complete'
@@ -172,6 +184,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardTarefasRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/status': {
+      id: '/dashboard/status'
+      path: '/status'
+      fullPath: '/dashboard/status'
+      preLoaderRoute: typeof DashboardStatusRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/redacao': {
       id: '/dashboard/redacao'
       path: '/redacao'
@@ -212,12 +231,14 @@ declare module '@tanstack/react-router' {
 
 interface DashboardRouteChildren {
   DashboardRedacaoRoute: typeof DashboardRedacaoRoute
+  DashboardStatusRoute: typeof DashboardStatusRoute
   DashboardTarefasRoute: typeof DashboardTarefasRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardRedacaoRoute: DashboardRedacaoRoute,
+  DashboardStatusRoute: DashboardStatusRoute,
   DashboardTarefasRoute: DashboardTarefasRoute,
   DashboardIndexRoute: DashboardIndexRoute,
 }
@@ -237,3 +258,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
