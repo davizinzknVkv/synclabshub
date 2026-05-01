@@ -133,7 +133,7 @@ export interface DashboardStats {
   turma?: string;
 }
 
-export async function fetchDashboardStats(authToken: string): Promise<DashboardStats> {
+export async function fetchDashboardStats(authToken: string, externalId?: string): Promise<DashboardStats> {
   const headers = { ...getDefaultHeaders(), 'x-api-key': authToken };
 
   // Fetch rooms to get targets
@@ -163,36 +163,26 @@ export async function fetchDashboardStats(authToken: string): Promise<DashboardS
     pendencias = 0;
   }
 
-  // Fetch attendance/frequency data
+  // Fetch real attendance/frequency from SED via proxy (CrimsonZero compatible endpoint)
+  // codigoAluno = external_id sem o último dígito
   let faltas = 0;
   let frequencia = 100;
-  try {
-    const freqData = await makeRequest(
-      `${config.API_BASE_URL}/school_class/frequency`,
-      'GET',
-      headers
-    );
-    if (freqData && typeof freqData === 'object') {
-      if (Array.isArray(freqData)) {
-        let totalClasses = 0;
-        let totalAbsences = 0;
-        freqData.forEach((entry: { absences?: number; total_classes?: number }) => {
-          totalAbsences += entry.absences || 0;
-          totalClasses += entry.total_classes || 0;
-        });
-        faltas = totalAbsences;
-        frequencia = totalClasses > 0 ? Math.round(((totalClasses - totalAbsences) / totalClasses) * 100) : 100;
-      } else if (freqData.frequency !== undefined) {
-        frequencia = Math.round(freqData.frequency);
-        faltas = freqData.absences || 0;
-      } else if (freqData.total_absences !== undefined) {
-        faltas = freqData.total_absences;
-        const total = freqData.total_classes || 0;
-        frequencia = total > 0 ? Math.round(((total - faltas) / total) * 100) : 100;
+  if (externalId) {
+    const codigoAluno = externalId.slice(0, -1);
+    try {
+      const freqData = await makeRequest(
+        `${config.API_BASE_URL}/apiboletim/api/Frequencia/GetFaltasBimestreAtual?codigoAluno=${encodeURIComponent(codigoAluno)}`,
+        'GET',
+        { 'Accept': 'application/json' }
+      );
+      const entry = Array.isArray(freqData?.data) ? freqData.data[0] : null;
+      if (entry) {
+        faltas = entry.totalFaltasBimestre ?? 0;
+        frequencia = Math.round(entry.porcentagemFrequencia ?? 100);
       }
+    } catch {
+      // Mantém valores padrão se o endpoint falhar
     }
-  } catch {
-    // Frequency endpoint may not be available
   }
 
   return { pendencias, faltas, frequencia, turma };
