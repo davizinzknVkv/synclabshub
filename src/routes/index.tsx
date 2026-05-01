@@ -78,7 +78,12 @@ function Index() {
         authToken: data.auth_token,
         nick: data.nick || data.name,
         name: data.name,
-        rooms: (roomData.rooms || []).map((r: { id: number; name: string }) => ({ id: r.id, name: r.name })),
+        rooms: (roomData.rooms || []).map((r: { id: number; name: string; icon?: string | null; dark_icon?: string | null }) => ({
+          id: r.id,
+          name: r.name,
+          icon: r.icon || FALLBACK_ROOM_ICON,
+          dark_icon: r.dark_icon || r.icon || FALLBACK_ROOM_ICON,
+        })),
       });
 
       notify("LOGIN REALIZADO COM SUCESSO");
