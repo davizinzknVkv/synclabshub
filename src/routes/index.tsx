@@ -204,7 +204,7 @@ function Index() {
         {/* Footer */}
         <footer className="mt-10 pt-6 border-t border-glass-border/50 flex justify-between items-center">
           <a
-            href="https://discord.gg/yXYKSZAK9Z"
+            href="https://discord.gg/y5tNWGVPSU"
             target="_blank"
             rel="noopener noreferrer"
             className="group flex items-center gap-2 text-[11px] text-muted-foreground hover:text-foreground transition-colors uppercase tracking-widest font-mono"
@@ -213,7 +213,7 @@ function Index() {
             Discord
           </a>
           <a
-            href="https://pixgg.com/marcos10pc"
+            href="https://livepix.gg/davizinzkn"
             target="_blank"
             rel="noopener noreferrer"
             className="group flex items-center gap-2 text-[11px] text-muted-foreground hover:text-foreground transition-colors uppercase tracking-widest font-mono"
