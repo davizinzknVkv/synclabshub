@@ -5,8 +5,11 @@ export interface UserSession {
   authToken: string;
   nick?: string;
   name?: string;
-  rooms: Array<{ id: number; name: string }>;
+  rooms: Array<{ id: number; name: string; icon: string; dark_icon: string }>;
 }
+
+// Logo usado como fallback quando a API não retorna icon/dark_icon
+export const FALLBACK_ROOM_ICON = "/src/assets/logo.png";
 
 const STORAGE_KEY = "sync_labs_session";
 const CREDS_KEY = "sync_labs_creds";
