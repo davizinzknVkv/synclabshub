@@ -1,226 +1,158 @@
-const API_BASE_URL = '/api/proxy';
+const EDUSP_PROXY = '/api/proxy';
+const LEIASP_PROXY = '/api/leiasp';
 
-function getDefaultHeaders() {
-  return {
+function getEduspHeaders(authToken?: string) {
+  const h: Record<string, string> = {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
     'x-api-realm': 'edusp',
     'x-api-platform': 'webclient',
   };
+  if (authToken) h['x-api-key'] = authToken;
+  return h;
 }
 
-async function makeRequest(url: string, method = 'GET', headers: Record<string, string> = {}, body?: unknown) {
-  const options: RequestInit = { method, headers: { ...headers } };
-  if (body && typeof body === 'object' && Object.keys(body as object).length > 0) {
-    options.body = JSON.stringify(body);
-  }
-  const response = await fetch(url, options);
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`HTTP ${response.status}: ${errorText}`);
-  }
-  try {
-    return await response.json();
-  } catch {
-    return {};
-  }
+async function post(url: string, body: unknown, headers?: Record<string, string>) {
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: headers || { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const text = await res.text();
+  if (!res.ok) throw new Error(`HTTP ${res.status}: ${text}`);
+  try { return JSON.parse(text); } catch { return {}; }
 }
 
-export interface ReadingItem {
-  id: number;
+async function get(url: string, headers?: Record<string, string>) {
+  const res = await fetch(url, { method: 'GET', headers });
+  const text = await res.text();
+  if (!res.ok) throw new Error(`HTTP ${res.status}: ${text}`);
+  try { return JSON.parse(text); } catch { return {}; }
+}
+
+// ─── Step 1: Generate LeiaSP token from authToken ─────────────────────
+export async function generateLeiaSpToken(authToken: string): Promise<string> {
+  const data = await get(
+    `${EDUSP_PROXY}/mas/external-auth/seducsp_token/generate?card_label=LeiaSP%2B`,
+    getEduspHeaders(authToken)
+  );
+  if (!data.token) throw new Error('Falha ao gerar token LeiaSP');
+  return data.token;
+}
+
+// ─── Step 2: Exchange LeiaSP token for bearer token ───────────────────
+export interface ElefanteSession {
+  bearerToken: string;
+  refreshToken: string;
+  expiresAt: string;
+}
+
+export async function loginElefante(leiaSpToken: string): Promise<ElefanteSession> {
+  const data = await post(`${LEIASP_PROXY}/token`, {
+    source: 'elefante',
+    token_leia: leiaSpToken,
+  });
+  if (!data.success) throw new Error(data.message || 'Falha ao autenticar no Elefante');
+  return {
+    bearerToken: data.bearer_token,
+    refreshToken: data.refresh_token,
+    expiresAt: data.expires_at,
+  };
+}
+
+// ─── Step 3: Get books ────────────────────────────────────────────────
+export interface BookItem {
+  slug: string;
   title: string;
-  room: string;
-  status: string;
+  author?: string;
+  reading_percent: number;
   total_pages?: number;
-  current_page?: number;
-  book_id?: number;
-  publication_target?: string;
+  image_url_thumb?: string;
+  imageUrlThumb?: string;
   [key: string]: unknown;
 }
 
-export async function fetchReadings(
-  authToken: string,
-  onNotify: (msg: string) => void,
-  nick?: string
-): Promise<{ readings: ReadingItem[]; targets: string[] }> {
-  onNotify('BUSCANDO LEITURAS...');
-
-  const headers = { ...getDefaultHeaders(), 'x-api-key': authToken };
-
-  // Get rooms first
-  const roomData = await makeRequest(
-    `${API_BASE_URL}/room/user?list_all=true&with_cards=true`,
-    'GET',
-    headers
-  );
-
-  if (!roomData.rooms || roomData.rooms.length === 0) {
-    throw new Error('NENHUMA SALA ENCONTRADA');
-  }
-
-  const uniqueTargets = new Set<string>();
-  const roomIdToNameMap = new Map<string, string>();
-  const firstRoomName = roomData.rooms[0].name;
-
-  roomData.rooms.forEach((room: { name: string; id: number }) => {
-    uniqueTargets.add(room.name);
-    if (nick) uniqueTargets.add(`${room.name}:${nick}`);
-    roomIdToNameMap.set(room.id.toString(), room.name);
+export async function getBooks(bearerToken: string): Promise<BookItem[]> {
+  const data = await post(`${LEIASP_PROXY}/livros`, {
+    source: 'elefante',
+    bearer_token: bearerToken,
+    search: '',
+    action: 'all',
   });
-
-  const targetsArray = Array.from(uniqueTargets);
-
-  // Fetch reading tasks (Leia SP uses task type with is_reading or specific endpoints)
-  const targetParams = targetsArray.map(t => `publication_target=${encodeURIComponent(t)}`).join('&');
-
-  // Try fetching from reading-specific endpoint
-  let readings: ReadingItem[] = [];
-
-  try {
-    // Fetch Leia SP books/readings
-    const readingData = await makeRequest(
-      `${API_BASE_URL}/lms/reading?${targetParams}&limit=100&offset=0`,
-      'GET',
-      headers
-    );
-
-    if (Array.isArray(readingData)) {
-      readings = readingData.map((r: Record<string, unknown>) => ({
-        ...r,
-        id: r.id as number,
-        title: (r.title || r.name || 'Leitura sem título') as string,
-        room: (roomIdToNameMap.get(String(r.publication_target)) || firstRoomName),
-        status: (r.status || 'pending') as string,
-        total_pages: (r.total_pages || r.pages_count || 0) as number,
-        current_page: (r.current_page || r.read_pages || 0) as number,
-      }));
+  if (data.success === false && data.message?.includes('401')) {
+    throw new Error('Token expirado (401)');
+  }
+  const books: BookItem[] = data.books || [];
+  // Normalize reading_percent from 0-1 to 0-100
+  books.forEach(b => {
+    if (b.reading_percent > 0 && b.reading_percent <= 1) {
+      b.reading_percent = b.reading_percent * 100;
     }
-  } catch {
-    // Fallback: try fetching from tms/task with reading filter
-    onNotify('TENTANDO ENDPOINT ALTERNATIVO...');
-  }
-
-  // Fallback: use tms/task/todo with reading-specific params
-  if (readings.length === 0) {
-    try {
-      const taskData = await makeRequest(
-        `${API_BASE_URL}/tms/task/todo?limit=100&offset=0&with_answer=true&with_apply_moment=true&expired_only=false&filter_expired=true&is_exam=false&is_essay=false&answer_statuses=pending&answer_statuses=draft&${targetParams}`,
-        'GET',
-        headers
-      );
-
-      if (Array.isArray(taskData)) {
-        // Filter for reading-type tasks (Leia SP tasks often have specific patterns in title/type)
-        readings = taskData
-          .filter((t: Record<string, unknown>) => {
-            const title = String(t.title || '').toLowerCase();
-            const taskType = String(t.task_type || t.type || '').toLowerCase();
-            return title.includes('leia') || title.includes('leitura') || title.includes('reading') ||
-              taskType.includes('reading') || taskType.includes('leia');
-          })
-          .map((t: Record<string, unknown>) => ({
-            ...t,
-            id: t.id as number,
-            title: (t.title || 'Leitura') as string,
-            room: (roomIdToNameMap.get(String(t.publication_target)) || firstRoomName),
-            status: 'pending',
-          }));
-      }
-    } catch {
-      // If both fail, try a third approach
-    }
-  }
-
-  // If still nothing, fetch ALL tasks and let user see them
-  if (readings.length === 0) {
-    try {
-      const allTasks = await makeRequest(
-        `${API_BASE_URL}/tms/task/todo?limit=100&offset=0&with_answer=true&with_apply_moment=true&expired_only=false&filter_expired=true&is_exam=false&is_essay=false&answer_statuses=pending&answer_statuses=draft&${targetParams}`,
-        'GET',
-        headers
-      );
-
-      if (Array.isArray(allTasks)) {
-        readings = allTasks.map((t: Record<string, unknown>) => ({
-          ...t,
-          id: t.id as number,
-          title: (t.title || 'Atividade') as string,
-          room: (roomIdToNameMap.get(String(t.publication_target)) || firstRoomName),
-          status: 'pending',
-        }));
-        onNotify(`${readings.length} ATIVIDADES ENCONTRADAS (MOSTRANDO TODAS)`);
-      }
-    } catch (err) {
-      throw new Error(`ERRO AO BUSCAR LEITURAS: ${err instanceof Error ? err.message : 'Erro desconhecido'}`);
-    }
-  }
-
-  if (readings.length === 0) {
-    throw new Error('NENHUMA LEITURA ENCONTRADA');
-  }
-
-  onNotify(`${readings.length} LEITURAS ENCONTRADAS`);
-  return { readings, targets: targetsArray };
+  });
+  return books;
 }
 
-export async function completeReading(
-  reading: ReadingItem,
-  authToken: string,
-  onNotify: (msg: string) => void
-): Promise<boolean> {
-  const headers = { ...getDefaultHeaders(), 'x-api-key': authToken };
-  const roomName = reading.room;
-
-  onNotify(`COMPLETANDO: ${reading.title.substring(0, 30)}...`);
-
-  // Try to mark reading as complete by submitting answer
-  const methods = ['POST', 'PUT', 'PATCH'];
-  const roomParam = `room_name=${encodeURIComponent(roomName)}`;
-
-  for (const method of methods) {
-    try {
-      const submitUrl = `${API_BASE_URL}/tms/task/${reading.id}/answer?${roomParam}`;
-      const body = {
-        content: '',
-        score: 100,
-        is_finished: true,
-        completed: true,
-        preview_mode: false,
-      };
-
-      await makeRequest(submitUrl, method, headers, body);
-      onNotify(`✓ ${reading.title.substring(0, 30)}... CONCLUÍDA!`);
-      return true;
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : '';
-      if (msg.includes('405') || msg.includes('404')) continue;
-      // For other errors, try next method
-      if (methods.indexOf(method) < methods.length - 1) continue;
-      onNotify(`✗ ${reading.title.substring(0, 30)}... ERRO: ${msg}`);
-      return false;
-    }
-  }
-
-  onNotify(`✗ ${reading.title.substring(0, 30)}... TODOS OS MÉTODOS FALHARAM`);
-  return false;
+// ─── Step 4: Get book details ─────────────────────────────────────────
+export async function getBookDetails(bearerToken: string, bookSlug: string) {
+  const data = await post(`${LEIASP_PROXY}/bookdetails`, {
+    bearer_token: bearerToken,
+    book_slug: bookSlug,
+    source: 'elefante',
+  });
+  return data;
 }
 
-export async function completeAllReadings(
-  readings: ReadingItem[],
-  authToken: string,
-  onNotify: (msg: string) => void
-): Promise<{ success: number; failed: number }> {
-  let success = 0;
-  let failed = 0;
+// ─── Step 5: Get preview (recommended timing) ─────────────────────────
+export async function getPreview(bearerToken: string, bookSlug: string) {
+  const data = await post(`${LEIASP_PROXY}/preview`, {
+    bearer_token: bearerToken,
+    book_slug: bookSlug,
+    source: 'elefante',
+  });
+  return data;
+}
 
-  for (const reading of readings) {
-    const ok = await completeReading(reading, authToken, onNotify);
-    if (ok) success++;
-    else failed++;
-    // Small delay between requests
-    await new Promise(r => setTimeout(r, 500));
-  }
+// ─── Step 6: Start background reading ─────────────────────────────────
+export interface ReadJobResult {
+  success: boolean;
+  job_id?: string;
+  message?: string;
+}
 
-  onNotify(`CONCLUÍDO: ${success} OK, ${failed} FALHAS`);
-  return { success, failed };
+export async function startBackgroundRead(
+  bearerToken: string,
+  refreshToken: string,
+  bookSlug: string,
+  timeMinutes: number
+): Promise<ReadJobResult> {
+  const data = await post(`${LEIASP_PROXY}/read/background`, {
+    bearer_token: bearerToken,
+    refresh_token: refreshToken,
+    book_slug: bookSlug,
+    time: timeMinutes,
+  });
+  return data;
+}
+
+// ─── Step 7: Check job status ─────────────────────────────────────────
+export async function checkJobStatus(bearerToken: string, jobId: string) {
+  const data = await post(`${LEIASP_PROXY}/read/job-status`, {
+    bearer_token: bearerToken,
+    job_id: jobId,
+  });
+  return data;
+}
+
+// ─── Step 8: Refresh token ────────────────────────────────────────────
+export async function refreshElefanteToken(refreshTokenValue: string): Promise<ElefanteSession> {
+  const data = await post(`${LEIASP_PROXY}/refresh_token`, {
+    refresh_token: refreshTokenValue,
+    source: 'elefante',
+  });
+  if (!data.success) throw new Error(data.message || 'Falha ao renovar token');
+  return {
+    bearerToken: data.bearer_token,
+    refreshToken: data.refresh_token,
+    expiresAt: data.expires_at,
+  };
 }
