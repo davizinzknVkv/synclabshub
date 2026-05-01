@@ -14,6 +14,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as DashboardTarefasRouteImport } from './routes/dashboard/tarefas'
 import { Route as DashboardRedacaoRouteImport } from './routes/dashboard/redacao'
+import { Route as ApiCatalystCompleteRouteImport } from './routes/api/catalyst.complete'
+import { Route as ApiCatalystJobJobIdRouteImport } from './routes/api/catalyst.job.$jobId'
 
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
@@ -40,6 +42,16 @@ const DashboardRedacaoRoute = DashboardRedacaoRouteImport.update({
   path: '/redacao',
   getParentRoute: () => DashboardRoute,
 } as any)
+const ApiCatalystCompleteRoute = ApiCatalystCompleteRouteImport.update({
+  id: '/api/catalyst/complete',
+  path: '/api/catalyst/complete',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCatalystJobJobIdRoute = ApiCatalystJobJobIdRouteImport.update({
+  id: '/api/catalyst/job/$jobId',
+  path: '/api/catalyst/job/$jobId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -47,12 +59,16 @@ export interface FileRoutesByFullPath {
   '/dashboard/redacao': typeof DashboardRedacaoRoute
   '/dashboard/tarefas': typeof DashboardTarefasRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/api/catalyst/complete': typeof ApiCatalystCompleteRoute
+  '/api/catalyst/job/$jobId': typeof ApiCatalystJobJobIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard/redacao': typeof DashboardRedacaoRoute
   '/dashboard/tarefas': typeof DashboardTarefasRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/api/catalyst/complete': typeof ApiCatalystCompleteRoute
+  '/api/catalyst/job/$jobId': typeof ApiCatalystJobJobIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -61,6 +77,8 @@ export interface FileRoutesById {
   '/dashboard/redacao': typeof DashboardRedacaoRoute
   '/dashboard/tarefas': typeof DashboardTarefasRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/api/catalyst/complete': typeof ApiCatalystCompleteRoute
+  '/api/catalyst/job/$jobId': typeof ApiCatalystJobJobIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -70,8 +88,16 @@ export interface FileRouteTypes {
     | '/dashboard/redacao'
     | '/dashboard/tarefas'
     | '/dashboard/'
+    | '/api/catalyst/complete'
+    | '/api/catalyst/job/$jobId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard/redacao' | '/dashboard/tarefas' | '/dashboard'
+  to:
+    | '/'
+    | '/dashboard/redacao'
+    | '/dashboard/tarefas'
+    | '/dashboard'
+    | '/api/catalyst/complete'
+    | '/api/catalyst/job/$jobId'
   id:
     | '__root__'
     | '/'
@@ -79,11 +105,15 @@ export interface FileRouteTypes {
     | '/dashboard/redacao'
     | '/dashboard/tarefas'
     | '/dashboard/'
+    | '/api/catalyst/complete'
+    | '/api/catalyst/job/$jobId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRouteWithChildren
+  ApiCatalystCompleteRoute: typeof ApiCatalystCompleteRoute
+  ApiCatalystJobJobIdRoute: typeof ApiCatalystJobJobIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -123,6 +153,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRedacaoRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/api/catalyst/complete': {
+      id: '/api/catalyst/complete'
+      path: '/api/catalyst/complete'
+      fullPath: '/api/catalyst/complete'
+      preLoaderRoute: typeof ApiCatalystCompleteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/catalyst/job/$jobId': {
+      id: '/api/catalyst/job/$jobId'
+      path: '/api/catalyst/job/$jobId'
+      fullPath: '/api/catalyst/job/$jobId'
+      preLoaderRoute: typeof ApiCatalystJobJobIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -145,6 +189,8 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRouteWithChildren,
+  ApiCatalystCompleteRoute: ApiCatalystCompleteRoute,
+  ApiCatalystJobJobIdRoute: ApiCatalystJobJobIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
