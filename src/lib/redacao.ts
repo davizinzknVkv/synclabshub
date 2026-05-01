@@ -211,13 +211,23 @@ async function callLovableAI(prompt: string): Promise<string> {
   return (data as any).text || '';
 }
 
-// ---- Main process ----
+// ---- Types ----
 
-export async function processRedacao(
+export interface GeneratedRedacao {
+  title: string;
+  body: string;
+  questionId: string;
+  questionType: string;
+  redacao: RedacaoItem;
+}
+
+// ---- Generate (no submit) ----
+
+export async function generateRedacao(
   redacao: RedacaoItem,
   authToken: string,
   onNotify: (msg: string) => void
-): Promise<void> {
+): Promise<GeneratedRedacao> {
   onNotify('BUSCANDO CONTEÚDO DA REDAÇÃO...');
 
   const data = await fetchRedacaoContent(redacao.id, authToken, redacao.room_name_for_apply, redacao.answer_id);
@@ -277,7 +287,30 @@ export async function processRedacao(
   const humanizedText = await callLovableAI(humanizePrompt);
   if (!humanizedText) throw new Error('Humanização retornou texto vazio');
 
-  // Submit as draft
+  onNotify('REDAÇÃO GERADA! REVISE ANTES DE ENVIAR.');
+
+  return {
+    title: generatedTitle,
+    body: humanizedText,
+    questionId,
+    questionType,
+    redacao,
+  };
+}
+
+// ---- Submit ----
+
+export async function submitRedacao(
+  generated: GeneratedRedacao,
+  authToken: string,
+  onNotify: (msg: string) => void,
+  editedTitle?: string,
+  editedBody?: string,
+): Promise<void> {
+  const { redacao, questionId, questionType } = generated;
+  const finalTitle = editedTitle ?? generated.title;
+  const finalBody = editedBody ?? generated.body;
+
   onNotify('ENVIANDO REDAÇÃO...');
   const roomParam = `room_name=${encodeURIComponent(redacao.room_name_for_apply)}`;
   const submitUrl = redacao.status === 'draft' && redacao.answer_id
@@ -295,8 +328,8 @@ export async function processRedacao(
         question_id: questionId,
         question_type: questionType,
         answer: {
-          title: generatedTitle,
-          body: humanizedText,
+          title: finalTitle,
+          body: finalBody,
         },
       },
     },
