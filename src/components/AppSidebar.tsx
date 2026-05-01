@@ -14,8 +14,8 @@ const NAV_ITEMS = [
 ];
 
 const COMMUNITY_ITEMS = [
-  { title: "Discord", url: "https://discord.gg/yXYKSZAK9Z", icon: MessageCircle, external: true },
-  { title: "Doações", url: "https://pixgg.com/marcos10pc", icon: Heart, external: true },
+  { title: "Discord", url: "https://discord.gg/y5tNWGVPSU", icon: MessageCircle, external: true },
+  { title: "Doações", url: "https://livepix.gg/davizinzkn", icon: Heart, external: true },
 ];
 
 export function AppSidebar() {
