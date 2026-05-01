@@ -3,9 +3,8 @@
  * Ported from CyberRedasp reference implementation
  */
 
-const API_BASE_URL = 'https://edusp-api.ip.tv';
+const API_BASE_URL = 'https://edusp.crimsonzerohub.xyz';
 const GEMINI_API_KEY = 'AIzaSyCFMCc3_wKToNokA2sleQ1gm7XxkFGEjfQ';
-const USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36";
 
 export interface RedacaoItem {
   id: number;
@@ -25,7 +24,8 @@ function getDefaultHeaders(authToken?: string) {
     'Accept': 'application/json',
     'x-api-realm': 'edusp',
     'x-api-platform': 'webclient',
-    'User-Agent': USER_AGENT,
+    'origin': 'https://saladofuturo.educacao.sp.gov.br',
+    'referer': 'https://saladofuturo.educacao.sp.gov.br/',
   };
   if (authToken) headers['x-api-key'] = authToken;
   return headers;
