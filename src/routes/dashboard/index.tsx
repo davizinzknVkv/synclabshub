@@ -36,11 +36,11 @@ function DashboardHome() {
   useEffect(() => {
     if (!session) return;
     setLoadingStats(true);
-    fetchDashboardStats(session.authToken)
+    fetchDashboardStats(session.authToken, session.externalId)
       .then(setStats)
       .catch(() => setStats({ pendencias: 0, faltas: 0, frequencia: 100 }))
       .finally(() => setLoadingStats(false));
-  }, [session?.authToken]);
+  }, [session?.authToken, session?.externalId]);
 
   const statCards = [
     {

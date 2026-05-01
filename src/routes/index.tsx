@@ -78,6 +78,7 @@ function Index() {
         authToken: data.auth_token,
         nick: data.nick || data.name,
         name: data.name,
+        externalId: data.external_id ? String(data.external_id) : undefined,
         rooms: (roomData.rooms || []).map((r: { id: number; name: string; icon?: string | null; dark_icon?: string | null }) => ({
           id: r.id,
           name: r.name,
