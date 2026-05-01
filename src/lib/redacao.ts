@@ -95,13 +95,18 @@ export async function fetchRedacoes(
   allTasks.filter(isRedacao).forEach((task: any) => {
     const actualStatus: 'pending' | 'draft' = task.answer_status === 'draft' ? 'draft' : 'pending';
     let roomName = '';
-    if (task.publication_target) {
+
+    // Prefer answer_executed_on (actual room name used), then try publication_target
+    if (task.answer_executed_on && task.answer_executed_on.startsWith('r')) {
+      roomName = task.answer_executed_on;
+    } else if (task.publication_target) {
       if (task.publication_target.includes(':')) {
         roomName = task.publication_target.split(':')[0];
       } else if (roomIdToNameMap.has(task.publication_target)) {
         roomName = roomIdToNameMap.get(task.publication_target)!;
       } else {
-        roomName = task.publication_target;
+        // publication_target is a category ID — use first room as fallback
+        roomName = rooms.length > 0 ? rooms[0].name : task.publication_target;
       }
     }
 
