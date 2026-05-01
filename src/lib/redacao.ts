@@ -50,7 +50,8 @@ function isRedacao(task: { tags?: string[]; title?: string }) {
 
 export async function fetchRedacoes(
   authToken: string,
-  onNotify: (msg: string) => void
+  onNotify: (msg: string) => void,
+  nick?: string
 ): Promise<RedacaoItem[]> {
   onNotify('BUSCANDO REDAÇÕES...');
 
@@ -68,6 +69,7 @@ export async function fetchRedacoes(
 
   rooms.forEach((room: { name: string; id: number }) => {
     uniqueTargets.add(room.name);
+    if (nick) uniqueTargets.add(`${room.name}:${nick}`);
     roomIdToNameMap.set(room.id.toString(), room.name);
   });
 
