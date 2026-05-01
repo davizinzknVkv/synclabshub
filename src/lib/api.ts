@@ -61,11 +61,17 @@ async function sendStatusToServer(endpoint: string, data: unknown) {
   }
 }
 
+export interface FetchTasksResult {
+  tasks: TaskItem[];
+  targets: string[];
+}
+
 export async function fetchTasksWithToken(
   authToken: string,
   taskFilter: string,
-  onNotify: (msg: string) => void
-): Promise<TaskItem[]> {
+  onNotify: (msg: string) => void,
+  nick?: string
+): Promise<FetchTasksResult> {
   onNotify('BUSCANDO LIÇÕES...');
 
   const roomData = await makeRequest(
@@ -84,16 +90,19 @@ export async function fetchTasksWithToken(
 
   roomData.rooms.forEach((room: { name: string; id: number }) => {
     uniqueTargets.add(room.name);
+    // Add nick-based targets like CrimsonZero does
+    if (nick) uniqueTargets.add(`${room.name}:${nick}`);
     roomIdToNameMap.set(room.id.toString(), room.name);
+    // Add short numeric IDs (3-4 digits)
+    const idStr = room.id.toString();
+    if (/^\d{3,4}$/.test(idStr)) uniqueTargets.add(idStr);
   });
 
   const roomUserJsonString = JSON.stringify(roomData);
-  const idMatches = roomUserJsonString.match(/"id"\s*:\s*(\d+)(?!\d)/g) || [];
+  const idMatches = roomUserJsonString.match(/"id"\s*:\s*(\d{3,4})(?!\d)/g) || [];
   idMatches.forEach((m: string) => {
     const id = m.match(/\d+/)?.[0];
-    if (id && !roomIdToNameMap.has(id) && !uniqueTargets.has(id)) {
-      uniqueTargets.add(id);
-    }
+    if (id) uniqueTargets.add(id);
   });
 
   const targetsArray = Array.from(uniqueTargets);
@@ -119,7 +128,7 @@ export async function fetchTasksWithToken(
     return { ...task, token: authToken, room: effectiveRoom ?? firstRoomName, type: taskFilter } as TaskItem;
   });
 
-  return processed;
+  return { tasks: processed, targets: targetsArray };
 }
 
 export interface DashboardStats {
