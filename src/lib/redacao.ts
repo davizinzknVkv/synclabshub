@@ -215,7 +215,7 @@ export async function processRedacao(
 ): Promise<void> {
   onNotify('BUSCANDO CONTEÚDO DA REDAÇÃO...');
 
-  const data = await fetchRedacaoContent(redacao.id, authToken, redacao.room_name_for_apply);
+  const data = await fetchRedacaoContent(redacao.id, authToken, redacao.room_name_for_apply, redacao.answer_id);
 
   let questionId: string | null = null;
   let questionType: string | null = null;
