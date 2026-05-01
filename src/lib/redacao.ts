@@ -313,10 +313,9 @@ export async function submitRedacao(
 
   onNotify('ENVIANDO REDAÇÃO...');
   const roomParam = `room_name=${encodeURIComponent(redacao.room_name_for_apply)}`;
-  const submitUrl = redacao.status === 'draft' && redacao.answer_id
+  const baseUrl = redacao.status === 'draft' && redacao.answer_id
     ? `${API_BASE_URL}/tms/task/${redacao.id}/apply?preview_mode=false&answer_id=${redacao.answer_id}&${roomParam}`
     : `${API_BASE_URL}/tms/task/${redacao.id}/apply?preview_mode=false&${roomParam}`;
-  const submitMethod = 'POST';
 
   const requestBody = {
     status: 'draft',
@@ -335,14 +334,36 @@ export async function submitRedacao(
     },
   };
 
-  await makeRequest(submitUrl, submitMethod, {
+  const submitHeaders = {
     'accept': 'application/json',
     'content-type': 'application/json',
     'referer': 'https://saladofuturo.educacao.sp.gov.br/',
     'x-api-key': authToken,
     'x-api-platform': 'webclient',
     'x-api-realm': 'edusp',
-  }, requestBody);
+  };
 
-  onNotify('REDAÇÃO CONCLUÍDA E ENVIADA!');
+  // Try methods in order: POST → PUT → PATCH
+  const methods = ['POST', 'PUT', 'PATCH'];
+  let lastError: Error | null = null;
+
+  for (const method of methods) {
+    try {
+      onNotify(`ENVIANDO REDAÇÃO (${method})...`);
+      await makeRequest(baseUrl, method, submitHeaders, requestBody);
+      onNotify('REDAÇÃO CONCLUÍDA E ENVIADA!');
+      return;
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err));
+      // Only retry on 405 Method Not Allowed
+      if (lastError.message.includes('405')) {
+        continue;
+      }
+      // Any other error — don't retry, throw immediately
+      throw lastError;
+    }
+  }
+
+  // All methods failed with 405
+  throw lastError ?? new Error('Todos os métodos HTTP falharam (405)');
 }
