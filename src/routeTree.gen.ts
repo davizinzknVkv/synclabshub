@@ -18,6 +18,7 @@ import { Route as DashboardRedacaoRouteImport } from './routes/dashboard/redacao
 import { Route as DashboardLeiaspRouteImport } from './routes/dashboard/leiasp'
 import { Route as ApiStatusEndpointRouteImport } from './routes/api/status.$endpoint'
 import { Route as ApiProxySplatRouteImport } from './routes/api/proxy.$'
+import { Route as ApiLeiaspSplatRouteImport } from './routes/api/leiasp.$'
 import { Route as ApiCatalystCompleteRouteImport } from './routes/api/catalyst.complete'
 import { Route as ApiAiGenerateRouteImport } from './routes/api/ai.generate'
 import { Route as ApiCatalystJobJobIdRouteImport } from './routes/api/catalyst.job.$jobId'
@@ -67,6 +68,11 @@ const ApiProxySplatRoute = ApiProxySplatRouteImport.update({
   path: '/api/proxy/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiLeiaspSplatRoute = ApiLeiaspSplatRouteImport.update({
+  id: '/api/leiasp/$',
+  path: '/api/leiasp/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiCatalystCompleteRoute = ApiCatalystCompleteRouteImport.update({
   id: '/api/catalyst/complete',
   path: '/api/catalyst/complete',
@@ -93,6 +99,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/': typeof DashboardIndexRoute
   '/api/ai/generate': typeof ApiAiGenerateRoute
   '/api/catalyst/complete': typeof ApiCatalystCompleteRoute
+  '/api/leiasp/$': typeof ApiLeiaspSplatRoute
   '/api/proxy/$': typeof ApiProxySplatRoute
   '/api/status/$endpoint': typeof ApiStatusEndpointRoute
   '/api/catalyst/job/$jobId': typeof ApiCatalystJobJobIdRoute
@@ -106,6 +113,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardIndexRoute
   '/api/ai/generate': typeof ApiAiGenerateRoute
   '/api/catalyst/complete': typeof ApiCatalystCompleteRoute
+  '/api/leiasp/$': typeof ApiLeiaspSplatRoute
   '/api/proxy/$': typeof ApiProxySplatRoute
   '/api/status/$endpoint': typeof ApiStatusEndpointRoute
   '/api/catalyst/job/$jobId': typeof ApiCatalystJobJobIdRoute
@@ -121,6 +129,7 @@ export interface FileRoutesById {
   '/dashboard/': typeof DashboardIndexRoute
   '/api/ai/generate': typeof ApiAiGenerateRoute
   '/api/catalyst/complete': typeof ApiCatalystCompleteRoute
+  '/api/leiasp/$': typeof ApiLeiaspSplatRoute
   '/api/proxy/$': typeof ApiProxySplatRoute
   '/api/status/$endpoint': typeof ApiStatusEndpointRoute
   '/api/catalyst/job/$jobId': typeof ApiCatalystJobJobIdRoute
@@ -137,6 +146,7 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/api/ai/generate'
     | '/api/catalyst/complete'
+    | '/api/leiasp/$'
     | '/api/proxy/$'
     | '/api/status/$endpoint'
     | '/api/catalyst/job/$jobId'
@@ -150,6 +160,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/api/ai/generate'
     | '/api/catalyst/complete'
+    | '/api/leiasp/$'
     | '/api/proxy/$'
     | '/api/status/$endpoint'
     | '/api/catalyst/job/$jobId'
@@ -164,6 +175,7 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/api/ai/generate'
     | '/api/catalyst/complete'
+    | '/api/leiasp/$'
     | '/api/proxy/$'
     | '/api/status/$endpoint'
     | '/api/catalyst/job/$jobId'
@@ -174,6 +186,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRouteWithChildren
   ApiAiGenerateRoute: typeof ApiAiGenerateRoute
   ApiCatalystCompleteRoute: typeof ApiCatalystCompleteRoute
+  ApiLeiaspSplatRoute: typeof ApiLeiaspSplatRoute
   ApiProxySplatRoute: typeof ApiProxySplatRoute
   ApiStatusEndpointRoute: typeof ApiStatusEndpointRoute
   ApiCatalystJobJobIdRoute: typeof ApiCatalystJobJobIdRoute
@@ -244,6 +257,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiProxySplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/leiasp/$': {
+      id: '/api/leiasp/$'
+      path: '/api/leiasp/$'
+      fullPath: '/api/leiasp/$'
+      preLoaderRoute: typeof ApiLeiaspSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/catalyst/complete': {
       id: '/api/catalyst/complete'
       path: '/api/catalyst/complete'
@@ -293,6 +313,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRouteWithChildren,
   ApiAiGenerateRoute: ApiAiGenerateRoute,
   ApiCatalystCompleteRoute: ApiCatalystCompleteRoute,
+  ApiLeiaspSplatRoute: ApiLeiaspSplatRoute,
   ApiProxySplatRoute: ApiProxySplatRoute,
   ApiStatusEndpointRoute: ApiStatusEndpointRoute,
   ApiCatalystJobJobIdRoute: ApiCatalystJobJobIdRoute,
@@ -300,3 +321,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
