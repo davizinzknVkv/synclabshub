@@ -44,6 +44,10 @@ function isRedacao(task: { tags?: string[]; title?: string }) {
     (task.title || '').toLowerCase().includes('redação');
 }
 
+function isRetryableSubmitError(error: Error) {
+  return ['HTTP 404:', 'HTTP 405:', 'HTTP 500:'].some(status => error.message.includes(status));
+}
+
 export async function fetchRedacoes(
   authToken: string,
   onNotify: (msg: string) => void,
@@ -314,12 +318,16 @@ export async function submitRedacao(
   onNotify('ENVIANDO REDAÇÃO...');
   const roomParam = `room_name=${encodeURIComponent(redacao.room_name_for_apply)}`;
 
-  // For drafts: PUT to /answer/{id}, for new: POST to /answer
-  const submitUrl = redacao.status === 'draft' && redacao.answer_id
-    ? `${API_BASE_URL}/tms/task/${redacao.id}/answer/${redacao.answer_id}?${roomParam}`
-    : `${API_BASE_URL}/tms/task/${redacao.id}/answer?${roomParam}`;
+  const answerIdParam = redacao.answer_id ? `answer_id=${encodeURIComponent(redacao.answer_id)}&` : '';
+  const submitUrls = [
+    `${API_BASE_URL}/tms/task/${redacao.id}/answer?${roomParam}`,
+    ...(redacao.answer_id
+      ? [`${API_BASE_URL}/tms/task/${redacao.id}/answer?${answerIdParam}${roomParam}`]
+      : []),
+  ];
 
   const requestBody = {
+    ...(redacao.answer_id ? { id: Number(redacao.answer_id) } : {}),
     status: 'draft',
     accessed_on: 'room',
     executed_on: redacao.room_name_for_apply,
@@ -345,24 +353,24 @@ export async function submitRedacao(
     'x-api-realm': 'edusp',
   };
 
-  // Try: PUT (update draft) → POST (new answer) → PATCH
-  const methods = redacao.status === 'draft' && redacao.answer_id
-    ? ['PUT', 'POST', 'PATCH']
-    : ['POST', 'PUT', 'PATCH'];
+  // The API returns 404 for /answer/{answer_id}; keep the stable /answer path and vary method/query.
+  const methods = ['POST', 'PUT', 'PATCH'];
   let lastError: Error | null = null;
 
-  for (const method of methods) {
-    try {
-      onNotify(`ENVIANDO REDAÇÃO (${method})...`);
-      await makeRequest(submitUrl, method, submitHeaders, requestBody);
-      onNotify('REDAÇÃO CONCLUÍDA E ENVIADA!');
-      return;
-    } catch (err) {
-      lastError = err instanceof Error ? err : new Error(String(err));
-      if (lastError.message.includes('405') || lastError.message.includes('404')) {
-        continue;
+  for (const submitUrl of submitUrls) {
+    for (const method of methods) {
+      try {
+        onNotify(`ENVIANDO REDAÇÃO (${method})...`);
+        await makeRequest(submitUrl, method, submitHeaders, requestBody);
+        onNotify('REDAÇÃO CONCLUÍDA E ENVIADA!');
+        return;
+      } catch (err) {
+        lastError = err instanceof Error ? err : new Error(String(err));
+        if (isRetryableSubmitError(lastError)) {
+          continue;
+        }
+        throw lastError;
       }
-      throw lastError;
     }
   }
 
