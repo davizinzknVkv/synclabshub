@@ -6,6 +6,7 @@ export interface UserSession {
   authToken: string;
   nick?: string;
   name?: string;
+  externalId?: string;
   rooms: Array<{ id: number; name: string; icon: string; dark_icon: string }>;
 }
 
