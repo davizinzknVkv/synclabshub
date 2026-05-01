@@ -4,6 +4,12 @@ import { CheckCircle, Heart, Calendar, TrendingUp, CheckSquare, PenTool, ArrowRi
 import { getSession } from "@/lib/auth";
 import { fetchDashboardStats } from "@/lib/api";
 import type { DashboardStats } from "@/lib/api";
+import iconTarefa from "@/assets/icons/tarefa-sp.png";
+import iconRedacao from "@/assets/icons/redacao.png";
+import iconLeiaSp from "@/assets/icons/leia-sp.png";
+import iconStatus from "@/assets/icons/status.png";
+import iconKhan from "@/assets/icons/khan.png";
+import iconAlura from "@/assets/icons/alura.png";
 
 export const Route = createFileRoute("/dashboard/")({
   component: DashboardHome,
@@ -13,12 +19,12 @@ export const Route = createFileRoute("/dashboard/")({
 });
 
 const SCRIPTS = [
-  { name: "Tarefa SP", icon: "📝", url: "/dashboard/tarefas" },
-  { name: "Redação", icon: "✍️", url: "/dashboard/redacao" },
-  { name: "Leia SP", icon: "📖", url: "/dashboard/leiasp" },
-  { name: "Status", icon: "📊", url: "/dashboard/status" },
-  { name: "Khan Academy", icon: "🎓", url: "#" },
-  { name: "Alura", icon: "💻", url: "#" },
+  { name: "Tarefa SP", icon: iconTarefa, url: "/dashboard/tarefas" },
+  { name: "Redação", icon: iconRedacao, url: "/dashboard/redacao" },
+  { name: "Leia SP", icon: iconLeiaSp, url: "/dashboard/leiasp" },
+  { name: "Status", icon: iconStatus, url: "/dashboard/status" },
+  { name: "Khan Academy", icon: iconKhan, url: "#" },
+  { name: "Alura", icon: iconAlura, url: "#" },
 ];
 
 function DashboardHome() {
@@ -124,7 +130,7 @@ function DashboardHome() {
               to={script.url}
               className="flex flex-col items-center gap-2 p-4 bg-card border border-glass-border rounded-sm hover:border-primary/30 hover:bg-blood-muted transition-all group"
             >
-              <span className="text-2xl">{script.icon}</span>
+              <img src={script.icon} alt={script.name} className="w-10 h-10 object-contain" loading="lazy" width={40} height={40} />
               <span className="text-[10px] font-mono font-medium text-muted-foreground group-hover:text-foreground text-center transition-colors uppercase tracking-wider">
                 {script.name}
               </span>
