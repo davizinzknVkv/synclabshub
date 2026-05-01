@@ -66,6 +66,7 @@ export const Route = createFileRoute("/api/proxy/$")({
       POST: async ({ request, params }) => proxyRequest(request, params._splat!),
       PUT: async ({ request, params }) => proxyRequest(request, params._splat!),
       DELETE: async ({ request, params }) => proxyRequest(request, params._splat!),
+      PATCH: async ({ request, params }) => proxyRequest(request, params._splat!),
     },
   },
 });

@@ -313,9 +313,11 @@ export async function submitRedacao(
 
   onNotify('ENVIANDO REDAÇÃO...');
   const roomParam = `room_name=${encodeURIComponent(redacao.room_name_for_apply)}`;
-  const baseUrl = redacao.status === 'draft' && redacao.answer_id
-    ? `${API_BASE_URL}/tms/task/${redacao.id}/apply?preview_mode=false&answer_id=${redacao.answer_id}&${roomParam}`
-    : `${API_BASE_URL}/tms/task/${redacao.id}/apply?preview_mode=false&${roomParam}`;
+
+  // For drafts: PUT to /answer/{id}, for new: POST to /answer
+  const submitUrl = redacao.status === 'draft' && redacao.answer_id
+    ? `${API_BASE_URL}/tms/task/${redacao.id}/answer/${redacao.answer_id}?${roomParam}`
+    : `${API_BASE_URL}/tms/task/${redacao.id}/answer?${roomParam}`;
 
   const requestBody = {
     status: 'draft',
@@ -343,27 +345,26 @@ export async function submitRedacao(
     'x-api-realm': 'edusp',
   };
 
-  // Try methods in order: POST → PUT → PATCH
-  const methods = ['POST', 'PUT', 'PATCH'];
+  // Try: PUT (update draft) → POST (new answer) → PATCH
+  const methods = redacao.status === 'draft' && redacao.answer_id
+    ? ['PUT', 'POST', 'PATCH']
+    : ['POST', 'PUT', 'PATCH'];
   let lastError: Error | null = null;
 
   for (const method of methods) {
     try {
       onNotify(`ENVIANDO REDAÇÃO (${method})...`);
-      await makeRequest(baseUrl, method, submitHeaders, requestBody);
+      await makeRequest(submitUrl, method, submitHeaders, requestBody);
       onNotify('REDAÇÃO CONCLUÍDA E ENVIADA!');
       return;
     } catch (err) {
       lastError = err instanceof Error ? err : new Error(String(err));
-      // Only retry on 405 Method Not Allowed
-      if (lastError.message.includes('405')) {
+      if (lastError.message.includes('405') || lastError.message.includes('404')) {
         continue;
       }
-      // Any other error — don't retry, throw immediately
       throw lastError;
     }
   }
 
-  // All methods failed with 405
-  throw lastError ?? new Error('Todos os métodos HTTP falharam (405)');
+  throw lastError ?? new Error('Todos os métodos HTTP falharam');
 }
