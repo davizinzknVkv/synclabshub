@@ -21,6 +21,14 @@ async function proxyRequest(request: Request, splat: string) {
   }
   headers.set("origin", "https://saladofuturo.educacao.sp.gov.br");
   headers.set("referer", "https://saladofuturo.educacao.sp.gov.br/");
+  headers.set("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36");
+  headers.set("accept-language", "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7");
+  headers.set("sec-ch-ua", '"Chromium";v="131", "Not_A Brand";v="24"');
+  headers.set("sec-ch-ua-mobile", "?0");
+  headers.set("sec-ch-ua-platform", '"Windows"');
+  headers.set("sec-fetch-dest", "empty");
+  headers.set("sec-fetch-mode", "cors");
+  headers.set("sec-fetch-site", "cross-site");
 
   const init: RequestInit = {
     method: request.method,
