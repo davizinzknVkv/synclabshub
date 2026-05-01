@@ -1,0 +1,63 @@
+import { createFileRoute } from "@tanstack/react-router";
+
+const UPSTREAM = "https://edusp.crimsonzerohub.xyz";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, x-api-key, x-api-realm, x-api-platform",
+  "Access-Control-Max-Age": "86400",
+} as const;
+
+async function proxyRequest(request: Request, splat: string) {
+  const url = new URL(request.url);
+  const upstreamUrl = `${UPSTREAM}/${splat}${url.search}`;
+
+  const headers = new Headers();
+  // Forward relevant headers
+  for (const key of ["content-type", "accept", "x-api-key", "x-api-realm", "x-api-platform", "authorization"]) {
+    const val = request.headers.get(key);
+    if (val) headers.set(key, val);
+  }
+  headers.set("origin", "https://saladofuturo.educacao.sp.gov.br");
+  headers.set("referer", "https://saladofuturo.educacao.sp.gov.br/");
+
+  const init: RequestInit = {
+    method: request.method,
+    headers,
+  };
+  if (request.method !== "GET" && request.method !== "HEAD") {
+    init.body = await request.text();
+  }
+
+  try {
+    const upstream = await fetch(upstreamUrl, init);
+    const body = await upstream.text();
+    return new Response(body, {
+      status: upstream.status,
+      headers: {
+        "Content-Type": upstream.headers.get("content-type") || "application/json",
+        ...corsHeaders,
+      },
+    });
+  } catch (error) {
+    return new Response(
+      JSON.stringify({ error: error instanceof Error ? error.message : "Proxy error" }),
+      { status: 502, headers: { "Content-Type": "application/json", ...corsHeaders } },
+    );
+  }
+}
+
+export const Route = createFileRoute("/api/proxy/$")({
+  server: {
+    handlers: {
+      OPTIONS: async () => {
+        return new Response(null, { status: 204, headers: corsHeaders });
+      },
+      GET: async ({ request, params }) => proxyRequest(request, params._splat!),
+      POST: async ({ request, params }) => proxyRequest(request, params._splat!),
+      PUT: async ({ request, params }) => proxyRequest(request, params._splat!),
+      DELETE: async ({ request, params }) => proxyRequest(request, params._splat!),
+    },
+  },
+});

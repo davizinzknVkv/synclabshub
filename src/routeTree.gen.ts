@@ -15,6 +15,7 @@ import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as DashboardTarefasRouteImport } from './routes/dashboard/tarefas'
 import { Route as DashboardRedacaoRouteImport } from './routes/dashboard/redacao'
 import { Route as ApiStatusEndpointRouteImport } from './routes/api/status.$endpoint'
+import { Route as ApiProxySplatRouteImport } from './routes/api/proxy.$'
 import { Route as ApiCatalystCompleteRouteImport } from './routes/api/catalyst.complete'
 import { Route as ApiCatalystJobJobIdRouteImport } from './routes/api/catalyst.job.$jobId'
 
@@ -48,6 +49,11 @@ const ApiStatusEndpointRoute = ApiStatusEndpointRouteImport.update({
   path: '/api/status/$endpoint',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiProxySplatRoute = ApiProxySplatRouteImport.update({
+  id: '/api/proxy/$',
+  path: '/api/proxy/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiCatalystCompleteRoute = ApiCatalystCompleteRouteImport.update({
   id: '/api/catalyst/complete',
   path: '/api/catalyst/complete',
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/tarefas': typeof DashboardTarefasRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/api/catalyst/complete': typeof ApiCatalystCompleteRoute
+  '/api/proxy/$': typeof ApiProxySplatRoute
   '/api/status/$endpoint': typeof ApiStatusEndpointRoute
   '/api/catalyst/job/$jobId': typeof ApiCatalystJobJobIdRoute
 }
@@ -75,6 +82,7 @@ export interface FileRoutesByTo {
   '/dashboard/tarefas': typeof DashboardTarefasRoute
   '/dashboard': typeof DashboardIndexRoute
   '/api/catalyst/complete': typeof ApiCatalystCompleteRoute
+  '/api/proxy/$': typeof ApiProxySplatRoute
   '/api/status/$endpoint': typeof ApiStatusEndpointRoute
   '/api/catalyst/job/$jobId': typeof ApiCatalystJobJobIdRoute
 }
@@ -86,6 +94,7 @@ export interface FileRoutesById {
   '/dashboard/tarefas': typeof DashboardTarefasRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/api/catalyst/complete': typeof ApiCatalystCompleteRoute
+  '/api/proxy/$': typeof ApiProxySplatRoute
   '/api/status/$endpoint': typeof ApiStatusEndpointRoute
   '/api/catalyst/job/$jobId': typeof ApiCatalystJobJobIdRoute
 }
@@ -98,6 +107,7 @@ export interface FileRouteTypes {
     | '/dashboard/tarefas'
     | '/dashboard/'
     | '/api/catalyst/complete'
+    | '/api/proxy/$'
     | '/api/status/$endpoint'
     | '/api/catalyst/job/$jobId'
   fileRoutesByTo: FileRoutesByTo
@@ -107,6 +117,7 @@ export interface FileRouteTypes {
     | '/dashboard/tarefas'
     | '/dashboard'
     | '/api/catalyst/complete'
+    | '/api/proxy/$'
     | '/api/status/$endpoint'
     | '/api/catalyst/job/$jobId'
   id:
@@ -117,6 +128,7 @@ export interface FileRouteTypes {
     | '/dashboard/tarefas'
     | '/dashboard/'
     | '/api/catalyst/complete'
+    | '/api/proxy/$'
     | '/api/status/$endpoint'
     | '/api/catalyst/job/$jobId'
   fileRoutesById: FileRoutesById
@@ -125,6 +137,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRouteWithChildren
   ApiCatalystCompleteRoute: typeof ApiCatalystCompleteRoute
+  ApiProxySplatRoute: typeof ApiProxySplatRoute
   ApiStatusEndpointRoute: typeof ApiStatusEndpointRoute
   ApiCatalystJobJobIdRoute: typeof ApiCatalystJobJobIdRoute
 }
@@ -173,6 +186,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiStatusEndpointRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/proxy/$': {
+      id: '/api/proxy/$'
+      path: '/api/proxy/$'
+      fullPath: '/api/proxy/$'
+      preLoaderRoute: typeof ApiProxySplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/catalyst/complete': {
       id: '/api/catalyst/complete'
       path: '/api/catalyst/complete'
@@ -210,6 +230,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRouteWithChildren,
   ApiCatalystCompleteRoute: ApiCatalystCompleteRoute,
+  ApiProxySplatRoute: ApiProxySplatRoute,
   ApiStatusEndpointRoute: ApiStatusEndpointRoute,
   ApiCatalystJobJobIdRoute: ApiCatalystJobJobIdRoute,
 }
