@@ -279,9 +279,10 @@ export async function processRedacao(
 
   // Submit as draft
   onNotify('ENVIANDO REDAÇÃO...');
+  const roomParam = `room_name=${encodeURIComponent(redacao.room_name_for_apply)}`;
   const submitUrl = redacao.status === 'draft' && redacao.answer_id
-    ? `${API_BASE_URL}/tms/task/${redacao.id}/answer/${redacao.answer_id}`
-    : `${API_BASE_URL}/tms/task/${redacao.id}/answer`;
+    ? `${API_BASE_URL}/tms/task/${redacao.id}/answer/${redacao.answer_id}?${roomParam}`
+    : `${API_BASE_URL}/tms/task/${redacao.id}/answer?${roomParam}`;
   const submitMethod = redacao.status === 'draft' && redacao.answer_id ? 'PUT' : 'POST';
 
   const requestBody = {
