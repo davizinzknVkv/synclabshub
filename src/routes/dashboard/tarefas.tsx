@@ -67,19 +67,19 @@ function TarefasPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-2">
         <button
           onClick={() => fetchTasks("pending")}
           disabled={loading}
-          className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
+          className={`px-3 py-2 rounded-sm text-[10px] font-mono font-medium uppercase tracking-wider border transition-colors ${
             taskFilter === "pending" && fetched
-              ? "border-primary bg-primary/10 text-primary"
-              : "border-border bg-card text-muted-foreground hover:text-foreground"
+              ? "border-primary bg-blood-muted text-primary"
+              : "border-glass-border bg-card text-muted-foreground hover:text-foreground"
           }`}
         >
           {loading && taskFilter === "pending" ? (
             <span className="flex items-center gap-2">
-              <span className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+              <span className="w-3 h-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
               Buscando...
             </span>
           ) : (
@@ -89,15 +89,15 @@ function TarefasPage() {
         <button
           onClick={() => fetchTasks("expired")}
           disabled={loading}
-          className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
+          className={`px-3 py-2 rounded-sm text-[10px] font-mono font-medium uppercase tracking-wider border transition-colors ${
             taskFilter === "expired" && fetched
-              ? "border-primary bg-primary/10 text-primary"
-              : "border-border bg-card text-muted-foreground hover:text-foreground"
+              ? "border-primary bg-blood-muted text-primary"
+              : "border-glass-border bg-card text-muted-foreground hover:text-foreground"
           }`}
         >
           {loading && taskFilter === "expired" ? (
             <span className="flex items-center gap-2">
-              <span className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+              <span className="w-3 h-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
               Buscando...
             </span>
           ) : (
@@ -108,9 +108,9 @@ function TarefasPage() {
         {tasks.length > 0 && (
           <button
             onClick={handleSelectAndProcess}
-            className="ml-auto px-4 py-2 rounded-lg text-sm font-semibold border border-primary bg-primary/10 text-primary hover:bg-primary/20 transition-colors flex items-center gap-2"
+            className="ml-auto px-3 py-2 rounded-sm text-[10px] font-mono font-semibold uppercase tracking-wider border border-primary bg-blood-muted text-primary hover:bg-primary/15 transition-colors flex items-center gap-2"
           >
-            <Filter size={16} />
+            <Filter size={12} />
             Selecionar ({tasks.length})
           </button>
         )}
