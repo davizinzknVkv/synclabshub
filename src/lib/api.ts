@@ -1,5 +1,5 @@
 const config = {
-  API_BASE_URL: 'https://edusp-api.ip.tv',
+  API_BASE_URL: '/api/proxy',
   USER_AGENT: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
   CATALYST_API_URL: '/api/catalyst/complete',
   CATALYST_JOB_URL: '/api/catalyst/job',
@@ -46,7 +46,7 @@ async function makeRequest(url: string, method = 'GET', headers: Record<string, 
 
 async function sendStatusToServer(endpoint: string, data: unknown) {
   try {
-    await fetch(`${config.STATUS_SERVER_URL}/api/${endpoint}`, {
+    await fetch(`${config.STATUS_SERVER_URL}/${endpoint}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
