@@ -122,8 +122,11 @@ export async function fetchRedacoes(
 
 // ---- Content fetching & parsing ----
 
-async function fetchRedacaoContent(taskId: number, token: string, roomName: string) {
-  const url = `${API_BASE_URL}/tms/task/${taskId}/apply?preview_mode=false&token_code=null&room_name=${roomName}`;
+async function fetchRedacaoContent(taskId: number, token: string, roomName: string, answerId?: string) {
+  const answerParams = answerId
+    ? `&answer_id=${answerId}&answer_fields=id&answer_fields=nick&answer_fields=status&answer_fields=task_id&answer_fields=answers&answer_fields=duration`
+    : '';
+  const url = `${API_BASE_URL}/tms/task/${taskId}/apply?preview_mode=false${answerParams}&token_code=null&room_name=${roomName}`;
   return makeRequest(url, 'GET', { 'x-api-key': token });
 }
 
