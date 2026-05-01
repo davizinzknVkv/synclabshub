@@ -54,16 +54,16 @@ function TarefasPage() {
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       {/* Breadcrumb */}
-      <p className="text-sm text-muted-foreground">
+      <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-widest">
         Home / <span className="text-foreground">Tarefa SP</span>
       </p>
 
       {/* Title */}
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center">
-          <CheckSquare size={20} className="text-primary" />
+        <div className="w-8 h-8 bg-blood-muted border border-primary/20 rounded-sm flex items-center justify-center">
+          <CheckSquare size={16} className="text-primary" />
         </div>
-        <h1 className="text-2xl font-bold text-foreground">Tarefa SP</h1>
+        <h1 className="text-sm font-bold text-white font-mono uppercase tracking-[0.15em]">Tarefa SP</h1>
       </div>
 
       {/* Filters */}
