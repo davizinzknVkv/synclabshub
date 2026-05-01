@@ -219,13 +219,28 @@ async function fetchTasks(token: string, targetPublications: string[], taskFilte
   }
 }
 
+export async function checkJobStatus(jobId: string): Promise<{ status: string; message?: string }> {
+  try {
+    const res = await fetch(`${config.CATALYST_JOB_URL}/${jobId}`, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (res.status === 404 || res.status === 410) return { status: 'not_found' };
+    if (!res.ok) return { status: 'error', message: `HTTP ${res.status}` };
+    return await res.json();
+  } catch (err) {
+    return { status: 'error', message: err instanceof Error ? err.message : 'Network error' };
+  }
+}
+
 export async function sendTasksToCatalyst(
   tasks: TaskItem[],
   isDraft: boolean,
   minTime: number,
   maxTime: number,
   ra: string,
-  onNotify: (msg: string) => void
+  onNotify: (msg: string) => void,
+  publicationTargets?: string[],
+  userNick?: string
 ) {
   if (tasks.length === 0) { onNotify('NENHUMA ATIVIDADE VÁLIDA'); return; }
 
@@ -237,17 +252,32 @@ export async function sendTasksToCatalyst(
     try {
       onNotify(`ENVIANDO: ${task.title.substring(0, 25)}...`);
       const payload = {
-        tasks: [{ ...task, score: task.score, is_prova: false, task_id: task.id, id: undefined }],
+        tasks: [{ ...task, score: 100, is_prova: false, task_id: task.id, id: undefined }],
         auth_token: task.token,
-        room_name_for_apply: task.room,
+        publication_targets: publicationTargets || [],
+        room_name_for_apply: task.room || task.publication_target,
         time_min: minTime, time_max: maxTime,
         is_draft: isDraft, salvar_rascunho: isDraft,
+        user_nick: userNick || '',
       };
-      await makeRequest(config.CATALYST_API_URL, 'POST', { 'Content-Type': 'application/json' }, payload);
-      successCount++;
-    } catch {
+      const result = await makeRequest(config.CATALYST_API_URL, 'POST', { 'Content-Type': 'application/json' }, payload);
+      
+      if (result?.success) {
+        successCount++;
+        const jobId = result.job_ids?.[String(task.id)] || null;
+        const estimatedMsg = result.message || '';
+        onNotify(`✓ ${task.title.substring(0, 25)}... ${estimatedMsg}`);
+        
+        // Start polling if we got a job ID
+        if (jobId) {
+          pollJobStatus(jobId, task.title, onNotify);
+        }
+      } else {
+        throw new Error(result?.message || result?.error || 'Resposta inválida');
+      }
+    } catch (err) {
       errorCount++;
-      onNotify(`ERRO: '${task.title.substring(0, 20)}...'`);
+      onNotify(`ERRO: '${task.title.substring(0, 20)}...' - ${err instanceof Error ? err.message : 'Erro'}`);
     }
     await new Promise(r => setTimeout(r, 500));
   }
@@ -260,4 +290,27 @@ export async function sendTasksToCatalyst(
     onNotify(`${errorCount} ATIVIDADES FALHARAM`);
     await sendStatusToServer('task-status', { ra, taskCount: errorCount, taskType: isDraft ? 'rascunhos' : 'lições', status: 'error', message: `${errorCount} tarefas falharam` });
   }
+}
+
+async function pollJobStatus(jobId: string, taskTitle: string, onNotify: (msg: string) => void) {
+  // Wait 90 seconds before first check, then every 30s
+  await new Promise(r => setTimeout(r, 90000));
+  
+  for (let i = 0; i < 20; i++) {
+    const result = await checkJobStatus(jobId);
+    
+    if (result.status === 'concluido') {
+      onNotify(`✓ "${taskTitle}" — Concluída!`);
+      return;
+    }
+    if (result.status === 'erro' || result.status === 'not_found') {
+      onNotify(`✗ "${taskTitle}" — ${result.message || 'Erro no processamento'}`);
+      return;
+    }
+    
+    // Still pending, wait 30s
+    await new Promise(r => setTimeout(r, 30000));
+  }
+  
+  onNotify(`⏳ "${taskTitle}" — Tempo esgotado, verifique manualmente`);
 }
