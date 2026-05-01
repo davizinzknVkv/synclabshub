@@ -316,7 +316,7 @@ export async function submitRedacao(
   const submitUrl = redacao.status === 'draft' && redacao.answer_id
     ? `${API_BASE_URL}/tms/task/${redacao.id}/apply?preview_mode=false&answer_id=${redacao.answer_id}&${roomParam}`
     : `${API_BASE_URL}/tms/task/${redacao.id}/apply?preview_mode=false&${roomParam}`;
-  const submitMethod = redacao.status === 'draft' && redacao.answer_id ? 'PUT' : 'POST';
+  const submitMethod = 'POST';
 
   const requestBody = {
     status: 'draft',
