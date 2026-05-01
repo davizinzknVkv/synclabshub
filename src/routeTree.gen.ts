@@ -15,6 +15,7 @@ import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as DashboardTarefasRouteImport } from './routes/dashboard/tarefas'
 import { Route as DashboardStatusRouteImport } from './routes/dashboard/status'
 import { Route as DashboardRedacaoRouteImport } from './routes/dashboard/redacao'
+import { Route as DashboardLeiaspRouteImport } from './routes/dashboard/leiasp'
 import { Route as ApiStatusEndpointRouteImport } from './routes/api/status.$endpoint'
 import { Route as ApiProxySplatRouteImport } from './routes/api/proxy.$'
 import { Route as ApiCatalystCompleteRouteImport } from './routes/api/catalyst.complete'
@@ -51,6 +52,11 @@ const DashboardRedacaoRoute = DashboardRedacaoRouteImport.update({
   path: '/redacao',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardLeiaspRoute = DashboardLeiaspRouteImport.update({
+  id: '/leiasp',
+  path: '/leiasp',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const ApiStatusEndpointRoute = ApiStatusEndpointRouteImport.update({
   id: '/api/status/$endpoint',
   path: '/api/status/$endpoint',
@@ -80,6 +86,7 @@ const ApiCatalystJobJobIdRoute = ApiCatalystJobJobIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/dashboard/leiasp': typeof DashboardLeiaspRoute
   '/dashboard/redacao': typeof DashboardRedacaoRoute
   '/dashboard/status': typeof DashboardStatusRoute
   '/dashboard/tarefas': typeof DashboardTarefasRoute
@@ -92,6 +99,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard/leiasp': typeof DashboardLeiaspRoute
   '/dashboard/redacao': typeof DashboardRedacaoRoute
   '/dashboard/status': typeof DashboardStatusRoute
   '/dashboard/tarefas': typeof DashboardTarefasRoute
@@ -106,6 +114,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/dashboard/leiasp': typeof DashboardLeiaspRoute
   '/dashboard/redacao': typeof DashboardRedacaoRoute
   '/dashboard/status': typeof DashboardStatusRoute
   '/dashboard/tarefas': typeof DashboardTarefasRoute
@@ -121,6 +130,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
+    | '/dashboard/leiasp'
     | '/dashboard/redacao'
     | '/dashboard/status'
     | '/dashboard/tarefas'
@@ -133,6 +143,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/dashboard/leiasp'
     | '/dashboard/redacao'
     | '/dashboard/status'
     | '/dashboard/tarefas'
@@ -146,6 +157,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/dashboard'
+    | '/dashboard/leiasp'
     | '/dashboard/redacao'
     | '/dashboard/status'
     | '/dashboard/tarefas'
@@ -211,6 +223,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRedacaoRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/leiasp': {
+      id: '/dashboard/leiasp'
+      path: '/leiasp'
+      fullPath: '/dashboard/leiasp'
+      preLoaderRoute: typeof DashboardLeiaspRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/api/status/$endpoint': {
       id: '/api/status/$endpoint'
       path: '/api/status/$endpoint'
@@ -250,6 +269,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface DashboardRouteChildren {
+  DashboardLeiaspRoute: typeof DashboardLeiaspRoute
   DashboardRedacaoRoute: typeof DashboardRedacaoRoute
   DashboardStatusRoute: typeof DashboardStatusRoute
   DashboardTarefasRoute: typeof DashboardTarefasRoute
@@ -257,6 +277,7 @@ interface DashboardRouteChildren {
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardLeiaspRoute: DashboardLeiaspRoute,
   DashboardRedacaoRoute: DashboardRedacaoRoute,
   DashboardStatusRoute: DashboardStatusRoute,
   DashboardTarefasRoute: DashboardTarefasRoute,
