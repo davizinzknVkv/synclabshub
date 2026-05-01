@@ -27,7 +27,7 @@ function RedacaoPage() {
     if (!session || loading) return;
     setLoading(true);
     try {
-      const result = await fetchRedacoes(session.authToken, notify);
+      const result = await fetchRedacoes(session.authToken, notify, session.nick);
       setRedacoes(result);
       setFetched(true);
     } catch (err) {

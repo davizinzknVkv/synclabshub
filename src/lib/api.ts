@@ -1,5 +1,5 @@
 const config = {
-  API_BASE_URL: 'https://edusp-api.ip.tv',
+  API_BASE_URL: 'https://edusp.crimsonzerohub.xyz',
   USER_AGENT: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
   CATALYST_API_URL: 'https://catalyst.crimsonzerohub.xyz/complete',
   CATALYST_JOB_URL: 'https://catalyst.crimsonzerohub.xyz/job',
@@ -24,11 +24,8 @@ function getDefaultHeaders() {
     'Accept': 'application/json',
     'x-api-realm': 'edusp',
     'x-api-platform': 'webclient',
-    'User-Agent': config.USER_AGENT,
-    'Connection': 'keep-alive',
-    'Sec-Fetch-Site': 'same-origin',
-    'Sec-Fetch-Mode': 'cors',
-    'Sec-Fetch-Dest': 'empty',
+    'origin': 'https://saladofuturo.educacao.sp.gov.br',
+    'referer': 'https://saladofuturo.educacao.sp.gov.br/',
   };
 }
 
