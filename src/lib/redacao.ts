@@ -3,7 +3,7 @@
  * Ported from CyberRedasp reference implementation
  */
 
-const API_BASE_URL = 'https://edusp.crimsonzerohub.xyz';
+const API_BASE_URL = 'https://edusp-api.ip.tv';
 const GEMINI_API_KEY = 'AIzaSyCFMCc3_wKToNokA2sleQ1gm7XxkFGEjfQ';
 
 export interface RedacaoItem {
@@ -24,8 +24,6 @@ function getDefaultHeaders(authToken?: string) {
     'Accept': 'application/json',
     'x-api-realm': 'edusp',
     'x-api-platform': 'webclient',
-    'origin': 'https://saladofuturo.educacao.sp.gov.br',
-    'referer': 'https://saladofuturo.educacao.sp.gov.br/',
   };
   if (authToken) headers['x-api-key'] = authToken;
   return headers;
