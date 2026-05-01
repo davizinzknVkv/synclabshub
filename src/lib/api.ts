@@ -1,7 +1,8 @@
 const config = {
   API_BASE_URL: 'https://edusp-api.ip.tv',
-  USER_AGENT: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
-  CATALYST_API_URL: 'https://catalyst.crimsonstrauss.xyz/complete',
+  USER_AGENT: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+  CATALYST_API_URL: 'https://catalyst.crimsonzerohub.xyz/complete',
+  CATALYST_JOB_URL: 'https://catalyst.crimsonzerohub.xyz/job',
   STATUS_SERVER_URL: 'https://statusbis.biscurim.space'
 };
 
@@ -60,11 +61,17 @@ async function sendStatusToServer(endpoint: string, data: unknown) {
   }
 }
 
+export interface FetchTasksResult {
+  tasks: TaskItem[];
+  targets: string[];
+}
+
 export async function fetchTasksWithToken(
   authToken: string,
   taskFilter: string,
-  onNotify: (msg: string) => void
-): Promise<TaskItem[]> {
+  onNotify: (msg: string) => void,
+  nick?: string
+): Promise<FetchTasksResult> {
   onNotify('BUSCANDO LIÇÕES...');
 
   const roomData = await makeRequest(
@@ -83,16 +90,19 @@ export async function fetchTasksWithToken(
 
   roomData.rooms.forEach((room: { name: string; id: number }) => {
     uniqueTargets.add(room.name);
+    // Add nick-based targets like CrimsonZero does
+    if (nick) uniqueTargets.add(`${room.name}:${nick}`);
     roomIdToNameMap.set(room.id.toString(), room.name);
+    // Add short numeric IDs (3-4 digits)
+    const idStr = room.id.toString();
+    if (/^\d{3,4}$/.test(idStr)) uniqueTargets.add(idStr);
   });
 
   const roomUserJsonString = JSON.stringify(roomData);
-  const idMatches = roomUserJsonString.match(/"id"\s*:\s*(\d+)(?!\d)/g) || [];
+  const idMatches = roomUserJsonString.match(/"id"\s*:\s*(\d{3,4})(?!\d)/g) || [];
   idMatches.forEach((m: string) => {
     const id = m.match(/\d+/)?.[0];
-    if (id && !roomIdToNameMap.has(id) && !uniqueTargets.has(id)) {
-      uniqueTargets.add(id);
-    }
+    if (id) uniqueTargets.add(id);
   });
 
   const targetsArray = Array.from(uniqueTargets);
@@ -118,7 +128,7 @@ export async function fetchTasksWithToken(
     return { ...task, token: authToken, room: effectiveRoom ?? firstRoomName, type: taskFilter } as TaskItem;
   });
 
-  return processed;
+  return { tasks: processed, targets: targetsArray };
 }
 
 export interface DashboardStats {
@@ -218,13 +228,28 @@ async function fetchTasks(token: string, targetPublications: string[], taskFilte
   }
 }
 
+export async function checkJobStatus(jobId: string): Promise<{ status: string; message?: string }> {
+  try {
+    const res = await fetch(`${config.CATALYST_JOB_URL}/${jobId}`, {
+      headers: { 'Accept': 'application/json' },
+    });
+    if (res.status === 404 || res.status === 410) return { status: 'not_found' };
+    if (!res.ok) return { status: 'error', message: `HTTP ${res.status}` };
+    return await res.json();
+  } catch (err) {
+    return { status: 'error', message: err instanceof Error ? err.message : 'Network error' };
+  }
+}
+
 export async function sendTasksToCatalyst(
   tasks: TaskItem[],
   isDraft: boolean,
   minTime: number,
   maxTime: number,
   ra: string,
-  onNotify: (msg: string) => void
+  onNotify: (msg: string) => void,
+  publicationTargets?: string[],
+  userNick?: string
 ) {
   if (tasks.length === 0) { onNotify('NENHUMA ATIVIDADE VÁLIDA'); return; }
 
@@ -236,17 +261,32 @@ export async function sendTasksToCatalyst(
     try {
       onNotify(`ENVIANDO: ${task.title.substring(0, 25)}...`);
       const payload = {
-        tasks: [{ ...task, score: task.score, is_prova: false, task_id: task.id, id: undefined }],
+        tasks: [{ ...task, score: 100, is_prova: false, task_id: task.id, id: undefined }],
         auth_token: task.token,
-        room_name_for_apply: task.room,
+        publication_targets: publicationTargets || [],
+        room_name_for_apply: task.room || task.publication_target,
         time_min: minTime, time_max: maxTime,
         is_draft: isDraft, salvar_rascunho: isDraft,
+        user_nick: userNick || '',
       };
-      await makeRequest(config.CATALYST_API_URL, 'POST', { 'Content-Type': 'application/json' }, payload);
-      successCount++;
-    } catch {
+      const result = await makeRequest(config.CATALYST_API_URL, 'POST', { 'Content-Type': 'application/json' }, payload);
+      
+      if (result?.success) {
+        successCount++;
+        const jobId = result.job_ids?.[String(task.id)] || null;
+        const estimatedMsg = result.message || '';
+        onNotify(`✓ ${task.title.substring(0, 25)}... ${estimatedMsg}`);
+        
+        // Start polling if we got a job ID
+        if (jobId) {
+          pollJobStatus(jobId, task.title, onNotify);
+        }
+      } else {
+        throw new Error(result?.message || result?.error || 'Resposta inválida');
+      }
+    } catch (err) {
       errorCount++;
-      onNotify(`ERRO: '${task.title.substring(0, 20)}...'`);
+      onNotify(`ERRO: '${task.title.substring(0, 20)}...' - ${err instanceof Error ? err.message : 'Erro'}`);
     }
     await new Promise(r => setTimeout(r, 500));
   }
@@ -259,4 +299,27 @@ export async function sendTasksToCatalyst(
     onNotify(`${errorCount} ATIVIDADES FALHARAM`);
     await sendStatusToServer('task-status', { ra, taskCount: errorCount, taskType: isDraft ? 'rascunhos' : 'lições', status: 'error', message: `${errorCount} tarefas falharam` });
   }
+}
+
+async function pollJobStatus(jobId: string, taskTitle: string, onNotify: (msg: string) => void) {
+  // Wait 90 seconds before first check, then every 30s
+  await new Promise(r => setTimeout(r, 90000));
+  
+  for (let i = 0; i < 20; i++) {
+    const result = await checkJobStatus(jobId);
+    
+    if (result.status === 'concluido') {
+      onNotify(`✓ "${taskTitle}" — Concluída!`);
+      return;
+    }
+    if (result.status === 'erro' || result.status === 'not_found') {
+      onNotify(`✗ "${taskTitle}" — ${result.message || 'Erro no processamento'}`);
+      return;
+    }
+    
+    // Still pending, wait 30s
+    await new Promise(r => setTimeout(r, 30000));
+  }
+  
+  onNotify(`⏳ "${taskTitle}" — Tempo esgotado, verifique manualmente`);
 }
