@@ -10,7 +10,7 @@ export interface UserSession {
 }
 
 // Logo usado como fallback quando a API não retorna icon/dark_icon
-export const FALLBACK_ROOM_ICON = "/src/assets/logo.png";
+export const FALLBACK_ROOM_ICON: string = logoUrl;
 
 const STORAGE_KEY = "sync_labs_session";
 const CREDS_KEY = "sync_labs_creds";
