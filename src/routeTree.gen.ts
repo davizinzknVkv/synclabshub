@@ -18,6 +18,7 @@ import { Route as DashboardRedacaoRouteImport } from './routes/dashboard/redacao
 import { Route as ApiStatusEndpointRouteImport } from './routes/api/status.$endpoint'
 import { Route as ApiProxySplatRouteImport } from './routes/api/proxy.$'
 import { Route as ApiCatalystCompleteRouteImport } from './routes/api/catalyst.complete'
+import { Route as ApiAiGenerateRouteImport } from './routes/api/ai.generate'
 import { Route as ApiCatalystJobJobIdRouteImport } from './routes/api/catalyst.job.$jobId'
 
 const DashboardRoute = DashboardRouteImport.update({
@@ -65,6 +66,11 @@ const ApiCatalystCompleteRoute = ApiCatalystCompleteRouteImport.update({
   path: '/api/catalyst/complete',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAiGenerateRoute = ApiAiGenerateRouteImport.update({
+  id: '/api/ai/generate',
+  path: '/api/ai/generate',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiCatalystJobJobIdRoute = ApiCatalystJobJobIdRouteImport.update({
   id: '/api/catalyst/job/$jobId',
   path: '/api/catalyst/job/$jobId',
@@ -78,6 +84,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/status': typeof DashboardStatusRoute
   '/dashboard/tarefas': typeof DashboardTarefasRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/api/ai/generate': typeof ApiAiGenerateRoute
   '/api/catalyst/complete': typeof ApiCatalystCompleteRoute
   '/api/proxy/$': typeof ApiProxySplatRoute
   '/api/status/$endpoint': typeof ApiStatusEndpointRoute
@@ -89,6 +96,7 @@ export interface FileRoutesByTo {
   '/dashboard/status': typeof DashboardStatusRoute
   '/dashboard/tarefas': typeof DashboardTarefasRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/api/ai/generate': typeof ApiAiGenerateRoute
   '/api/catalyst/complete': typeof ApiCatalystCompleteRoute
   '/api/proxy/$': typeof ApiProxySplatRoute
   '/api/status/$endpoint': typeof ApiStatusEndpointRoute
@@ -102,6 +110,7 @@ export interface FileRoutesById {
   '/dashboard/status': typeof DashboardStatusRoute
   '/dashboard/tarefas': typeof DashboardTarefasRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/api/ai/generate': typeof ApiAiGenerateRoute
   '/api/catalyst/complete': typeof ApiCatalystCompleteRoute
   '/api/proxy/$': typeof ApiProxySplatRoute
   '/api/status/$endpoint': typeof ApiStatusEndpointRoute
@@ -116,6 +125,7 @@ export interface FileRouteTypes {
     | '/dashboard/status'
     | '/dashboard/tarefas'
     | '/dashboard/'
+    | '/api/ai/generate'
     | '/api/catalyst/complete'
     | '/api/proxy/$'
     | '/api/status/$endpoint'
@@ -127,6 +137,7 @@ export interface FileRouteTypes {
     | '/dashboard/status'
     | '/dashboard/tarefas'
     | '/dashboard'
+    | '/api/ai/generate'
     | '/api/catalyst/complete'
     | '/api/proxy/$'
     | '/api/status/$endpoint'
@@ -139,6 +150,7 @@ export interface FileRouteTypes {
     | '/dashboard/status'
     | '/dashboard/tarefas'
     | '/dashboard/'
+    | '/api/ai/generate'
     | '/api/catalyst/complete'
     | '/api/proxy/$'
     | '/api/status/$endpoint'
@@ -148,6 +160,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRouteWithChildren
+  ApiAiGenerateRoute: typeof ApiAiGenerateRoute
   ApiCatalystCompleteRoute: typeof ApiCatalystCompleteRoute
   ApiProxySplatRoute: typeof ApiProxySplatRoute
   ApiStatusEndpointRoute: typeof ApiStatusEndpointRoute
@@ -219,6 +232,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiCatalystCompleteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ai/generate': {
+      id: '/api/ai/generate'
+      path: '/api/ai/generate'
+      fullPath: '/api/ai/generate'
+      preLoaderRoute: typeof ApiAiGenerateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/catalyst/job/$jobId': {
       id: '/api/catalyst/job/$jobId'
       path: '/api/catalyst/job/$jobId'
@@ -250,6 +270,7 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRouteWithChildren,
+  ApiAiGenerateRoute: ApiAiGenerateRoute,
   ApiCatalystCompleteRoute: ApiCatalystCompleteRoute,
   ApiProxySplatRoute: ApiProxySplatRoute,
   ApiStatusEndpointRoute: ApiStatusEndpointRoute,
@@ -258,3 +279,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
