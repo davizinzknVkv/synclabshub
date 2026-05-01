@@ -1,7 +1,8 @@
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
 
 @custom-variant dark (&:is(.dark *));
 
@@ -11,8 +12,8 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --radius-2xl: calc(var(--radius) + 8px);
-  --font-sans: "Poppins", sans-serif;
-  --font-display: "Playfair Display", serif;
+  --font-sans: "Inter", sans-serif;
+  --font-mono: "Geist Mono", monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -32,39 +33,54 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-brand-red: var(--brand-red);
-  --color-brand-red-glow: var(--brand-red-glow);
   --color-surface: var(--surface);
   --color-surface-hover: var(--surface-hover);
   --color-surface-border: var(--surface-border);
+  /* Blood red accent colors */
+  --color-blood: var(--blood);
+  --color-blood-glow: var(--blood-glow);
+  --color-blood-muted: var(--blood-muted);
+  --color-glass-border: var(--glass-border);
 }
 
 :root {
-  --radius: 0.5rem;
-  --background: oklch(0.08 0.005 300);
-  --foreground: oklch(0.85 0 0);
-  --card: oklch(0.12 0.01 350);
-  --card-foreground: oklch(0.9 0 0);
-  --popover: oklch(0.1 0 0);
-  --popover-foreground: oklch(0.9 0 0);
-  --primary: oklch(0.55 0.2 20);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.15 0.005 350);
-  --secondary-foreground: oklch(0.8 0 0);
-  --muted: oklch(0.2 0 0);
-  --muted-foreground: oklch(0.55 0 0);
-  --accent: oklch(0.55 0.2 20);
-  --accent-foreground: oklch(1 0 0);
-  --destructive: oklch(0.55 0.22 25);
-  --destructive-foreground: oklch(1 0 0);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 8%);
-  --ring: oklch(0.55 0.2 20);
-  --brand-red: oklch(0.55 0.2 20);
-  --brand-red-glow: oklch(0.4 0.18 20);
-  --surface: oklch(0.1 0.005 350);
-  --surface-hover: oklch(0.18 0.01 350);
-  --surface-border: oklch(1 0 0 / 8%);
+  --radius: 0.25rem;
+  /* Obsidian background */
+  --background: #050507;
+  --foreground: #d4d4d8;
+  /* Cards — very dark with subtle warm tint */
+  --card: #0a0a0c;
+  --card-foreground: #e4e4e7;
+  --popover: #0a0a0c;
+  --popover-foreground: #e4e4e7;
+  /* Primary — blood red */
+  --primary: #dc2626;
+  --primary-foreground: #ffffff;
+  /* Secondary */
+  --secondary: #18181b;
+  --secondary-foreground: #a1a1aa;
+  /* Muted */
+  --muted: #1c1c1f;
+  --muted-foreground: #71717a;
+  /* Accent */
+  --accent: #dc2626;
+  --accent-foreground: #ffffff;
+  /* Destructive */
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  /* Borders */
+  --border: rgba(255, 255, 255, 0.06);
+  --input: rgba(255, 255, 255, 0.06);
+  --ring: #dc2626;
+  /* Surface */
+  --surface: #0e0e10;
+  --surface-hover: #161618;
+  --surface-border: rgba(255, 255, 255, 0.06);
+  /* Blood accent tokens */
+  --blood: #dc2626;
+  --blood-glow: rgba(220, 38, 38, 0.15);
+  --blood-muted: rgba(220, 38, 38, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.06);
 }
 
 @layer base {
@@ -76,6 +92,22 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(220, 38, 38, 0.2);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(220, 38, 38, 0.4);
   }
 }
 
@@ -100,36 +132,63 @@
   to { transform: translateX(120%); }
 }
 
-.animate-gradient {
-  background: linear-gradient(90deg, oklch(0.55 0.2 20), oklch(0.7 0.15 10), oklch(0.55 0.2 20));
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: gradient-shift 4s ease infinite;
+@keyframes breathe {
+  0%, 100% { opacity: 0.15; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(1.08); }
 }
 
-.bg-glow-red {
-  background: radial-gradient(ellipse at 50% 0%, oklch(0.35 0.18 20 / 40%) 0%, transparent 60%);
+@keyframes scan-line {
+  0% { top: 0%; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
 }
 
-.btn-entrar {
-  background: linear-gradient(135deg, oklch(0.5 0.2 20), oklch(0.45 0.18 15));
-  color: white;
+/* Blood glow background */
+.bg-blood-glow {
+  background: radial-gradient(ellipse at 50% 50%, var(--blood-glow) 0%, transparent 60%);
+  animation: breathe 8s ease-in-out infinite;
+}
+
+/* Obsidian grid overlay */
+.bg-obsidian-grid {
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 4rem 4rem;
+  mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, #000 10%, transparent 100%);
+}
+
+/* Blood button */
+.btn-blood {
+  background: transparent;
+  color: var(--blood);
+  border: 1px solid rgba(220, 38, 38, 0.3);
   font-weight: 600;
-  border: none;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 20px oklch(0.4 0.18 20 / 30%);
+  position: relative;
+  overflow: hidden;
+}
+.btn-blood:hover {
+  border-color: var(--blood);
+  box-shadow: 0 0 20px -5px var(--blood);
+  background: var(--blood-muted);
 }
 
-.btn-entrar:hover {
-  background: linear-gradient(135deg, oklch(0.55 0.22 20), oklch(0.5 0.2 15));
-  box-shadow: 0 6px 30px oklch(0.4 0.18 20 / 50%);
-  transform: translateY(-1px);
+/* Obsidian input style */
+.input-obsidian {
+  background: rgba(5, 5, 7, 0.8);
+  border: 1px solid var(--glass-border);
+  color: var(--foreground);
+  font-family: var(--font-mono);
+  transition: all 0.2s ease;
+  box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
 }
-
-.title-display {
-  font-family: var(--font-display);
-  font-style: italic;
-  color: oklch(0.7 0.12 15);
+.input-obsidian:focus {
+  outline: none;
+  border-color: rgba(220, 38, 38, 0.4);
+  background: rgba(220, 38, 38, 0.03);
+}
+.input-obsidian::placeholder {
+  color: #3f3f46;
 }

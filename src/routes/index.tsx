@@ -1,7 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useCallback, useEffect } from "react";
-import { motion } from "framer-motion";
-import { EyeOff, Eye, ArrowRight } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { NotificationContainer, notify } from "@/components/Notification";
 import { setSession, getSession, saveCreds, loadCreds } from "@/lib/auth";
@@ -11,7 +10,7 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "SYNC LABS HUB - Login" },
-      { name: "description", content: "SYNC LABS HUB - Sua plataforma de estudos" },
+      { name: "description", content: "SYNC LABS HUB - Sua plataforma de automação" },
     ],
   }),
 });
@@ -33,11 +32,8 @@ function Index() {
   const [showPwd, setShowPwd] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Auto-redirect if already logged in
   useEffect(() => {
-    if (getSession()) {
-      navigate({ to: "/dashboard" });
-    }
+    if (getSession()) navigate({ to: "/dashboard" });
   }, [navigate]);
 
   const fullRa = `${raNumero}${raDigito}${raUf}`;
@@ -64,7 +60,6 @@ function Index() {
       if (!res.ok) throw new Error("RA OU SENHA INVÁLIDOS");
       const data = await res.json();
 
-      // Fetch rooms
       const roomRes = await fetch(`${API_BASE_URL}/room/user?list_all=true&with_cards=true`, {
         headers: {
           "Content-Type": "application/json",
@@ -76,7 +71,6 @@ function Index() {
       });
       const roomData = roomRes.ok ? await roomRes.json() : { rooms: [] };
 
-      // Save credentials for next time
       saveCreds({ raNumero, raDigito, raUf, pwd });
 
       setSession({
@@ -97,122 +91,138 @@ function Index() {
   }, [raNumero, raDigito, raUf, fullRa, pwd, loading, navigate]);
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center bg-background overflow-hidden">
-      <div className="absolute top-0 left-0 right-0 h-96 bg-glow-red pointer-events-none" />
+    <div className="relative flex min-h-screen items-center justify-center bg-background overflow-hidden antialiased p-4">
+      {/* Blood glow ambient */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blood-glow pointer-events-none mix-blend-screen" />
 
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="relative z-10 flex flex-col items-center w-full max-w-lg px-4"
-      >
-        <motion.img
-          src={logo}
-          alt="SYNC LABS"
-          className="w-28 h-28 mb-4 drop-shadow-[0_0_30px_oklch(0.5_0.2_20/0.5)]"
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.6 }}
-        />
+      {/* Grid texture */}
+      <div className="absolute inset-0 bg-obsidian-grid pointer-events-none" />
 
-        <h1 className="title-display text-5xl font-bold mb-1">Sync Labs</h1>
-        <p className="text-sm tracking-[0.25em] uppercase text-muted-foreground mb-10">
-          Sua plataforma de estudos
-        </p>
+      {/* Login card */}
+      <main className="relative z-10 w-full max-w-[440px] p-8 sm:p-10 bg-card/60 backdrop-blur-2xl border border-glass-border shadow-[0_0_60px_-15px_rgba(220,38,38,0.05)] rounded-md ring-1 ring-white/5">
 
-        <div className="w-16 h-0.5 bg-primary rounded-full mb-8 opacity-60" />
+        {/* Header */}
+        <header className="mb-10 flex flex-col items-center text-center">
+          <div className="size-14 border border-blood/20 bg-blood-muted flex items-center justify-center rounded shadow-[inset_0_0_20px_rgba(220,38,38,0.05)] mb-6 relative overflow-hidden">
+            <div className="absolute w-full h-[1px] bg-blood/30 top-1/2 -translate-y-1/2" />
+            <div className="absolute h-full w-[1px] bg-blood/30 left-1/2 -translate-x-1/2" />
+            <img src={logo} alt="Sync Labs" className="relative z-10 w-8 h-8 drop-shadow-[0_0_10px_rgba(220,38,38,0.6)]" />
+          </div>
+          <h1 className="text-2xl font-medium tracking-tight text-white mb-1">Sync Labs</h1>
+          <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em] font-mono">
+            Hub de Automação
+          </p>
+        </header>
 
-        <div className="w-full bg-card/80 backdrop-blur-sm border border-border rounded-xl p-6 space-y-5">
-          {/* RA Fields */}
-          <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-card-foreground mb-1">
-              <span className="text-primary">🪪</span> RA
+        {/* Form */}
+        <form className="flex flex-col gap-6" onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
+
+          {/* RA */}
+          <div className="flex flex-col gap-2.5">
+            <label className="text-[11px] text-muted-foreground uppercase tracking-widest font-mono flex items-center gap-2">
+              <span className="size-1 bg-blood/40 rounded-full inline-block" />
+              RA
             </label>
             <div className="flex gap-2">
-              <div className="flex-1">
-                <span className="text-xs text-muted-foreground mb-1 block">NÚMERO</span>
+              <div className="relative flex-grow">
                 <input
                   type="text"
                   value={raNumero}
                   onChange={e => setRaNumero(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-lg bg-surface border border-surface-border text-foreground outline-none focus:border-primary transition-colors"
+                  placeholder="Número"
+                  className="input-obsidian w-full px-3 py-3 rounded-sm text-sm tracking-wider"
                 />
               </div>
-              <div className="w-16">
-                <span className="text-xs text-muted-foreground mb-1 block">DÍGITO</span>
-                <input
-                  type="text"
-                  value={raDigito}
-                  onChange={e => setRaDigito(e.target.value)}
-                  maxLength={1}
-                  className="w-full px-3 py-2.5 rounded-lg bg-surface border border-surface-border text-foreground outline-none focus:border-primary transition-colors text-center"
-                />
-              </div>
-              <div className="w-20">
-                <span className="text-xs text-muted-foreground mb-1 block">&nbsp;</span>
+              <input
+                type="text"
+                value={raDigito}
+                onChange={e => setRaDigito(e.target.value)}
+                placeholder="D"
+                maxLength={1}
+                className="input-obsidian w-14 text-center px-2 py-3 rounded-sm text-sm"
+              />
+              <div className="relative w-20 shrink-0">
                 <select
                   value={raUf}
                   onChange={e => setRaUf(e.target.value)}
-                  className="w-full px-2 py-2.5 rounded-lg bg-surface border border-surface-border text-foreground outline-none focus:border-primary transition-colors appearance-none text-center cursor-pointer"
+                  className="input-obsidian w-full appearance-none pl-3 pr-6 py-3 rounded-sm text-sm cursor-pointer text-center"
                 >
                   {UF_LIST.map(uf => (
-                    <option key={uf} value={uf}>{uf}</option>
+                    <option key={uf} value={uf} className="bg-card">{uf}</option>
                   ))}
                 </select>
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <div className="w-0 h-0 border-l-[3px] border-l-transparent border-r-[3px] border-r-transparent border-t-[4px] border-t-muted-foreground" />
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Senha */}
-          <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-card-foreground mb-2">
-              <span className="text-primary">🔒</span> SENHA
+          {/* Password */}
+          <div className="flex flex-col gap-2.5">
+            <label className="text-[11px] text-muted-foreground uppercase tracking-widest font-mono flex items-center gap-2">
+              <span className="size-1 bg-blood/40 rounded-full inline-block" />
+              Senha
             </label>
             <div className="relative">
               <input
                 type={showPwd ? "text" : "password"}
                 value={pwd}
                 onChange={e => setPwd(e.target.value)}
-                placeholder="Digite sua senha"
-                className="w-full px-3 py-2.5 pr-10 rounded-lg bg-surface border border-surface-border text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground"
+                placeholder="••••••••••••"
+                className="input-obsidian w-full px-3 py-3 pr-10 rounded-sm text-sm tracking-[0.3em]"
               />
               <button
+                type="button"
                 onClick={() => setShowPwd(!showPwd)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
               >
-                {showPwd ? <Eye size={18} /> : <EyeOff size={18} />}
+                {showPwd ? <Eye size={16} /> : <EyeOff size={16} />}
               </button>
             </div>
           </div>
 
-          {/* Entrar button */}
-          <button
-            onClick={handleLogin}
-            disabled={loading}
-            className="w-full py-3 rounded-xl btn-entrar text-base flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          {/* Submit */}
+          <div className="mt-2">
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-blood w-full py-3.5 rounded-sm font-mono text-xs uppercase tracking-[0.15em] disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 border-2 border-blood/30 border-t-blood rounded-full animate-spin" />
+                  Conectando...
+                </span>
+              ) : (
+                "Estabelecer Conexão"
+              )}
+            </button>
+          </div>
+        </form>
+
+        {/* Footer */}
+        <footer className="mt-10 pt-6 border-t border-glass-border/50 flex justify-between items-center">
+          <a
+            href="https://discord.gg/yXYKSZAK9Z"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex items-center gap-2 text-[11px] text-muted-foreground hover:text-foreground transition-colors uppercase tracking-widest font-mono"
           >
-            {loading ? (
-              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            ) : (
-              <>
-                Entrar <ArrowRight size={18} />
-              </>
-            )}
-          </button>
-        </div>
-
-        <div className="mt-8 flex items-center gap-4 text-sm text-muted-foreground">
-          <a href="https://discord.gg/yXYKSZAK9Z" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-foreground transition-colors">
-            💬 Discord
+            <div className="size-1.5 border border-muted-foreground group-hover:border-foreground group-hover:bg-foreground transition-all rounded-[1px]" />
+            Discord
           </a>
-          <span className="text-border">•</span>
-          <a href="https://pixgg.com/marcos10pc" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-foreground transition-colors">
-            ❤️ Doações
+          <a
+            href="https://pixgg.com/marcos10pc"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex items-center gap-2 text-[11px] text-muted-foreground hover:text-foreground transition-colors uppercase tracking-widest font-mono"
+          >
+            <div className="size-1.5 border border-muted-foreground group-hover:border-foreground group-hover:bg-foreground transition-all rounded-[1px]" />
+            Doações
           </a>
-        </div>
-
-        <p className="mt-6 text-xs tracking-[0.2em] uppercase text-muted-foreground">2026</p>
-      </motion.div>
+        </footer>
+      </main>
 
       <NotificationContainer />
     </div>
