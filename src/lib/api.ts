@@ -255,9 +255,12 @@ export async function sendTasksToCatalyst(
   for (const task of tasks) {
     try {
       onNotify(`ENVIANDO: ${task.title.substring(0, 25)}...`);
-      const { id, token, room, ...taskPayload } = task;
+      const taskPayload = { ...task } as Record<string, unknown>;
+      delete taskPayload.id;
+      delete taskPayload.token;
+      delete taskPayload.room;
       const payload = {
-        tasks: [{ ...taskPayload, type: taskFilterToCatalystType(task.type), score: 100, is_prova: false, task_id: id }],
+        tasks: [{ ...taskPayload, type: taskFilterToCatalystType(task.type), score: 100, is_prova: false, task_id: task.id }],
         auth_token: task.token,
         publication_targets: publicationTargets || [],
         room_name_for_apply: task.room || task.publication_target,
