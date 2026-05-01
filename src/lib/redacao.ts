@@ -95,13 +95,18 @@ export async function fetchRedacoes(
   allTasks.filter(isRedacao).forEach((task: any) => {
     const actualStatus: 'pending' | 'draft' = task.answer_status === 'draft' ? 'draft' : 'pending';
     let roomName = '';
-    if (task.publication_target) {
+
+    // Prefer answer_executed_on (actual room name used), then try publication_target
+    if (task.answer_executed_on && task.answer_executed_on.startsWith('r')) {
+      roomName = task.answer_executed_on;
+    } else if (task.publication_target) {
       if (task.publication_target.includes(':')) {
         roomName = task.publication_target.split(':')[0];
       } else if (roomIdToNameMap.has(task.publication_target)) {
         roomName = roomIdToNameMap.get(task.publication_target)!;
       } else {
-        roomName = task.publication_target;
+        // publication_target is a category ID — use first room as fallback
+        roomName = rooms.length > 0 ? rooms[0].name : task.publication_target;
       }
     }
 
@@ -122,8 +127,11 @@ export async function fetchRedacoes(
 
 // ---- Content fetching & parsing ----
 
-async function fetchRedacaoContent(taskId: number, token: string, roomName: string) {
-  const url = `${API_BASE_URL}/tms/task/${taskId}/apply?preview_mode=false&token_code=null&room_name=${roomName}`;
+async function fetchRedacaoContent(taskId: number, token: string, roomName: string, answerId?: string) {
+  const answerParams = answerId
+    ? `&answer_id=${answerId}&answer_fields=id&answer_fields=nick&answer_fields=status&answer_fields=task_id&answer_fields=answers&answer_fields=duration`
+    : '';
+  const url = `${API_BASE_URL}/tms/task/${taskId}/apply?preview_mode=false${answerParams}&token_code=null&room_name=${roomName}`;
   return makeRequest(url, 'GET', { 'x-api-key': token });
 }
 
@@ -212,7 +220,7 @@ export async function processRedacao(
 ): Promise<void> {
   onNotify('BUSCANDO CONTEÚDO DA REDAÇÃO...');
 
-  const data = await fetchRedacaoContent(redacao.id, authToken, redacao.room_name_for_apply);
+  const data = await fetchRedacaoContent(redacao.id, authToken, redacao.room_name_for_apply, redacao.answer_id);
 
   let questionId: string | null = null;
   let questionType: string | null = null;
