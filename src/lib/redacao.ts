@@ -1,10 +1,8 @@
 /**
- * Redação Paulista — fetch, generate (Gemini), and submit essays
- * Ported from CyberRedasp reference implementation
+ * Redação Paulista — fetch, generate (Lovable AI), and submit essays
  */
 
-const API_BASE_URL = 'https://edusp-api.ip.tv';
-const GEMINI_API_KEY = 'AIzaSyCFMCc3_wKToNokA2sleQ1gm7XxkFGEjfQ';
+const API_BASE_URL = '/api/proxy';
 
 export interface RedacaoItem {
   id: number;
@@ -71,7 +69,6 @@ export async function fetchRedacoes(
     roomIdToNameMap.set(room.id.toString(), room.name);
   });
 
-  // Also add room IDs from JSON
   const roomUserJsonString = JSON.stringify(roomData);
   const idMatches = roomUserJsonString.match(/"id"\s*:\s*(\d{3,4})(?!\d)/g) || [];
   idMatches.forEach((m: string) => {
@@ -81,7 +78,6 @@ export async function fetchRedacoes(
 
   const targetsArray = Array.from(uniqueTargets);
 
-  // Fetch with is_essay=true, pending + draft statuses
   const commonParams = `expired_only=false&limit=100&offset=0&filter_expired=true&is_exam=false&with_answer=true&is_essay=true&with_apply_moment=true`;
   const targetParams = targetsArray.map(t => `publication_target=${encodeURIComponent(t)}`).join('&');
   const statusParams = `answer_statuses=${encodeURIComponent('pending')}&answer_statuses=${encodeURIComponent('draft')}`;
@@ -94,7 +90,6 @@ export async function fetchRedacoes(
 
   if (!Array.isArray(allTasks)) allTasks = [];
 
-  // Filter only redações and deduplicate
   const redacoesMap = new Map<number, RedacaoItem>();
 
   allTasks.filter(isRedacao).forEach((task: any) => {
@@ -149,7 +144,6 @@ function parseRedactionSections(rawHtml: string) {
   };
   const sectionIdentifiers = ['Texto I', 'Texto II', 'Texto III', 'ENUNCIADO'];
 
-  // Simple regex-based parsing since we don't have DOMParser on all envs
   for (const id of sectionIdentifiers) {
     const regex = new RegExp(`<strong[^>]*>\\s*${id}\\s*</strong>([\\s\\S]*?)(?=<strong|$)`, 'i');
     const match = rawHtml.match(regex);
@@ -163,7 +157,7 @@ function parseRedactionSections(rawHtml: string) {
   return sections;
 }
 
-// ---- Gemini AI ----
+// ---- Lovable AI ----
 
 const promptsGeracao = [
   `Olá! Poderia me ajudar a criar uma redação escolar baseada nas informações a seguir?
@@ -193,26 +187,20 @@ Texto: {textoRedacao}
 Lembre-se: devolva APENAS o texto reescrito, sem quaisquer comentários ou explicações adicionais.`,
 ];
 
-async function fetchGeminiContent(prompt: string): Promise<string> {
-  const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
-
-  const response = await fetch(apiUrl, {
+async function callLovableAI(prompt: string): Promise<string> {
+  const response = await fetch('/api/ai/generate', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
+    body: JSON.stringify({ prompt }),
   });
 
   if (!response.ok) {
-    const errorData = await response.text();
-    throw new Error(`Gemini API error: ${response.status} - ${errorData}`);
+    const errData = await response.json().catch(() => ({}));
+    throw new Error((errData as any).error || `AI error: ${response.status}`);
   }
 
-  const result = await response.json();
-  if (result.candidates?.[0]?.content?.parts?.[0]?.text) {
-    return result.candidates[0].content.parts[0].text;
-  }
-  return '';
+  const data = await response.json();
+  return (data as any).text || '';
 }
 
 // ---- Main process ----
@@ -226,7 +214,6 @@ export async function processRedacao(
 
   const data = await fetchRedacaoContent(redacao.id, authToken, redacao.room_name_for_apply);
 
-  // Find question ID & type
   let questionId: string | null = null;
   let questionType: string | null = null;
 
@@ -242,7 +229,6 @@ export async function processRedacao(
     throw new Error('ID ou Tipo da Questão não encontrado para esta redação.');
   }
 
-  // Build content for Gemini
   let fullContent = `Título da Redação: ${redacao.title}\n\n`;
   fullContent += `Descrição: ${stripHtml(data.description || 'N/A')}\n\n`;
 
@@ -265,10 +251,10 @@ export async function processRedacao(
     fullContent += `Textos de Apoio:\n${texts.join('\n\n')}\n\n`;
   }
 
-  // Generate with Gemini
+  // Generate with Lovable AI
   onNotify('GERANDO REDAÇÃO COM IA...');
   const prompt = promptsGeracao[0].replace('{dadosRedacao}', fullContent);
-  const rawResponse = await fetchGeminiContent(prompt);
+  const rawResponse = await callLovableAI(prompt);
 
   if (!rawResponse.includes('TITULO:') || !rawResponse.includes('TEXTO:')) {
     throw new Error('Resposta da IA inválida - formato inesperado');
@@ -280,7 +266,7 @@ export async function processRedacao(
   // Humanize
   onNotify('HUMANIZANDO TEXTO...');
   const humanizePrompt = promptsHumanizacao[0].replace('{textoRedacao}', generatedText);
-  const humanizedText = await fetchGeminiContent(humanizePrompt);
+  const humanizedText = await callLovableAI(humanizePrompt);
   if (!humanizedText) throw new Error('Humanização retornou texto vazio');
 
   // Submit as draft
