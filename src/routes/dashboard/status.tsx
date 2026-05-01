@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { Activity, RefreshCw, CheckCircle, XCircle, Clock } from "lucide-react";
+import { Activity, RefreshCw, CheckCircle, XCircle, Clock, Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/dashboard/status")({
@@ -9,6 +9,9 @@ export const Route = createFileRoute("/dashboard/status")({
     meta: [{ title: "Status - SYNC LABS HUB" }],
   }),
 });
+
+const ADMIN_STORAGE_KEY = "sync_labs_admin_auth";
+const ADMIN_PASSWORD = "syncadmin2026";
 
 interface StatusLog {
   id: string;
@@ -21,8 +24,27 @@ interface StatusLog {
 }
 
 function StatusDashboard() {
+  const [authenticated, setAuthenticated] = useState(false);
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [logs, setLogs] = useState<StatusLog[]>([]);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const saved = sessionStorage.getItem(ADMIN_STORAGE_KEY);
+    if (saved === "true") setAuthenticated(true);
+  }, []);
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === ADMIN_PASSWORD) {
+      setAuthenticated(true);
+      sessionStorage.setItem(ADMIN_STORAGE_KEY, "true");
+      setError("");
+    } else {
+      setError("Senha incorreta");
+    }
+  };
 
   const fetchLogs = async () => {
     setLoading(true);
@@ -39,8 +61,49 @@ function StatusDashboard() {
   };
 
   useEffect(() => {
-    fetchLogs();
-  }, []);
+    if (authenticated) fetchLogs();
+  }, [authenticated]);
+
+  if (!authenticated) {
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center p-6">
+        <form
+          onSubmit={handleLogin}
+          className="bg-card border border-border rounded-xl p-8 w-full max-w-sm space-y-5"
+        >
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center">
+              <Lock size={24} className="text-primary" />
+            </div>
+            <h2 className="text-lg font-bold text-foreground">Área Restrita</h2>
+            <p className="text-sm text-muted-foreground text-center">
+              Digite a senha de administrador para acessar o painel de status.
+            </p>
+          </div>
+
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Senha de admin"
+            className="w-full px-4 py-3 rounded-lg bg-background border border-border text-foreground text-sm focus:outline-none focus:border-primary transition-colors"
+            autoFocus
+          />
+
+          {error && (
+            <p className="text-xs text-red-400 text-center">{error}</p>
+          )}
+
+          <button
+            type="submit"
+            className="w-full py-3 rounded-xl text-sm font-bold border border-primary bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+          >
+            Entrar
+          </button>
+        </form>
+      </div>
+    );
+  }
 
   const successCount = logs.filter((l) => l.status === "success").length;
   const errorCount = logs.filter((l) => l.status === "error").length;
