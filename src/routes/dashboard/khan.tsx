@@ -96,12 +96,12 @@ function KhanPage() {
       });
 
       if (khanRequests.length === 0) {
-        notify("⚠️ NENHUMA REQUISIÇÃO KHAN ENCONTRADA NO HAR", "error");
+        notify("⚠️ NENHUMA REQUISIÇÃO KHAN ENCONTRADA NO HAR");
       } else {
-        notify(`✓ ${khanRequests.length} REQUISIÇÕES KHAN ANALISADAS`, "success");
+        notify(`✓ ${khanRequests.length} REQUISIÇÕES KHAN ANALISADAS`);
       }
     } catch (err) {
-      notify(`ERRO AO LER HAR: ${err instanceof Error ? err.message : "inválido"}`, "error");
+      notify(`ERRO AO LER HAR: ${err instanceof Error ? err.message : "inválido"}`);
     } finally {
       setAnalyzing(false);
     }
@@ -122,10 +122,10 @@ function KhanPage() {
         }),
       });
       setUploadStatus("sent");
-      notify("✓ ANÁLISE ENVIADA — AGUARDE IMPLEMENTAÇÃO", "success");
+      notify("✓ ANÁLISE ENVIADA — AGUARDE IMPLEMENTAÇÃO");
     } catch {
       setUploadStatus("error");
-      notify("ERRO AO ENVIAR — COPIE O JSON ABAIXO MANUALMENTE", "error");
+      notify("ERRO AO ENVIAR — COPIE O JSON ABAIXO MANUALMENTE");
     } finally {
       setSending(false);
     }
