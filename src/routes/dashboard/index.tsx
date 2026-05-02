@@ -23,7 +23,7 @@ const SCRIPTS = [
   { name: "Redação", icon: iconRedacao, url: "/dashboard/redacao" },
   { name: "Leia SP", icon: iconLeiaSp, url: "/dashboard/leiasp" },
   { name: "Status", icon: iconStatus, url: "/dashboard/status" },
-  { name: "Khan Academy", icon: iconKhan, url: "#" },
+  { name: "Khan Academy", icon: iconKhan, url: "/dashboard/khan" },
   { name: "Alura", icon: iconAlura, url: "#" },
 ];
 
