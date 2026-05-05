@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-const UPSTREAM = "https://crimsonzerohub.xyz";
+const UPSTREAM = "https://khan.cupiditys.lol";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -15,6 +15,10 @@ async function proxyRequest(request: Request, splat: string) {
 
   const headers = new Headers();
   for (const key of ["content-type", "accept", "authorization"]) {
+    const v = request.headers.get(key);
+    if (v) headers.set(key, v);
+  }
+  for (const key of ["x-captcha-token"]) {
     const v = request.headers.get(key);
     if (v) headers.set(key, v);
   }
