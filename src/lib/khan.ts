@@ -64,7 +64,7 @@ async function jpost<T = any>(url: string, body: unknown, bearer?: string): Prom
 
 /** Get Khan SSO token from EDUSP using existing edusp authToken. */
 export async function getKhanTokenFromEdusp(eduspAuthToken: string): Promise<string> {
-  const r = await fetch(
+  const r = await khanFetch(
     `/api/proxy/mas/external-auth/seducsp_token/generate?card_label=Khan+Academy`,
     {
       method: "GET",
