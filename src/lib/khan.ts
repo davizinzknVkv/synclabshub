@@ -1,20 +1,23 @@
-// Khan Academy auto-completer via CrimsonZero compatible endpoints.
-// Login flow:
-//   1. GET /api/proxy/mas/external-auth/seducsp_token/generate?card_label=Khan+Academy
-//      with header X-Api-Key: <EDUSP authToken>  -> returns Khan token
-//   2. POST /api/khan/sso  { token }            -> returns Khan Bearer (with KAAL cookies)
-// Then with Bearer:
-//   POST /api/khan/profile
-//   POST /api/khan/courses
-//   POST /api/khan/units    { courseId }
-//   POST /api/khan/unit     { unitId, unitPath }
-//   POST /api/khan/lesson   { lessonId, unitId }
-//   POST /api/khan/complete/exercise  { exerciseId, topicId }
-//   POST /api/khan/complete/video     { videoId, videoSlug }
-//   POST /api/khan/complete/quiz      { topicId, positionKey }
-//   POST /api/khan/complete/unit-test { topicId }
+// Khanto (khan.cupiditys.lol) auto-completer.
+//
+// Flow:
+//   1. Solve altcha PoW captcha at taskitos.cupiditys.lol/captcha/challenge → captchaToken
+//   2. GET edusp-api.ip.tv/mas/external-auth/seducsp_token/generate?card_label=Khan+Academy
+//      with x-api-key = EDUSP authToken → Khan SSO token
+//   3. POST /api/khan/sso { token, captchaToken } → { token: <Bearer> }
+//   4. With Bearer:
+//      POST /api/khan/profile
+//      POST /api/khan/courses
+//      POST /api/khan/units    { courseId }
+//      POST /api/khan/unit     { unitId, unitPath }
+//      POST /api/khan/lesson   { lessonId, unitId }
+//      POST /api/khan/complete/exercise  { exerciseId, topicId }
+//      POST /api/khan/complete/video     { videoId, videoSlug }
+//      POST /api/khan/complete/quiz      { topicId, positionKey }
+//      POST /api/khan/complete/unit-test { topicId }
 
 const KHAN_KEY = "sync_labs_khan";
+const TASKITOS = "https://taskitos.cupiditys.lol";
 
 export interface KhanSession {
   bearer: string;
@@ -33,54 +36,98 @@ export function saveKhanSession(s: KhanSession | null) {
   else localStorage.removeItem(KHAN_KEY);
 }
 
-// Preview fallback: rotas /api/khan/* e /api/proxy/* só existem no preview
-// até o próximo publish. Se o domínio atual responder 404, refaz a chamada
-// contra o preview público.
+// Preview fallback for /api/khan/* until next publish.
 const PREVIEW_HOST = "https://id-preview--6e0e5d0c-b095-4bbc-a9a0-4207603a8d3f.lovable.app";
 
-function isApiKhanOrProxy(url: string) {
-  return url.startsWith("/api/khan") || url.startsWith("/api/proxy");
-}
-
-export async function khanFetch(url: string, init: RequestInit = {}): Promise<Response> {
+async function khanFetch(url: string, init: RequestInit = {}): Promise<Response> {
   let r = await fetch(url, init);
-  if (r.status === 404 && isApiKhanOrProxy(url) && typeof window !== "undefined") {
-    const here = window.location.origin;
-    if (here !== PREVIEW_HOST) {
-      r = await fetch(`${PREVIEW_HOST}${url}`, init);
-    }
+  if (
+    r.status === 404 &&
+    url.startsWith("/api/khan") &&
+    typeof window !== "undefined" &&
+    window.location.origin !== PREVIEW_HOST
+  ) {
+    r = await fetch(`${PREVIEW_HOST}${url}`, init);
   }
   return r;
 }
 
-async function jpost<T = any>(url: string, body: unknown, bearer?: string): Promise<T> {
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
-  if (bearer) headers["Authorization"] = `Bearer ${bearer}`;
-  const r = await khanFetch(url, { method: "POST", headers, body: JSON.stringify(body) });
-  const text = await r.text();
-  if (!r.ok) throw new Error(`HTTP ${r.status}: ${text.slice(0, 200)}`);
-  try { return JSON.parse(text); } catch { return {} as T; }
+// ===== Captcha (altcha PoW) =====
+async function sha256Hex(str: string): Promise<string> {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
-/** Get Khan SSO token from EDUSP using existing edusp authToken. */
+export async function solveCaptcha(): Promise<string> {
+  const r = await fetch(`${TASKITOS}/captcha/challenge`);
+  const c = await r.json();
+  const max = c.maxNumber ?? 100000;
+  let n = -1;
+  for (let i = 0; i <= max; i++) {
+    const h = await sha256Hex(c.salt + i);
+    if (h === c.challenge) {
+      n = i;
+      break;
+    }
+  }
+  if (n < 0) throw new Error("Não foi possível resolver o captcha");
+  const payload = btoa(
+    JSON.stringify({
+      algorithm: c.algorithm,
+      challenge: c.challenge,
+      number: n,
+      salt: c.salt,
+      signature: c.signature,
+    }),
+  );
+  const v = await fetch(`${TASKITOS}/captcha/verify`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ payload }),
+  });
+  if (!v.ok) throw new Error(`Captcha verify HTTP ${v.status}`);
+  const data = await v.json();
+  if (!data?.token) throw new Error("Captcha sem token");
+  return data.token as string;
+}
+
+// ===== Khan API =====
+async function jpost<T = any>(
+  path: string,
+  body: unknown,
+  bearer?: string,
+  captchaToken?: string,
+): Promise<T> {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (bearer) headers["Authorization"] = `Bearer ${bearer}`;
+  if (captchaToken) headers["X-Captcha-Token"] = captchaToken;
+  const r = await khanFetch(path, { method: "POST", headers, body: JSON.stringify(body) });
+  const text = await r.text();
+  if (!r.ok) throw new Error(`HTTP ${r.status}: ${text.slice(0, 200)}`);
+  try {
+    return JSON.parse(text);
+  } catch {
+    return {} as T;
+  }
+}
+
+/** Fetch Khan SSO token directly from EDUSP (CORS is open). */
 export async function getKhanTokenFromEdusp(eduspAuthToken: string): Promise<string> {
-  const r = await khanFetch(
-    `/api/proxy/mas/external-auth/seducsp_token/generate?card_label=Khan+Academy`,
+  const r = await fetch(
+    "https://edusp-api.ip.tv/mas/external-auth/seducsp_token/generate?card_label=Khan+Academy",
     {
       method: "GET",
-      headers: {
-        Accept: "application/json",
-        "x-api-key": eduspAuthToken,
-        "x-api-realm": "edusp",
-        "x-api-platform": "webclient",
-      },
+      headers: { Accept: "application/json", "x-api-key": eduspAuthToken },
     },
   );
   const text = await r.text();
   if (!r.ok) throw new Error(`Khan token failed: HTTP ${r.status}: ${text.slice(0, 200)}`);
   let data: any = {};
-  try { data = JSON.parse(text); } catch {}
-  // Possible fields: token, redirect, url
+  try {
+    data = JSON.parse(text);
+  } catch {}
   const token =
     data?.token ||
     data?.access_token ||
@@ -90,9 +137,9 @@ export async function getKhanTokenFromEdusp(eduspAuthToken: string): Promise<str
   return token;
 }
 
-/** Exchange Khan token for the CrimsonZero Bearer (with KAAL cookies). */
-export async function khanSsoLogin(khanToken: string): Promise<KhanSession> {
-  const data = await jpost<any>("/api/khan/sso", { token: khanToken });
+/** SSO into khanto using SED token + altcha captcha. */
+export async function khanSsoLogin(khanToken: string, captchaToken: string): Promise<KhanSession> {
+  const data = await jpost<any>("/api/khan/sso", { token: khanToken, captchaToken }, undefined, captchaToken);
   const bearer = data?.token || data?.bearer || data?.access_token;
   if (!bearer) throw new Error("Bearer Khan não retornado pelo SSO");
   const session: KhanSession = { bearer, obtainedAt: Date.now() };
@@ -100,10 +147,11 @@ export async function khanSsoLogin(khanToken: string): Promise<KhanSession> {
   return session;
 }
 
-/** Convenience: full login from EDUSP authToken. */
+/** Full login from EDUSP authToken (solves captcha automatically). */
 export async function khanLogin(eduspAuthToken: string): Promise<KhanSession> {
+  const captchaToken = await solveCaptcha();
   const t = await getKhanTokenFromEdusp(eduspAuthToken);
-  return khanSsoLogin(t);
+  return khanSsoLogin(t, captchaToken);
 }
 
 export async function khanProfile(bearer: string) {
@@ -151,7 +199,7 @@ export async function khanUnit(
 }
 
 export interface KhanItem {
-  type?: string;        // "exercise" | "video" | "quiz" | ...
+  type?: string;
   id?: string;
   exerciseId?: string;
   videoId?: string;
@@ -190,10 +238,6 @@ export interface RunProgress {
   failed: number;
 }
 
-/**
- * Complete every lesson item, every quiz and the unit-test of a single unit.
- * onProgress is called between requests.
- */
 export async function completeUnit(
   bearer: string,
   course: KhanCourse,
@@ -207,7 +251,6 @@ export async function completeUnit(
   onLog(`UNIDADE: ${unit.title || unitId}`);
   const { lessons, quizzes, unitTest } = await khanUnit(bearer, unitId, unitPath);
 
-  // Pre-count by walking lessons
   const lessonItemBuckets: Array<{ lesson: KhanLesson; items: KhanItem[] }> = [];
   for (const lesson of lessons) {
     try {
