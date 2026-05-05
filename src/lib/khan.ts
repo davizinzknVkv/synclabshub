@@ -33,10 +33,30 @@ export function saveKhanSession(s: KhanSession | null) {
   else localStorage.removeItem(KHAN_KEY);
 }
 
+// Preview fallback: rotas /api/khan/* e /api/proxy/* só existem no preview
+// até o próximo publish. Se o domínio atual responder 404, refaz a chamada
+// contra o preview público.
+const PREVIEW_HOST = "https://id-preview--6e0e5d0c-b095-4bbc-a9a0-4207603a8d3f.lovable.app";
+
+function isApiKhanOrProxy(url: string) {
+  return url.startsWith("/api/khan") || url.startsWith("/api/proxy");
+}
+
+export async function khanFetch(url: string, init: RequestInit = {}): Promise<Response> {
+  let r = await fetch(url, init);
+  if (r.status === 404 && isApiKhanOrProxy(url) && typeof window !== "undefined") {
+    const here = window.location.origin;
+    if (here !== PREVIEW_HOST) {
+      r = await fetch(`${PREVIEW_HOST}${url}`, init);
+    }
+  }
+  return r;
+}
+
 async function jpost<T = any>(url: string, body: unknown, bearer?: string): Promise<T> {
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (bearer) headers["Authorization"] = `Bearer ${bearer}`;
-  const r = await fetch(url, { method: "POST", headers, body: JSON.stringify(body) });
+  const r = await khanFetch(url, { method: "POST", headers, body: JSON.stringify(body) });
   const text = await r.text();
   if (!r.ok) throw new Error(`HTTP ${r.status}: ${text.slice(0, 200)}`);
   try { return JSON.parse(text); } catch { return {} as T; }
