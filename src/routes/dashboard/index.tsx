@@ -10,6 +10,7 @@ import iconLeiaSp from "@/assets/icons/leia-sp.png";
 import iconStatus from "@/assets/icons/status.png";
 import iconKhan from "@/assets/icons/khan.png";
 import iconAlura from "@/assets/icons/alura.png";
+import iconApostilas from "@/assets/icons/apostilas.png";
 
 export const Route = createFileRoute("/dashboard/")({
   component: DashboardHome,
