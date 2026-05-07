@@ -197,15 +197,15 @@ function Index() {
             <button
               type="submit"
               disabled={loading}
-              className="btn-blood w-full py-3.5 rounded-sm font-mono text-xs uppercase tracking-[0.15em] disabled:opacity-40 disabled:cursor-not-allowed"
+              className="btn-blood w-full py-3.5 rounded-md font-mono text-sm uppercase tracking-[0.15em] disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 border-2 border-blood/30 border-t-blood rounded-full animate-spin" />
-                  Conectando...
+                  <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                  Entrando...
                 </span>
               ) : (
-                "Estabelecer Conexão"
+                "ENTRAR →"
               )}
             </button>
           </div>
