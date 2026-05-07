@@ -25,6 +25,7 @@ const SCRIPTS = [
   { name: "Leia SP", icon: iconLeiaSp, url: "/dashboard/leiasp" },
   { name: "Status", icon: iconStatus, url: "/dashboard/status" },
   { name: "Khan Academy", icon: iconKhan, url: "/dashboard/khan" },
+  { name: "Apostilas", icon: iconApostilas, url: "/dashboard/apostilas" },
   { name: "Alura", icon: iconAlura, url: "#" },
 ];
 
