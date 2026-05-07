@@ -17,6 +17,7 @@ import { Route as DashboardStatusRouteImport } from './routes/dashboard/status'
 import { Route as DashboardRedacaoRouteImport } from './routes/dashboard/redacao'
 import { Route as DashboardLeiaspRouteImport } from './routes/dashboard/leiasp'
 import { Route as DashboardKhanRouteImport } from './routes/dashboard/khan'
+import { Route as DashboardApostilasRouteImport } from './routes/dashboard/apostilas'
 import { Route as ApiStatusEndpointRouteImport } from './routes/api/status.$endpoint'
 import { Route as ApiProxySplatRouteImport } from './routes/api/proxy.$'
 import { Route as ApiLeiaspSplatRouteImport } from './routes/api/leiasp.$'
@@ -65,6 +66,11 @@ const DashboardKhanRoute = DashboardKhanRouteImport.update({
   path: '/khan',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardApostilasRoute = DashboardApostilasRouteImport.update({
+  id: '/apostilas',
+  path: '/apostilas',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const ApiStatusEndpointRoute = ApiStatusEndpointRouteImport.update({
   id: '/api/status/$endpoint',
   path: '/api/status/$endpoint',
@@ -104,6 +110,7 @@ const ApiCatalystJobJobIdRoute = ApiCatalystJobJobIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/dashboard/apostilas': typeof DashboardApostilasRoute
   '/dashboard/khan': typeof DashboardKhanRoute
   '/dashboard/leiasp': typeof DashboardLeiaspRoute
   '/dashboard/redacao': typeof DashboardRedacaoRoute
@@ -120,6 +127,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard/apostilas': typeof DashboardApostilasRoute
   '/dashboard/khan': typeof DashboardKhanRoute
   '/dashboard/leiasp': typeof DashboardLeiaspRoute
   '/dashboard/redacao': typeof DashboardRedacaoRoute
@@ -138,6 +146,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/dashboard/apostilas': typeof DashboardApostilasRoute
   '/dashboard/khan': typeof DashboardKhanRoute
   '/dashboard/leiasp': typeof DashboardLeiaspRoute
   '/dashboard/redacao': typeof DashboardRedacaoRoute
@@ -157,6 +166,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
+    | '/dashboard/apostilas'
     | '/dashboard/khan'
     | '/dashboard/leiasp'
     | '/dashboard/redacao'
@@ -173,6 +183,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/dashboard/apostilas'
     | '/dashboard/khan'
     | '/dashboard/leiasp'
     | '/dashboard/redacao'
@@ -190,6 +201,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/dashboard'
+    | '/dashboard/apostilas'
     | '/dashboard/khan'
     | '/dashboard/leiasp'
     | '/dashboard/redacao'
@@ -275,6 +287,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardKhanRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/apostilas': {
+      id: '/dashboard/apostilas'
+      path: '/apostilas'
+      fullPath: '/dashboard/apostilas'
+      preLoaderRoute: typeof DashboardApostilasRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/api/status/$endpoint': {
       id: '/api/status/$endpoint'
       path: '/api/status/$endpoint'
@@ -328,6 +347,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface DashboardRouteChildren {
+  DashboardApostilasRoute: typeof DashboardApostilasRoute
   DashboardKhanRoute: typeof DashboardKhanRoute
   DashboardLeiaspRoute: typeof DashboardLeiaspRoute
   DashboardRedacaoRoute: typeof DashboardRedacaoRoute
@@ -337,6 +357,7 @@ interface DashboardRouteChildren {
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardApostilasRoute: DashboardApostilasRoute,
   DashboardKhanRoute: DashboardKhanRoute,
   DashboardLeiaspRoute: DashboardLeiaspRoute,
   DashboardRedacaoRoute: DashboardRedacaoRoute,

@@ -10,6 +10,7 @@ import iconLeiaSp from "@/assets/icons/leia-sp.png";
 import iconStatus from "@/assets/icons/status.png";
 import iconKhan from "@/assets/icons/khan.png";
 import iconAlura from "@/assets/icons/alura.png";
+import iconApostilas from "@/assets/icons/apostilas.png";
 
 export const Route = createFileRoute("/dashboard/")({
   component: DashboardHome,
@@ -24,6 +25,7 @@ const SCRIPTS = [
   { name: "Leia SP", icon: iconLeiaSp, url: "/dashboard/leiasp" },
   { name: "Status", icon: iconStatus, url: "/dashboard/status" },
   { name: "Khan Academy", icon: iconKhan, url: "/dashboard/khan" },
+  { name: "Apostilas", icon: iconApostilas, url: "/dashboard/apostilas" },
   { name: "Alura", icon: iconAlura, url: "#" },
 ];
 
