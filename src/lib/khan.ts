@@ -1,7 +1,7 @@
 // Khanto (khan.cupiditys.lol) auto-completer.
 //
 // Flow:
-//   1. Solve altcha PoW captcha at taskitos.cupiditys.lol/captcha/challenge → captchaToken
+//   1. Solve altcha PoW captcha at khan.cupiditys.lol/captcha/challenge → captchaToken
 //   2. GET edusp-api.ip.tv/mas/external-auth/seducsp_token/generate?card_label=Khan+Academy
 //      with x-api-key = EDUSP authToken → Khan SSO token
 //   3. POST /api/khan/sso { token, captchaToken } → { token: <Bearer> }
@@ -17,7 +17,7 @@
 //      POST /api/khan/complete/unit-test { topicId }
 
 const KHAN_KEY = "sync_labs_khan";
-const TASKITOS = "https://taskitos.cupiditys.lol";
+const khan = "https://khan.cupiditys.lol";
 
 export interface KhanSession {
   bearer: string;
@@ -61,7 +61,7 @@ async function sha256Hex(str: string): Promise<string> {
 }
 
 export async function solveCaptcha(): Promise<string> {
-  const r = await fetch(`${TASKITOS}/captcha/challenge`);
+  const r = await fetch(`${khan}/captcha/challenge`);
   const c = await r.json();
   const max = c.maxNumber ?? 100000;
   let n = -1;
@@ -82,7 +82,7 @@ export async function solveCaptcha(): Promise<string> {
       signature: c.signature,
     }),
   );
-  const v = await fetch(`${TASKITOS}/captcha/verify`, {
+  const v = await fetch(`${khan}/captcha/verify`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ payload }),
