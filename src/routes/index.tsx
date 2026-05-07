@@ -105,18 +105,22 @@ function Index() {
       <div className="absolute inset-0 bg-obsidian-grid pointer-events-none" />
 
       {/* Login card */}
-      <main className="relative z-10 w-full max-w-[440px] p-8 sm:p-10 bg-card/60 backdrop-blur-2xl border border-glass-border shadow-[0_0_60px_-15px_rgba(220,38,38,0.05)] rounded-md ring-1 ring-white/5">
+      <main className="relative z-10 w-full max-w-[460px] p-8 sm:p-10 bg-card border-2 border-border card-brutal rounded-xl">
 
         {/* Header */}
-        <header className="mb-10 flex flex-col items-center text-center">
-          <div className="size-14 border border-blood/20 bg-blood-muted flex items-center justify-center rounded shadow-[inset_0_0_20px_rgba(220,38,38,0.05)] mb-6 relative overflow-hidden">
-            <div className="absolute w-full h-[1px] bg-blood/30 top-1/2 -translate-y-1/2" />
-            <div className="absolute h-full w-[1px] bg-blood/30 left-1/2 -translate-x-1/2" />
-            <img src={logo} alt="Sync Labs" className="relative z-10 w-8 h-8 drop-shadow-[0_0_10px_rgba(220,38,38,0.6)]" />
+        <header className="mb-10">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="size-12 bg-primary border-2 border-foreground flex items-center justify-center rounded-md rotate-3">
+              <img src={logo} alt="Sync Labs" className="w-7 h-7" />
+            </div>
+            <div className="h-px flex-1 bg-border" />
+            <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-[0.2em]">v2.0</span>
           </div>
-          <h1 className="text-2xl font-medium tracking-tight text-white mb-1">Sync Labs</h1>
-          <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em] font-mono">
-            Hub de Automação
+          <h1 className="text-4xl font-bold tracking-tight text-foreground leading-none">
+            sync<span className="text-acid">/</span>labs
+          </h1>
+          <p className="text-sm text-muted-foreground mt-2 font-mono">
+            // automação escolar — sem firula
           </p>
         </header>
 
@@ -193,15 +197,15 @@ function Index() {
             <button
               type="submit"
               disabled={loading}
-              className="btn-blood w-full py-3.5 rounded-sm font-mono text-xs uppercase tracking-[0.15em] disabled:opacity-40 disabled:cursor-not-allowed"
+              className="btn-blood w-full py-3.5 rounded-md font-mono text-sm uppercase tracking-[0.15em] disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 border-2 border-blood/30 border-t-blood rounded-full animate-spin" />
-                  Conectando...
+                  <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                  Entrando...
                 </span>
               ) : (
-                "Estabelecer Conexão"
+                "ENTRAR →"
               )}
             </button>
           </div>
