@@ -18,6 +18,7 @@ import { Route as DashboardRedacaoRouteImport } from './routes/dashboard/redacao
 import { Route as DashboardLeiaspRouteImport } from './routes/dashboard/leiasp'
 import { Route as DashboardKhanRouteImport } from './routes/dashboard/khan'
 import { Route as DashboardApostilasRouteImport } from './routes/dashboard/apostilas'
+import { Route as ApiPdfProxyRouteImport } from './routes/api/pdf-proxy'
 import { Route as ApiStatusEndpointRouteImport } from './routes/api/status.$endpoint'
 import { Route as ApiProxySplatRouteImport } from './routes/api/proxy.$'
 import { Route as ApiLeiaspSplatRouteImport } from './routes/api/leiasp.$'
@@ -71,6 +72,11 @@ const DashboardApostilasRoute = DashboardApostilasRouteImport.update({
   path: '/apostilas',
   getParentRoute: () => DashboardRoute,
 } as any)
+const ApiPdfProxyRoute = ApiPdfProxyRouteImport.update({
+  id: '/api/pdf-proxy',
+  path: '/api/pdf-proxy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiStatusEndpointRoute = ApiStatusEndpointRouteImport.update({
   id: '/api/status/$endpoint',
   path: '/api/status/$endpoint',
@@ -110,6 +116,7 @@ const ApiCatalystJobJobIdRoute = ApiCatalystJobJobIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/api/pdf-proxy': typeof ApiPdfProxyRoute
   '/dashboard/apostilas': typeof DashboardApostilasRoute
   '/dashboard/khan': typeof DashboardKhanRoute
   '/dashboard/leiasp': typeof DashboardLeiaspRoute
@@ -127,6 +134,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/pdf-proxy': typeof ApiPdfProxyRoute
   '/dashboard/apostilas': typeof DashboardApostilasRoute
   '/dashboard/khan': typeof DashboardKhanRoute
   '/dashboard/leiasp': typeof DashboardLeiaspRoute
@@ -146,6 +154,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/api/pdf-proxy': typeof ApiPdfProxyRoute
   '/dashboard/apostilas': typeof DashboardApostilasRoute
   '/dashboard/khan': typeof DashboardKhanRoute
   '/dashboard/leiasp': typeof DashboardLeiaspRoute
@@ -166,6 +175,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
+    | '/api/pdf-proxy'
     | '/dashboard/apostilas'
     | '/dashboard/khan'
     | '/dashboard/leiasp'
@@ -183,6 +193,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/api/pdf-proxy'
     | '/dashboard/apostilas'
     | '/dashboard/khan'
     | '/dashboard/leiasp'
@@ -201,6 +212,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/dashboard'
+    | '/api/pdf-proxy'
     | '/dashboard/apostilas'
     | '/dashboard/khan'
     | '/dashboard/leiasp'
@@ -220,6 +232,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRouteWithChildren
+  ApiPdfProxyRoute: typeof ApiPdfProxyRoute
   ApiAiGenerateRoute: typeof ApiAiGenerateRoute
   ApiCatalystCompleteRoute: typeof ApiCatalystCompleteRoute
   ApiKhanSplatRoute: typeof ApiKhanSplatRoute
@@ -293,6 +306,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/apostilas'
       preLoaderRoute: typeof DashboardApostilasRouteImport
       parentRoute: typeof DashboardRoute
+    }
+    '/api/pdf-proxy': {
+      id: '/api/pdf-proxy'
+      path: '/api/pdf-proxy'
+      fullPath: '/api/pdf-proxy'
+      preLoaderRoute: typeof ApiPdfProxyRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/status/$endpoint': {
       id: '/api/status/$endpoint'
@@ -373,6 +393,7 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRouteWithChildren,
+  ApiPdfProxyRoute: ApiPdfProxyRoute,
   ApiAiGenerateRoute: ApiAiGenerateRoute,
   ApiCatalystCompleteRoute: ApiCatalystCompleteRoute,
   ApiKhanSplatRoute: ApiKhanSplatRoute,

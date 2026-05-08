@@ -4,8 +4,46 @@ export type Serie = { name: string; volumes: Volume[] };
 export type Categoria = { id: string; name: string; description: string; series: Serie[] };
 
 const R2 = "https://pub-761ea6e47fa74db3a9b6ffc7656d8e73.r2.dev/OpenFuture";
+const CUP = "https://r2.cupiditys.lol";
 
 export const CATEGORIAS: Categoria[] = [
+  {
+    id: "destroyer",
+    name: "Apostila Destroyer",
+    description: "Respostas — Platform Destroyer (Currículo em Ação)",
+    series: [
+      { name: "6º Ano", volumes: [{ label: "Volume 1", items: [
+        { title: "Língua Portuguesa e Matemática", url: `${CUP}/v1-6ano-lingua-portuguesa-matematica.pdf` },
+        { title: "Ciências, História, Geografia, Inglês e Projeto de Vida", url: `${CUP}/v1-6ano-ciencias-historia-geografia-lingua-inglesa-projeto-de-vida.pdf` },
+      ]}]},
+      { name: "7º Ano", volumes: [{ label: "Volume 1", items: [
+        { title: "Língua Portuguesa e Matemática", url: `${CUP}/v1-7ano-lingua-portuguesa-matematica.pdf` },
+        { title: "Ciências, História, Geografia, Inglês e Projeto de Vida", url: `${CUP}/v1-7ano-ciencias-historia-geografia-lingua-inglesa-projeto-de-vida.pdf` },
+      ]}]},
+      { name: "8º Ano", volumes: [{ label: "Volume 1", items: [
+        { title: "Língua Portuguesa e Matemática", url: `${CUP}/v1-8ano-lingua-portuguesa-matematica.pdf` },
+        { title: "Ciências, História, Geografia, Inglês e Projeto de Vida", url: `${CUP}/v1-8ano-ciencias-historia-geografia-lingua-inglesa-projeto-de-vida.pdf` },
+      ]}]},
+      { name: "9º Ano", volumes: [{ label: "Volume 1", items: [
+        { title: "Língua Portuguesa e Matemática", url: `${CUP}/v1-9ano-lingua-portuguesa-matematica.pdf` },
+        { title: "Ciências, História, Geografia, Inglês e Projeto de Vida", url: `${CUP}/v1-9ano-ciencias-historia-geografia-lingua-inglesa-projeto-de-vida.pdf` },
+      ]}]},
+      { name: "1º Ano EM", volumes: [{ label: "Volume 1", items: [
+        { title: "Língua Portuguesa e Matemática", url: `${CUP}/v1-1ano-lingua-portuguesa-matematica.pdf` },
+        { title: "História, Geografia e Língua Inglesa", url: `${CUP}/v1-1ano-historia-geografia-lingua-inglesa.pdf` },
+        { title: "Biologia, Física e Química", url: `${CUP}/v1-1ano-biologia-fisica-quimica.pdf` },
+      ]}]},
+      { name: "2º Ano EM", volumes: [{ label: "Volume 1", items: [
+        { title: "Língua Portuguesa e Matemática", url: `${CUP}/v1-2ano-lingua-portuguesa-matematica.pdf` },
+        { title: "História, Geografia e Língua Inglesa", url: `${CUP}/v1-2ano-historia-geografia-lingua-inglesa.pdf` },
+        { title: "Biologia, Física e Química", url: `${CUP}/v1-2ano-biologia-fisica-quimica.pdf` },
+      ]}]},
+      { name: "3º Ano EM", volumes: [{ label: "Volume 1", items: [
+        { title: "Língua Portuguesa e Matemática", url: `${CUP}/v1-3ano-lingua-portuguesa-matematica.pdf` },
+        { title: "História, Geografia e Língua Inglesa", url: `${CUP}/v1-3ano-historia-geografia-lingua-inglesa.pdf` },
+      ]}]},
+    ],
+  },
   {
     id: "fundamental",
     name: "Ensino Fundamental",
