@@ -1,143 +1,54 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  GraduationCap,
-  LogIn,
-  Loader2,
-  Play,
-  RefreshCw,
-  CheckCircle2,
-  XCircle,
-} from "lucide-react";
+import { useState } from "react";
+import { GraduationCap, ExternalLink, Loader2, LogIn } from "lucide-react";
 import { getSession } from "@/lib/auth";
 import { NotificationContainer, notify } from "@/components/Notification";
-import {
-  khanLogin,
-  khanCourses,
-  khanUnits,
-  completeUnit,
-  loadKhanSession,
-  saveKhanSession,
-  type KhanCourse,
-  type KhanUnit,
-  type KhanSession,
-} from "@/lib/khan";
+
+const KHAN_LUNAR = "https://khan.crimsonzerohub.xyz";
+const EDUSP = "https://edusp-api.ip.tv";
 
 export const Route = createFileRoute("/dashboard/khan")({
   component: KhanPage,
   head: () => ({ meta: [{ title: "Khan Academy - SYNC LABS HUB" }] }),
 });
 
+async function getKhanLabelToken(authToken: string): Promise<string> {
+  const r = await fetch(
+    `${EDUSP}/mas/external-auth/seducsp_token/generate?card_label=Khan+Academy`,
+    { headers: { "x-api-key": authToken, Accept: "application/json" } },
+  );
+  const text = await r.text();
+  if (!r.ok) throw new Error(`SED retornou HTTP ${r.status}`);
+  let data: any = {};
+  try {
+    data = JSON.parse(text);
+  } catch {}
+  const token =
+    data?.token ||
+    data?.access_token ||
+    (typeof data?.redirect === "string" ? new URL(data.redirect).searchParams.get("token") : null);
+  if (!token) throw new Error("Token Khan não retornado pela SED");
+  return token as string;
+}
+
 function KhanPage() {
   const session = getSession();
-  const [khan, setKhan] = useState<KhanSession | null>(loadKhanSession());
-  const [logging, setLogging] = useState(false);
-  const [loadingCourses, setLoadingCourses] = useState(false);
-  const [courses, setCourses] = useState<KhanCourse[]>([]);
-  const [selectedCourse, setSelectedCourse] = useState<string>("");
-  const [units, setUnits] = useState<KhanUnit[]>([]);
-  const [loadingUnits, setLoadingUnits] = useState(false);
-  const [running, setRunning] = useState(false);
-  const [logs, setLogs] = useState<string[]>([]);
-  const logRef = useRef<HTMLDivElement>(null);
+  const [loading, setLoading] = useState(false);
 
-  const log = useCallback((m: string) => {
-    setLogs((l) => [...l.slice(-200), `[${new Date().toLocaleTimeString()}] ${m}`]);
-    notify(m);
-  }, []);
-
-  useEffect(() => {
-    logRef.current?.scrollTo({ top: logRef.current.scrollHeight });
-  }, [logs]);
-
-  const handleLogin = async () => {
+  const handleOpen = async () => {
     if (!session) return;
-    setLogging(true);
+    setLoading(true);
     try {
-      log("Solicitando token Khan na SED...");
-      const s = await khanLogin(session.authToken);
-      setKhan(s);
-      log("✓ Conectado ao Khan Academy");
+      notify("Solicitando token na SED...");
+      const token = await getKhanLabelToken(session.authToken);
+      const url = `${KHAN_LUNAR}/?token=${encodeURIComponent(token)}`;
+      window.open(url, "_blank", "noopener,noreferrer");
+      notify("✓ Khan Lunar aberto em nova aba");
     } catch (e) {
-      log(`✗ Login falhou: ${(e as Error).message}`);
+      notify(`✗ ${(e as Error).message}`);
     } finally {
-      setLogging(false);
+      setLoading(false);
     }
-  };
-
-  const handleLoadCourses = async () => {
-    if (!khan) return;
-    setLoadingCourses(true);
-    setCourses([]);
-    setUnits([]);
-    setSelectedCourse("");
-    try {
-      const c = await khanCourses(khan.bearer);
-      setCourses(c);
-      log(`${c.length} cursos carregados`);
-    } catch (e) {
-      log(`✗ ${(e as Error).message}`);
-    } finally {
-      setLoadingCourses(false);
-    }
-  };
-
-  const handleLoadUnits = async (courseId: string) => {
-    if (!khan) return;
-    setSelectedCourse(courseId);
-    setLoadingUnits(true);
-    setUnits([]);
-    try {
-      const u = await khanUnits(khan.bearer, courseId);
-      setUnits(u);
-      log(`${u.length} unidades carregadas`);
-    } catch (e) {
-      log(`✗ ${(e as Error).message}`);
-    } finally {
-      setLoadingUnits(false);
-    }
-  };
-
-  const handleRunAll = async () => {
-    if (!khan || units.length === 0) return;
-    setRunning(true);
-    let ok = 0;
-    let fail = 0;
-    try {
-      const course = courses.find((c) => c.id === selectedCourse) || courses[0];
-      for (const u of units) {
-        const p = await completeUnit(khan.bearer, course, u, log);
-        ok += p.ok;
-        fail += p.failed;
-      }
-      log(`✓ FIM — ${ok} concluídos, ${fail} falhas`);
-    } catch (e) {
-      log(`✗ ${(e as Error).message}`);
-    } finally {
-      setRunning(false);
-    }
-  };
-
-  const handleRunUnit = async (unit: KhanUnit) => {
-    if (!khan) return;
-    setRunning(true);
-    try {
-      const course = courses.find((c) => c.id === selectedCourse) || courses[0];
-      const p = await completeUnit(khan.bearer, course, unit, log);
-      log(`✓ ${unit.title || unit.id}: ${p.ok}/${p.total}`);
-    } catch (e) {
-      log(`✗ ${(e as Error).message}`);
-    } finally {
-      setRunning(false);
-    }
-  };
-
-  const handleLogout = () => {
-    saveKhanSession(null);
-    setKhan(null);
-    setCourses([]);
-    setUnits([]);
-    setSelectedCourse("");
   };
 
   if (!session) {
@@ -151,174 +62,59 @@ function KhanPage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 max-w-5xl mx-auto space-y-5">
+    <div className="p-4 sm:p-6 max-w-3xl mx-auto space-y-5">
       <NotificationContainer />
 
-      {/* Header */}
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-sm bg-blood-muted border border-primary/20 flex items-center justify-center">
-            <GraduationCap size={18} className="text-primary" />
-          </div>
-          <div>
-            <h1 className="text-lg font-medium text-white tracking-tight font-mono uppercase">
-              Khan Academy
-            </h1>
-            <p className="text-[10px] text-muted-foreground font-mono tracking-wider uppercase">
-              Resolução automática
-            </p>
-          </div>
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-sm bg-blood-muted border border-primary/20 flex items-center justify-center">
+          <GraduationCap size={18} className="text-primary" />
         </div>
-        {khan && (
-          <button
-            onClick={handleLogout}
-            className="text-[10px] font-mono uppercase tracking-wider px-3 py-1.5 border border-glass-border rounded-sm text-muted-foreground hover:text-white"
-          >
-            Desconectar Khan
-          </button>
-        )}
+        <div>
+          <h1 className="text-lg font-medium text-white tracking-tight font-mono uppercase">
+            Khan Academy
+          </h1>
+          <p className="text-[10px] text-muted-foreground font-mono tracking-wider uppercase">
+            Acesso via Khan Lunar
+          </p>
+        </div>
       </div>
 
-      {/* Login */}
-      {!khan ? (
-        <div className="bg-card border border-glass-border rounded-sm p-5 space-y-3">
+      <div className="bg-card border border-glass-border rounded-sm p-5 space-y-4">
+        <div className="space-y-2">
           <p className="text-xs font-mono text-white uppercase tracking-wider">
-            Conectar ao Khan via SED
+            Entrar na Khan Academy
           </p>
           <p className="text-[11px] text-muted-foreground leading-relaxed">
-            Vamos usar seu login da Sala do Futuro pra gerar um token Khan automaticamente. Você
-            não precisa entrar com email/senha do Khan.
+            Usamos seu login da Sala do Futuro para gerar um token de acesso e abrir o{" "}
+            <span className="text-primary">Khan Lunar</span>, que faz login automático na sua conta
+            da Khan Academy. No primeiro acesso pode aparecer uma verificação de segurança rápida.
           </p>
-          <button
-            onClick={handleLogin}
-            disabled={logging}
-            className="w-full bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-sm py-2.5 px-4 flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
-          >
-            {logging ? (
-              <Loader2 size={14} className="text-primary animate-spin" />
-            ) : (
-              <LogIn size={14} className="text-primary" />
-            )}
-            <span className="text-xs font-mono text-white uppercase tracking-wider">
-              {logging ? "Conectando..." : "Conectar Khan Academy"}
-            </span>
-          </button>
         </div>
-      ) : (
-        <>
-          {/* Cursos */}
-          <div className="bg-card border border-glass-border rounded-sm p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-mono text-white uppercase tracking-wider">Cursos</p>
-              <button
-                onClick={handleLoadCourses}
-                disabled={loadingCourses}
-                className="text-[10px] font-mono uppercase tracking-wider flex items-center gap-1.5 px-2.5 py-1.5 border border-primary/30 rounded-sm text-primary hover:bg-primary/10 disabled:opacity-50"
-              >
-                {loadingCourses ? (
-                  <Loader2 size={12} className="animate-spin" />
-                ) : (
-                  <RefreshCw size={12} />
-                )}
-                {courses.length === 0 ? "Carregar" : "Atualizar"}
-              </button>
-            </div>
-            {courses.length > 0 && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {courses.map((c) => (
-                  <button
-                    key={c.id}
-                    onClick={() => handleLoadUnits(c.id)}
-                    className={`text-left text-[11px] font-mono p-2.5 rounded-sm border transition-colors ${
-                      selectedCourse === c.id
-                        ? "border-primary bg-blood-muted text-primary"
-                        : "border-glass-border bg-blood-muted/40 text-muted-foreground hover:text-white hover:border-primary/30"
-                    }`}
-                  >
-                    <span className="block truncate">{c.title || c.slug || c.id}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
 
-          {/* Unidades */}
-          {selectedCourse && (
-            <div className="bg-card border border-glass-border rounded-sm p-4 space-y-3">
-              <div className="flex items-center justify-between gap-2 flex-wrap">
-                <p className="text-xs font-mono text-white uppercase tracking-wider">
-                  Unidades ({units.length})
-                </p>
-                {units.length > 0 && (
-                  <button
-                    onClick={handleRunAll}
-                    disabled={running}
-                    className="text-[10px] font-mono uppercase tracking-wider flex items-center gap-1.5 px-3 py-1.5 border border-primary bg-blood-muted rounded-sm text-primary hover:bg-primary/15 disabled:opacity-50"
-                  >
-                    {running ? (
-                      <Loader2 size={12} className="animate-spin" />
-                    ) : (
-                      <Play size={12} />
-                    )}
-                    Resolver tudo
-                  </button>
-                )}
-              </div>
-
-              {loadingUnits ? (
-                <div className="text-[11px] font-mono text-muted-foreground flex items-center gap-2">
-                  <Loader2 size={12} className="animate-spin" />
-                  Carregando unidades...
-                </div>
-              ) : (
-                <ul className="space-y-1.5">
-                  {units.map((u) => (
-                    <li
-                      key={u.id}
-                      className="flex items-center gap-2 p-2 bg-blood-muted/40 border border-glass-border rounded-sm"
-                    >
-                      <span className="flex-1 text-[11px] font-mono text-white truncate">
-                        {u.title || u.id}
-                      </span>
-                      <button
-                        onClick={() => handleRunUnit(u)}
-                        disabled={running}
-                        className="text-[10px] font-mono uppercase tracking-wider px-2 py-1 border border-primary/30 rounded-sm text-primary hover:bg-primary/10 disabled:opacity-50 flex items-center gap-1"
-                      >
-                        <Play size={10} /> Resolver
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
+        <button
+          onClick={handleOpen}
+          disabled={loading}
+          className="w-full bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-sm py-2.5 px-4 flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+        >
+          {loading ? (
+            <Loader2 size={14} className="text-primary animate-spin" />
+          ) : (
+            <LogIn size={14} className="text-primary" />
           )}
+          <span className="text-xs font-mono text-white uppercase tracking-wider">
+            {loading ? "Gerando token..." : "Abrir Khan Academy"}
+          </span>
+        </button>
 
-          {/* Logs */}
-          {logs.length > 0 && (
-            <div className="bg-card border border-glass-border rounded-sm p-4 space-y-2">
-              <p className="text-xs font-mono text-white uppercase tracking-wider">Console</p>
-              <div
-                ref={logRef}
-                className="bg-blood-muted/60 border border-glass-border rounded-sm p-2 max-h-64 overflow-auto font-mono text-[10px] text-muted-foreground space-y-0.5"
-              >
-                {logs.map((l, i) => (
-                  <div key={i} className="flex items-start gap-1.5">
-                    {l.includes("✓") ? (
-                      <CheckCircle2 size={10} className="text-emerald-400 mt-0.5 flex-shrink-0" />
-                    ) : l.includes("✗") ? (
-                      <XCircle size={10} className="text-red-400 mt-0.5 flex-shrink-0" />
-                    ) : (
-                      <span className="w-2.5 flex-shrink-0" />
-                    )}
-                    <span className="break-all">{l}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </>
-      )}
+        <a
+          href={KHAN_LUNAR}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[10px] font-mono text-muted-foreground hover:text-primary uppercase tracking-wider flex items-center gap-1.5 justify-center"
+        >
+          <ExternalLink size={10} /> khan.crimsonzerohub.xyz
+        </a>
+      </div>
     </div>
   );
 }
