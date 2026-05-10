@@ -60,8 +60,10 @@ async function sha256Hex(str: string): Promise<string> {
     .join("");
 }
 
+const captchaBase = "https://taskitos.cupiditys.lol";
+
 export async function solveCaptcha(): Promise<string> {
-  const r = await fetch(`${khan}/captcha/challenge`);
+  const r = await fetch(`${captchaBase}/captcha/challenge`);
   const c = await r.json();
   const max = c.maxNumber ?? 100000;
   let n = -1;
@@ -82,7 +84,7 @@ export async function solveCaptcha(): Promise<string> {
       signature: c.signature,
     }),
   );
-  const v = await fetch(`${khan}/captcha/verify`, {
+  const v = await fetch(`${captchaBase}/captcha/verify`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ payload }),
