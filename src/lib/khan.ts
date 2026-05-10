@@ -84,7 +84,7 @@ export async function solveCaptcha(): Promise<string> {
       signature: c.signature,
     }),
   );
-  const v = await fetch(`${khan}/captcha/verify`, {
+  const v = await fetch(`${captchaBase}/captcha/verify`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ payload }),
