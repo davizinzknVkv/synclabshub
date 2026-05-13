@@ -292,8 +292,7 @@ function KhanPage() {
               Verificação inicial
             </p>
             <p className="text-[11px] text-muted-foreground leading-relaxed">
-              Resolva o captcha abaixo para liberar o acesso à Khan Academy. Isso é necessário só
-              uma vez por sessão.
+              Conectando à Khan Academy...
             </p>
           </div>
 
@@ -303,20 +302,6 @@ function KhanPage() {
               {loadingMsg}
             </div>
           )}
-
-          <div className="space-y-3">
-            <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider text-center">
-              Resolva qualquer um dos captchas abaixo
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-              {TURNSTILE_SITEKEYS.map(({ key, label }) => (
-                <div key={key} className="flex flex-col items-center gap-1">
-                  <span className="text-[9px] font-mono text-muted-foreground uppercase">{label}</span>
-                  <div id={`khan-turnstile-${key}`} />
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       )}
 
