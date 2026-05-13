@@ -149,7 +149,8 @@ function TarefasPage() {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.02 }}
-              className="bg-card border border-glass-border rounded-sm p-4 flex flex-col gap-2 hover:border-primary/20 transition-colors"
+              onClick={() => handleOpenSingle(task)}
+              className="bg-card border border-glass-border rounded-sm p-4 flex flex-col gap-2 hover:border-primary/40 hover:bg-card/80 transition-colors cursor-pointer"
             >
               <div className="flex items-start justify-between gap-2">
                 <p className="text-[9px] uppercase tracking-widest text-muted-foreground truncate font-mono">
