@@ -4,6 +4,13 @@
 export const KHAN_PROXY = "https://clever.crimsonzerohub.xyz";
 export const EDUSP = "https://edusp-api.ip.tv";
 export const TURNSTILE_SITEKEY = "0x4AAAAAACb991GxTOlJKUry";
+// Sitekeys alternativas (fallback). A primeira é a antiga (validada no proxy),
+// a segunda é a nova. O front renderiza ambas — qualquer uma que o usuário
+// resolver gera um token de captcha utilizável no /token.
+export const TURNSTILE_SITEKEYS: { key: string; label: string }[] = [
+  { key: "0x4AAAAAACb991GxTOlJKUry", label: "Captcha A (principal)" },
+  { key: "0x4AAAAAADOL2ArgP6SQz0Ef", label: "Captcha B (alternativo)" },
+];
 
 const LS = {
   cookies: "khan_book_cookies",
