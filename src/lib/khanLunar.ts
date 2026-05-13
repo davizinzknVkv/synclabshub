@@ -13,7 +13,7 @@ const LS = {
   captchaSession: "khan_captcha_session_id",
 };
 
-export type KhanCookies = Record<string, string> | unknown;
+export type KhanCookies = Record<string, unknown>;
 
 export function getStoredCookies(): KhanCookies | null {
   try {
