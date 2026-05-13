@@ -349,7 +349,19 @@ function KhanPage() {
             </div>
           )}
 
-          <div id="khan-turnstile-box" className="flex justify-center" />
+          <div className="space-y-3">
+            <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider text-center">
+              Resolva qualquer um dos captchas abaixo
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+              {TURNSTILE_SITEKEYS.map(({ key, label }) => (
+                <div key={key} className="flex flex-col items-center gap-1">
+                  <span className="text-[9px] font-mono text-muted-foreground uppercase">{label}</span>
+                  <div id={`khan-turnstile-${key}`} />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 
