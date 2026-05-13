@@ -22,6 +22,7 @@ import { Route as ApiPdfProxyRouteImport } from './routes/api/pdf-proxy'
 import { Route as ApiStatusEndpointRouteImport } from './routes/api/status.$endpoint'
 import { Route as ApiProxySplatRouteImport } from './routes/api/proxy.$'
 import { Route as ApiLeiaspSplatRouteImport } from './routes/api/leiasp.$'
+import { Route as ApiCupiditysSplatRouteImport } from './routes/api/cupiditys.$'
 import { Route as ApiCatalystCompleteRouteImport } from './routes/api/catalyst.complete'
 import { Route as ApiAiGenerateRouteImport } from './routes/api/ai.generate'
 import { Route as ApiCatalystJobJobIdRouteImport } from './routes/api/catalyst.job.$jobId'
@@ -91,6 +92,11 @@ const ApiLeiaspSplatRoute = ApiLeiaspSplatRouteImport.update({
   path: '/api/leiasp/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCupiditysSplatRoute = ApiCupiditysSplatRouteImport.update({
+  id: '/api/cupiditys/$',
+  path: '/api/cupiditys/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiCatalystCompleteRoute = ApiCatalystCompleteRouteImport.update({
   id: '/api/catalyst/complete',
   path: '/api/catalyst/complete',
@@ -120,6 +126,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/': typeof DashboardIndexRoute
   '/api/ai/generate': typeof ApiAiGenerateRoute
   '/api/catalyst/complete': typeof ApiCatalystCompleteRoute
+  '/api/cupiditys/$': typeof ApiCupiditysSplatRoute
   '/api/leiasp/$': typeof ApiLeiaspSplatRoute
   '/api/proxy/$': typeof ApiProxySplatRoute
   '/api/status/$endpoint': typeof ApiStatusEndpointRoute
@@ -137,6 +144,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardIndexRoute
   '/api/ai/generate': typeof ApiAiGenerateRoute
   '/api/catalyst/complete': typeof ApiCatalystCompleteRoute
+  '/api/cupiditys/$': typeof ApiCupiditysSplatRoute
   '/api/leiasp/$': typeof ApiLeiaspSplatRoute
   '/api/proxy/$': typeof ApiProxySplatRoute
   '/api/status/$endpoint': typeof ApiStatusEndpointRoute
@@ -156,6 +164,7 @@ export interface FileRoutesById {
   '/dashboard/': typeof DashboardIndexRoute
   '/api/ai/generate': typeof ApiAiGenerateRoute
   '/api/catalyst/complete': typeof ApiCatalystCompleteRoute
+  '/api/cupiditys/$': typeof ApiCupiditysSplatRoute
   '/api/leiasp/$': typeof ApiLeiaspSplatRoute
   '/api/proxy/$': typeof ApiProxySplatRoute
   '/api/status/$endpoint': typeof ApiStatusEndpointRoute
@@ -176,6 +185,7 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/api/ai/generate'
     | '/api/catalyst/complete'
+    | '/api/cupiditys/$'
     | '/api/leiasp/$'
     | '/api/proxy/$'
     | '/api/status/$endpoint'
@@ -193,6 +203,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/api/ai/generate'
     | '/api/catalyst/complete'
+    | '/api/cupiditys/$'
     | '/api/leiasp/$'
     | '/api/proxy/$'
     | '/api/status/$endpoint'
@@ -211,6 +222,7 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/api/ai/generate'
     | '/api/catalyst/complete'
+    | '/api/cupiditys/$'
     | '/api/leiasp/$'
     | '/api/proxy/$'
     | '/api/status/$endpoint'
@@ -223,6 +235,7 @@ export interface RootRouteChildren {
   ApiPdfProxyRoute: typeof ApiPdfProxyRoute
   ApiAiGenerateRoute: typeof ApiAiGenerateRoute
   ApiCatalystCompleteRoute: typeof ApiCatalystCompleteRoute
+  ApiCupiditysSplatRoute: typeof ApiCupiditysSplatRoute
   ApiLeiaspSplatRoute: typeof ApiLeiaspSplatRoute
   ApiProxySplatRoute: typeof ApiProxySplatRoute
   ApiStatusEndpointRoute: typeof ApiStatusEndpointRoute
@@ -322,6 +335,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiLeiaspSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/cupiditys/$': {
+      id: '/api/cupiditys/$'
+      path: '/api/cupiditys/$'
+      fullPath: '/api/cupiditys/$'
+      preLoaderRoute: typeof ApiCupiditysSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/catalyst/complete': {
       id: '/api/catalyst/complete'
       path: '/api/catalyst/complete'
@@ -376,6 +396,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPdfProxyRoute: ApiPdfProxyRoute,
   ApiAiGenerateRoute: ApiAiGenerateRoute,
   ApiCatalystCompleteRoute: ApiCatalystCompleteRoute,
+  ApiCupiditysSplatRoute: ApiCupiditysSplatRoute,
   ApiLeiaspSplatRoute: ApiLeiaspSplatRoute,
   ApiProxySplatRoute: ApiProxySplatRoute,
   ApiStatusEndpointRoute: ApiStatusEndpointRoute,
