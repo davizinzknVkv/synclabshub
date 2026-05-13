@@ -13,7 +13,7 @@ import {
 import { getSession } from "@/lib/auth";
 import { NotificationContainer, notify } from "@/components/Notification";
 import {
-  TURNSTILE_SITEKEY,
+  TURNSTILE_SITEKEYS,
   fetchSedLabelToken,
   validateCaptcha,
   redeemCookies,
@@ -74,7 +74,7 @@ function KhanPage() {
   const [courseDataMap, setCourseDataMap] = useState<Record<string, any>>({});
   const [unitsLoading, setUnitsLoading] = useState<string | null>(null);
   const [running, setRunning] = useState<Record<string, boolean>>({});
-  const turnstileWidgetId = useRef<string | null>(null);
+  
   const turnstileMounted = useRef(false);
 
   // 1) Se não tem cookies, prepara label token + carrega Turnstile
@@ -100,29 +100,42 @@ function KhanPage() {
           document.head.appendChild(s);
         }
 
+        let solved = false;
+        const tryRedeem = async (cfToken: string, sitekey: string) => {
+          if (solved) return;
+          solved = true;
+          try {
+            setLoadingMsg(`Validando captcha (${sitekey.slice(-6)})...`);
+            const { token: capToken } = await validateCaptcha(cfToken);
+            setLoadingMsg("Resgatando sessão Khan...");
+            const newCookies = await redeemCookies(lt, capToken);
+            setCookiesState(newCookies);
+            setPhase("ready");
+            notify("✓ Sessão Khan ativa");
+          } catch (e) {
+            const msg = (e as Error).message;
+            notify(`✗ ${msg}`);
+            // se falhou (ex: 403 no /token), permite tentar o outro captcha
+            solved = false;
+            try { window.turnstile?.reset(); } catch {}
+          } finally {
+            setLoadingMsg("");
+          }
+        };
+
         window.onKhanTurnstileReady = () => {
-          const el = document.getElementById("khan-turnstile-box");
-          if (!el || !window.turnstile) return;
-          turnstileWidgetId.current = window.turnstile.render(el, {
-            sitekey: TURNSTILE_SITEKEY,
-            theme: "dark",
-            callback: async (cfToken: string) => {
-              try {
-                setLoadingMsg("Validando captcha...");
-                const { token: capToken } = await validateCaptcha(cfToken);
-                setLoadingMsg("Resgatando sessão Khan...");
-                const newCookies = await redeemCookies(lt, capToken);
-                setCookiesState(newCookies);
-                setPhase("ready");
-                notify("✓ Sessão Khan ativa");
-              } catch (e) {
-                notify(`✗ ${(e as Error).message}`);
-              } finally {
-                setLoadingMsg("");
-              }
-            },
-            "error-callback": () => notify("✗ Falha no captcha"),
-          });
+          if (!window.turnstile) return;
+          for (const { key, label } of TURNSTILE_SITEKEYS) {
+            const el = document.getElementById(`khan-turnstile-${key}`);
+            if (!el || el.dataset.rendered === "1") continue;
+            el.dataset.rendered = "1";
+            window.turnstile.render(el, {
+              sitekey: key,
+              theme: "dark",
+              callback: (cfToken: string) => tryRedeem(cfToken, key),
+              "error-callback": () => notify(`✗ Falha no ${label}`),
+            });
+          }
         };
 
         // se script já estava carregado
@@ -336,7 +349,19 @@ function KhanPage() {
             </div>
           )}
 
-          <div id="khan-turnstile-box" className="flex justify-center" />
+          <div className="space-y-3">
+            <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider text-center">
+              Resolva qualquer um dos captchas abaixo
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+              {TURNSTILE_SITEKEYS.map(({ key, label }) => (
+                <div key={key} className="flex flex-col items-center gap-1">
+                  <span className="text-[9px] font-mono text-muted-foreground uppercase">{label}</span>
+                  <div id={`khan-turnstile-${key}`} />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 
