@@ -73,9 +73,10 @@ function loadAltchaScript() {
   if (window.__altchaLoaded) return;
   window.__altchaLoaded = true;
   const s = document.createElement("script");
-  s.src = "https://cdn.jsdelivr.net/npm/altcha@latest/dist/altcha.min.js";
+  s.src = "https://cdn.jsdelivr.net/npm/altcha/dist/altcha.min.js";
   s.async = true;
   s.defer = true;
+  s.type = "module";
   document.head.appendChild(s);
 }
 
