@@ -176,7 +176,7 @@ function TarefasPage() {
         </div>
       )}
 
-      <TaskModal open={modalOpen} tasks={tasks} onClose={() => setModalOpen(false)} onSubmit={handleSubmit} />
+      <TaskModal open={modalOpen} tasks={modalTasks} onClose={() => setModalOpen(false)} onSubmit={handleSubmit} />
       <NotificationContainer />
     </div>
   );
