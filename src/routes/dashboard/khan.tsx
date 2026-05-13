@@ -100,29 +100,42 @@ function KhanPage() {
           document.head.appendChild(s);
         }
 
+        let solved = false;
+        const tryRedeem = async (cfToken: string, sitekey: string) => {
+          if (solved) return;
+          solved = true;
+          try {
+            setLoadingMsg(`Validando captcha (${sitekey.slice(-6)})...`);
+            const { token: capToken } = await validateCaptcha(cfToken);
+            setLoadingMsg("Resgatando sessão Khan...");
+            const newCookies = await redeemCookies(lt, capToken);
+            setCookiesState(newCookies);
+            setPhase("ready");
+            notify("✓ Sessão Khan ativa");
+          } catch (e) {
+            const msg = (e as Error).message;
+            notify(`✗ ${msg}`);
+            // se falhou (ex: 403 no /token), permite tentar o outro captcha
+            solved = false;
+            try { window.turnstile?.reset(); } catch {}
+          } finally {
+            setLoadingMsg("");
+          }
+        };
+
         window.onKhanTurnstileReady = () => {
-          const el = document.getElementById("khan-turnstile-box");
-          if (!el || !window.turnstile) return;
-          turnstileWidgetId.current = window.turnstile.render(el, {
-            sitekey: TURNSTILE_SITEKEY,
-            theme: "dark",
-            callback: async (cfToken: string) => {
-              try {
-                setLoadingMsg("Validando captcha...");
-                const { token: capToken } = await validateCaptcha(cfToken);
-                setLoadingMsg("Resgatando sessão Khan...");
-                const newCookies = await redeemCookies(lt, capToken);
-                setCookiesState(newCookies);
-                setPhase("ready");
-                notify("✓ Sessão Khan ativa");
-              } catch (e) {
-                notify(`✗ ${(e as Error).message}`);
-              } finally {
-                setLoadingMsg("");
-              }
-            },
-            "error-callback": () => notify("✗ Falha no captcha"),
-          });
+          if (!window.turnstile) return;
+          for (const { key, label } of TURNSTILE_SITEKEYS) {
+            const el = document.getElementById(`khan-turnstile-${key}`);
+            if (!el || el.dataset.rendered === "1") continue;
+            el.dataset.rendered = "1";
+            window.turnstile.render(el, {
+              sitekey: key,
+              theme: "dark",
+              callback: (cfToken: string) => tryRedeem(cfToken, key),
+              "error-callback": () => notify(`✗ Falha no ${label}`),
+            });
+          }
         };
 
         // se script já estava carregado
