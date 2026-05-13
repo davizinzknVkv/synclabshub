@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { CheckSquare, Filter } from "lucide-react";
 import { getSession } from "@/lib/auth";
@@ -22,6 +22,7 @@ function TarefasPage() {
   const [tasks, setTasks] = useState<TaskItem[]>([]);
   const [targets, setTargets] = useState<string[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
+  const [modalTasks, setModalTasks] = useState<TaskItem[]>([]);
   const [fetched, setFetched] = useState(false);
 
   const fetchTasks = useCallback(async (filter: "pending" | "expired") => {
@@ -44,8 +45,21 @@ function TarefasPage() {
 
   const handleSelectAndProcess = () => {
     if (tasks.length === 0) return;
+    setModalTasks(tasks);
     setModalOpen(true);
   };
+
+  const handleOpenSingle = (task: TaskItem) => {
+    setModalTasks([task]);
+    setModalOpen(true);
+  };
+
+  const autoFetched = useRef(false);
+  useEffect(() => {
+    if (!session || autoFetched.current) return;
+    autoFetched.current = true;
+    fetchTasks("pending");
+  }, [session, fetchTasks]);
 
   const handleSubmit = useCallback(async (selectedTasks: TaskItem[], isDraft: boolean, minTime: number, maxTime: number) => {
     setModalOpen(false);
@@ -135,7 +149,8 @@ function TarefasPage() {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.02 }}
-              className="bg-card border border-glass-border rounded-sm p-4 flex flex-col gap-2 hover:border-primary/20 transition-colors"
+              onClick={() => handleOpenSingle(task)}
+              className="bg-card border border-glass-border rounded-sm p-4 flex flex-col gap-2 hover:border-primary/40 hover:bg-card/80 transition-colors cursor-pointer"
             >
               <div className="flex items-start justify-between gap-2">
                 <p className="text-[9px] uppercase tracking-widest text-muted-foreground truncate font-mono">
@@ -161,7 +176,7 @@ function TarefasPage() {
         </div>
       )}
 
-      <TaskModal open={modalOpen} tasks={tasks} onClose={() => setModalOpen(false)} onSubmit={handleSubmit} />
+      <TaskModal open={modalOpen} tasks={modalTasks} onClose={() => setModalOpen(false)} onSubmit={handleSubmit} />
       <NotificationContainer />
     </div>
   );
