@@ -3,7 +3,7 @@
 
 export const KHAN_PROXY = "https://clever.crimsonzerohub.xyz";
 export const EDUSP = "https://edusp-api.ip.tv";
-export const TURNSTILE_SITEKEY = "0x4AAAAAADOL2ArgP6SQz0Ef";
+export const TURNSTILE_SITEKEY = "0x4AAAAAACb991GxTOlJKUry";
 
 const LS = {
   cookies: "khan_book_cookies",
