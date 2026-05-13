@@ -13,9 +13,7 @@ import {
 import { getSession } from "@/lib/auth";
 import { NotificationContainer, notify } from "@/components/Notification";
 import {
-  TURNSTILE_SITEKEYS,
   fetchSedLabelToken,
-  validateCaptcha,
   redeemCookies,
   fetchProfile,
   fetchClasses,
