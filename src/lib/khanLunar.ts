@@ -69,16 +69,18 @@ export async function fetchSedLabelToken(authToken: string): Promise<string> {
   return token as string;
 }
 
-// 2) Valida o token do Turnstile no proxy → recebe authToken do servidor
+// 2) Valida o token do Turnstile no nosso endpoint interno (usa secret via env)
 export async function validateCaptcha(cfToken: string): Promise<{ token: string; sessionId: string }> {
   const sessionId = Math.random().toString(36).slice(2);
-  const r = await fetch(`${KHAN_PROXY}/captcha`, {
+  const r = await fetch(`/api/khan-captcha`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ token: cfToken, session_id: sessionId }),
   });
-  if (!r.ok) throw new Error(`Captcha falhou: HTTP ${r.status}`);
-  const data = await r.json();
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok || !data?.success) {
+    throw new Error(`Captcha falhou: ${data?.error || data?.errors?.join(",") || `HTTP ${r.status}`}`);
+  }
   saveCaptcha(data.token, data.expires_in || 21600, sessionId);
   return { token: data.token, sessionId };
 }
