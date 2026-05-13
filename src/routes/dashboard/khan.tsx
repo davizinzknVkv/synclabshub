@@ -74,7 +74,7 @@ function KhanPage() {
   const [courseDataMap, setCourseDataMap] = useState<Record<string, any>>({});
   const [unitsLoading, setUnitsLoading] = useState<string | null>(null);
   const [running, setRunning] = useState<Record<string, boolean>>({});
-  const turnstileWidgetId = useRef<string | null>(null);
+  
   const turnstileMounted = useRef(false);
 
   // 1) Se não tem cookies, prepara label token + carrega Turnstile
