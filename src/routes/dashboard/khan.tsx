@@ -73,9 +73,10 @@ function loadAltchaScript() {
   if (window.__altchaLoaded) return;
   window.__altchaLoaded = true;
   const s = document.createElement("script");
-  s.src = "https://cdn.jsdelivr.net/npm/altcha@latest/dist/altcha.min.js";
+  s.src = "https://cdn.jsdelivr.net/npm/altcha/dist/altcha.min.js";
   s.async = true;
   s.defer = true;
+  s.type = "module";
   document.head.appendChild(s);
 }
 
@@ -126,7 +127,7 @@ function KhanPage() {
     })();
   }, [jwt, session]);
 
-  // 2) Liga listener de statechange do altcha-widget
+  // 2) Liga listener de statechange do altcha-widget (e fallback por polling)
   useEffect(() => {
     if (phase !== "captcha") return;
     const node = altchaRef.current;
@@ -140,16 +141,40 @@ function KhanPage() {
       }
     };
     node.addEventListener("statechange", handler as EventListener);
-    return () => node.removeEventListener("statechange", handler as EventListener);
+    document.addEventListener("statechange", handler as EventListener);
+
+    // Fallback: polling do atributo/propriedade `value` do widget
+    const interval = setInterval(() => {
+      const widget = node.querySelector("altcha-widget") as any;
+      if (!widget) return;
+      const val = widget.value || widget.getAttribute?.("value");
+      if (val && typeof val === "string" && val.length > 20) {
+        setAltchaPayload((prev) => (prev === val ? prev : val));
+      }
+    }, 500);
+
+    return () => {
+      node.removeEventListener("statechange", handler as EventListener);
+      document.removeEventListener("statechange", handler as EventListener);
+      clearInterval(interval);
+    };
   }, [phase]);
 
   // 3) Submit do login (após captcha resolvido)
   const handleLogin = useCallback(async () => {
-    if (!labelToken || !altchaPayload) return;
+    let payload = altchaPayload;
+    if (!payload) {
+      const widget = altchaRef.current?.querySelector("altcha-widget") as any;
+      payload = widget?.value || widget?.getAttribute?.("value") || null;
+    }
+    if (!labelToken || !payload) {
+      notify("✗ Resolva o captcha primeiro");
+      return;
+    }
     setAuthBusy(true);
     try {
       setLoadingMsg("Validando captcha...");
-      const capToken = await verifyAltcha(altchaPayload);
+      const capToken = await verifyAltcha(payload);
       setLoadingMsg("Logando na Khan Academy...");
       const auth = await loginCupiditys(labelToken, capToken);
       setJwt(auth.jwt);
@@ -421,7 +446,7 @@ function KhanPage() {
               </div>
               <button
                 onClick={handleLogin}
-                disabled={!altchaPayload || authBusy}
+                disabled={authBusy}
                 className="w-full text-[11px] font-mono uppercase tracking-wider bg-primary text-primary-foreground rounded-sm py-2 disabled:opacity-30 flex items-center justify-center gap-2"
               >
                 {authBusy ? (
