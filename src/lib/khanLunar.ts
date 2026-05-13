@@ -1,64 +1,51 @@
-// Khan Lunar integration — replica do auto-completer dentro do hub
-// Usa o mesmo proxy público usado pelo khan.crimsonzerohub.xyz
+// Khan integration usando o stack do khanto (cupiditys.lol):
+//   - Captcha: Altcha (proof-of-work, sem secret externa)
+//   - Auth: JWT retornado por /api/token
+//   - Conclusão de atividades: chamadas síncronas em /api/complete/*
+// Todas as requests externas passam pelo proxy server-side em /api/cupiditys/*
 
-export const KHAN_PROXY = "https://clever.crimsonzerohub.xyz";
+export const PROXY = "/api/cupiditys";
 export const EDUSP = "https://edusp-api.ip.tv";
-export const TURNSTILE_SITEKEY = "0x4AAAAAACb991GxTOlJKUry";
-// Sitekeys alternativas (fallback). A primeira é a antiga (validada no proxy),
-// a segunda é a nova. O front renderiza ambas — qualquer uma que o usuário
-// resolver gera um token de captcha utilizável no /token.
-export const TURNSTILE_SITEKEYS: { key: string; label: string }[] = [
-  { key: "0x4AAAAAACb991GxTOlJKUry", label: "Captcha A (principal)" },
-  { key: "0x4AAAAAADOL2ArgP6SQz0Ef", label: "Captcha B (alternativo)" },
-];
 
 const LS = {
-  cookies: "khan_book_cookies",
-  method: "khan_auth_method",
-  captchaToken: "khan_captcha_token",
-  captchaExpires: "khan_captcha_expires",
-  captchaSession: "khan_captcha_session_id",
+  jwt: "khan_cup_jwt",
+  kaid: "khan_cup_kaid",
+  profile: "khan_cup_profile",
 };
 
-export type KhanCookies = Record<string, unknown>;
-
-export function getStoredCookies(): KhanCookies | null {
-  try {
-    const raw = localStorage.getItem(LS.cookies);
-    if (!raw) return null;
-    const c = JSON.parse(raw);
-    if (c && typeof c === "object" && Object.keys(c as object).length > 0) return c;
-  } catch {}
-  return null;
+export interface KhanProfile {
+  kaid: string;
+  username?: string;
+  nickname?: string;
+  [k: string]: any;
 }
 
-export function saveCookies(cookies: KhanCookies) {
-  localStorage.setItem(LS.cookies, JSON.stringify(cookies));
-  localStorage.setItem(LS.method, "bookmarklet");
-}
+// ----------------- Storage helpers -----------------
 
+export function getStoredJwt(): string | null {
+  try { return localStorage.getItem(LS.jwt); } catch { return null; }
+}
+export function getStoredKaid(): string | null {
+  try { return localStorage.getItem(LS.kaid); } catch { return null; }
+}
+export function getStoredProfile(): KhanProfile | null {
+  try { const r = localStorage.getItem(LS.profile); return r ? JSON.parse(r) : null; } catch { return null; }
+}
+function saveAuth(jwt: string, kaid: string) {
+  localStorage.setItem(LS.jwt, jwt);
+  localStorage.setItem(LS.kaid, kaid);
+}
+function saveProfile(p: KhanProfile) {
+  localStorage.setItem(LS.profile, JSON.stringify(p));
+}
 export function clearKhanSession() {
-  localStorage.removeItem(LS.cookies);
-  localStorage.removeItem(LS.method);
-  localStorage.removeItem(LS.captchaToken);
-  localStorage.removeItem(LS.captchaExpires);
-  localStorage.removeItem(LS.captchaSession);
+  localStorage.removeItem(LS.jwt);
+  localStorage.removeItem(LS.kaid);
+  localStorage.removeItem(LS.profile);
 }
 
-export function getCaptchaToken(): string | null {
-  const t = localStorage.getItem(LS.captchaToken);
-  const exp = Number(localStorage.getItem(LS.captchaExpires) || 0);
-  if (t && exp > Date.now() + 30_000) return t;
-  return null;
-}
+// ----------------- SED label token -----------------
 
-function saveCaptcha(token: string, expiresInSec: number, sessionId?: string) {
-  localStorage.setItem(LS.captchaToken, token);
-  localStorage.setItem(LS.captchaExpires, String(Date.now() + expiresInSec * 1000));
-  if (sessionId) localStorage.setItem(LS.captchaSession, sessionId);
-}
-
-// 1) Pega label token na SED
 export async function fetchSedLabelToken(authToken: string): Promise<string> {
   const r = await fetch(
     `${EDUSP}/mas/external-auth/seducsp_token/generate?card_label=Khan+Academy`,
@@ -76,209 +63,170 @@ export async function fetchSedLabelToken(authToken: string): Promise<string> {
   return token as string;
 }
 
-// 2) Valida o token do Turnstile no proxy → recebe authToken do servidor
-export async function validateCaptcha(cfToken: string): Promise<{ token: string; sessionId: string }> {
-  const sessionId = Math.random().toString(36).slice(2);
-  const r = await fetch(`${KHAN_PROXY}/captcha`, {
+// ----------------- Altcha -----------------
+
+export const ALTCHA_CHALLENGE_URL = `${PROXY}/task/captcha/challenge`;
+
+// Verifica payload do altcha-widget e devolve token usável no /api/token
+export async function verifyAltcha(payload: string): Promise<string> {
+  const r = await fetch(`${PROXY}/task/captcha/verify`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ token: cfToken, session_id: sessionId }),
+    body: JSON.stringify({ payload }),
   });
-  if (!r.ok) throw new Error(`Captcha falhou: HTTP ${r.status}`);
+  if (!r.ok) throw new Error(`Altcha verify HTTP ${r.status}`);
   const data = await r.json();
-  saveCaptcha(data.token, data.expires_in || 21600, sessionId);
-  return { token: data.token, sessionId };
+  if (!data?.token) throw new Error("Altcha não retornou token");
+  return data.token as string;
 }
 
-// 3) Troca label token por cookies da Khan
-export async function redeemCookies(labelToken: string, captchaAuth: string): Promise<KhanCookies> {
-  const r = await fetch(`${KHAN_PROXY}/token`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-captcha-auth": captchaAuth },
-    body: JSON.stringify({ token: labelToken }),
-  });
-  if (r.status === 403) throw new Error("Captcha rejeitado");
-  if (!r.ok) throw new Error(`/token HTTP ${r.status}`);
-  const data = await r.json();
-  if (!data.success || !data.cookies) throw new Error("Resposta inválida do /token");
-  saveCookies(data.cookies);
-  return data.cookies;
-}
+// ----------------- Auth (token swap) -----------------
 
-// Renova captcha (se sessão presente)
-export async function renewCaptcha(cfToken: string): Promise<string> {
-  const sessionId = localStorage.getItem(LS.captchaSession);
-  const body = sessionId ? { token: cfToken, session_id: sessionId } : { token: cfToken };
-  const r = await fetch(`${KHAN_PROXY}/renew-captcha`, {
+export async function loginCupiditys(
+  labelToken: string,
+  captchaToken: string,
+): Promise<{ jwt: string; kaid: string }> {
+  const r = await fetch(`${PROXY}/khan/api/token`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
+    body: JSON.stringify({
+      token: labelToken,
+      locale: "pt-BR",
+      country: "BR",
+      captchaToken,
+    }),
   });
-  if (!r.ok) throw new Error(`/renew-captcha HTTP ${r.status}`);
-  const data = await r.json();
-  saveCaptcha(data.token, data.expires_in || 21600);
-  return data.token;
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok || !data?.success) {
+    throw new Error(data?.error || `Login HTTP ${r.status}`);
+  }
+  saveAuth(data.jwt, data.kaid);
+  return { jwt: data.jwt, kaid: data.kaid };
 }
 
-async function postProxy<T>(endpoint: string, payload: unknown): Promise<T> {
-  const r = await fetch(`${KHAN_PROXY}${endpoint}`, {
+// ----------------- Authed API helper -----------------
+
+async function api<T = any>(jwt: string, path: string, payload: unknown = {}): Promise<T> {
+  const r = await fetch(`${PROXY}/khan/api${path}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "Accept-Language": "pt" },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${jwt}`,
+    },
     body: JSON.stringify(payload),
   });
-  if (!r.ok) throw new Error(`${endpoint} HTTP ${r.status}`);
-  return r.json() as Promise<T>;
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data?.error || `${path} HTTP ${r.status}`);
+  return data as T;
 }
 
-export interface KhanUser {
-  kaid: string;
-  username?: string;
-  nickname?: string;
+export async function fetchProfile(jwt: string): Promise<KhanProfile> {
+  const data = await api<any>(jwt, "/profile", {});
+  const profile: KhanProfile = data?.profile || data?.user || data;
+  if (!profile?.kaid) throw new Error("Perfil sem kaid");
+  saveProfile(profile);
+  return profile;
 }
 
-export async function fetchProfile(cookies: KhanCookies): Promise<KhanUser> {
-  const res: any = await postProxy("/UserProfile", cookies);
-  const user = res?.data?.profile?.data?.user || res?.data?.data?.user;
-  if (!user?.kaid) throw new Error("Perfil Khan não encontrado");
-  return user;
-}
+// ----------------- Cursos / Unidades / Lições -----------------
 
-export interface KhanCourseTopic {
+export interface CupCourse {
   id: string;
   title: string;
-  translatedTitle?: string;
   iconPath?: string;
   relativeUrl?: string;
+  percentage?: number;
+  [k: string]: any;
 }
-
-export async function fetchClasses(cookies: KhanCookies, kaid: string) {
-  const res: any = await postProxy("/course", { cookies, kaid });
-  const classes = res?.data?.data?.user?.homepageModules?.navigation?.classes || [];
-  const topics: KhanCourseTopic[] = [];
-  for (const c of classes) {
-    if (c.classroom?.topics) {
-      for (const t of c.classroom.topics) {
-        if (t.id) topics.push(t);
-      }
-    }
-  }
-  return topics;
-}
-
-export async function fetchCourseProgresses(cookies: KhanCookies, courseIds: string[]) {
-  const res: any = await postProxy("/courseProgresses", { cookies, courseIds });
-  return res?.data?.data?.user?.courseProgresses || [];
-}
-
-export async function fetchContentForPath(cookies: KhanCookies, relativeUrl: string) {
-  const path = relativeUrl.startsWith("/") ? relativeUrl.slice(1) : relativeUrl;
-  const res: any = await postProxy("/ContentForPath", {
-    cookies,
-    variables: { path, countryCode: "BR" },
-  });
-  return res?.data?.data?.contentRoute?.listedPathData?.course;
-}
-
-export async function fetchUnitMastery(cookies: KhanCookies, topicId: string) {
-  const res: any = await postProxy("/getFpmMasteryForTopic", { cookies, topicId });
-  return res?.data?.data?.user?.curationItemProgress?.masteryMap || [];
-}
-
-export interface KhanActivity {
+export interface CupUnit {
   id: string;
-  progressKey?: string;
   title: string;
-  type: string;
-  isTest: boolean;
-  status?: string;
+  relativeUrl?: string;
+  percentage?: number;
+  [k: string]: any;
+}
+export interface CupLessonItem {
+  id: string;
+  title: string;
+  type?: string; // "Lesson" | "Quiz" | "UnitTest" | "CourseChallenge"
+  relativeUrl?: string;
+  positionKey?: string;
+  completionStatus?: string;
+  [k: string]: any;
+}
+export interface CupContentItem {
+  id: string;
+  title: string;
+  type?: string; // "Exercise" | "Video" | "Article"
+  slug?: string;
+  videoSlug?: string;
+  articleSlug?: string;
+  topicId?: string;
+  completionStatus?: string;
+  [k: string]: any;
 }
 
-// Constrói lista de atividades para uma unidade
-export function buildActivities(courseData: any, unitId: string, masteryMap: any[]): KhanActivity[] {
-  const contentMap: Record<string, any> = {};
-  function traverse(node: any) {
-    if (!node) return;
-    if (node.progressKey || node.id) {
-      contentMap[node.progressKey || node.id] = {
-        title: node.translatedTitle || node.title,
-        type: node.__typename,
-        id: node.id,
-        progressKey: node.progressKey,
-      };
-    }
-    node.unitChildren?.forEach(traverse);
-    node.allOrderedChildren?.forEach(traverse);
-    node.curatedChildren?.forEach(traverse);
-  }
-  traverse(courseData);
-
-  const activities: KhanActivity[] = [];
-  for (const item of masteryMap) {
-    const info = contentMap[item.progressKey];
-    if (info) activities.push({ ...info, status: item.status, isTest: false });
-  }
-  const unit = courseData?.unitChildren?.find((u: any) => u.id === unitId);
-  unit?.allOrderedChildren?.forEach((item: any) => {
-    if (item.__typename === "TopicUnitTest" && !activities.find((a) => a.id === item.id)) {
-      const info = contentMap[item.progressKey || item.id];
-      activities.push({
-        id: item.id,
-        progressKey: item.progressKey,
-        title: info?.title || item.translatedTitle || item.title,
-        type: "TopicUnitTest",
-        isTest: true,
-        status: "TESTE FINAL",
-      });
-    }
-  });
-  return activities;
+export async function fetchCourses(jwt: string): Promise<CupCourse[]> {
+  const data = await api<any>(jwt, "/courses", {});
+  return (data?.courses || data?.list || data || []) as CupCourse[];
 }
 
-export function getAncestorIds(courseData: any, exerciseId: string): string[] | null {
-  function search(node: any, path: string[]): string[] | null {
-    if (!node) return null;
-    const newPath = node.id ? [...path, node.id] : path;
-    if (node.id === exerciseId) return newPath;
-    for (const k of ["unitChildren", "allOrderedChildren", "curatedChildren"]) {
-      if (node[k]) {
-        for (const child of node[k]) {
-          const found = search(child, newPath);
-          if (found) return found;
-        }
-      }
-    }
-    return null;
-  }
-  return search(courseData, []);
+export async function fetchUnits(jwt: string, courseId: string): Promise<CupUnit[]> {
+  const data = await api<any>(jwt, "/units", { courseId });
+  return (data?.units || []) as CupUnit[];
 }
 
-export async function startActivity(opts: {
-  cookies: KhanCookies;
-  exerciseId: string;
-  ancestorIds: string[];
-  isTest: boolean;
-  captchaToken: string;
-}): Promise<string> {
-  const endpoint = opts.isTest ? "finaltest" : "lesson";
-  const body = opts.isTest
-    ? { cookies: opts.cookies, topicId: opts.exerciseId, ancestorIds: opts.ancestorIds, lang: "pt" }
-    : { cookies: opts.cookies, exerciseId: opts.exerciseId, ancestorIds: opts.ancestorIds, lang: "pt" };
-  const r = await fetch(`${KHAN_PROXY}/${endpoint}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-captcha-auth": opts.captchaToken },
-    body: JSON.stringify(body),
-  });
-  if (!r.ok) throw new Error(`/${endpoint} HTTP ${r.status}`);
-  const data = await r.json();
-  if (!data.jobId) throw new Error("Job não criado");
-  return data.jobId as string;
+export async function fetchUnit(
+  jwt: string,
+  unitId: string,
+  unitPath?: string,
+): Promise<{
+  lessons: CupLessonItem[];
+  quizzes: CupLessonItem[];
+  unitTests: CupLessonItem[];
+}> {
+  const data = await api<any>(jwt, "/unit", { unitId, unitPath: unitPath || "" });
+  return {
+    lessons: (data?.lessons || []) as CupLessonItem[],
+    quizzes: (data?.quizzes || []) as CupLessonItem[],
+    unitTests: (data?.unitTests || []) as CupLessonItem[],
+  };
 }
 
-export async function pollJob(jobId: string, intervalMs = 3000): Promise<any> {
-  while (true) {
-    await new Promise((r) => setTimeout(r, intervalMs));
-    const res = await fetch(`${KHAN_PROXY}/job/${jobId}`).then((r) => r.json());
-    if (res.status === "done") return res.result;
-    if (res.status === "error") throw new Error(res.result?.error || "Job falhou");
-  }
+export async function fetchLesson(
+  jwt: string,
+  lessonId: string,
+  unitId: string,
+): Promise<{
+  exercises: CupContentItem[];
+  videos: CupContentItem[];
+  articles: CupContentItem[];
+}> {
+  const data = await api<any>(jwt, "/lesson", { lessonId, unitId });
+  return {
+    exercises: (data?.exercises || []) as CupContentItem[],
+    videos: (data?.videos || []) as CupContentItem[],
+    articles: (data?.articles || []) as CupContentItem[],
+  };
+}
+
+// ----------------- Conclusão (síncrono) -----------------
+
+export async function completeExercise(jwt: string, exerciseId: string, topicId: string) {
+  return api(jwt, "/complete/exercise", { exerciseId, topicId });
+}
+export async function completeVideo(jwt: string, videoId: string, videoSlug: string) {
+  return api(jwt, "/complete/video", { videoId, videoSlug });
+}
+export async function completeArticle(jwt: string, articleId: string, articleSlug: string, topicId: string) {
+  return api(jwt, "/complete/article", { articleId, articleSlug, topicId });
+}
+export async function completeQuiz(jwt: string, topicId: string, positionKey: string) {
+  return api(jwt, "/complete/quiz", { topicId, positionKey });
+}
+export async function completeUnitTest(jwt: string, topicId: string) {
+  return api(jwt, "/complete/unit-test", { topicId });
+}
+export async function completeCourseChallenge(jwt: string, courseId: string) {
+  return api(jwt, "/complete/course-challenge", { courseId });
 }

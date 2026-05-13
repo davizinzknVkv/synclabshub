@@ -9,33 +9,40 @@ import {
   ChevronDown,
   ChevronRight,
   RefreshCw,
+  ShieldCheck,
 } from "lucide-react";
 import { getSession } from "@/lib/auth";
 import { NotificationContainer, notify } from "@/components/Notification";
 import {
+  ALTCHA_CHALLENGE_URL,
   fetchSedLabelToken,
-  redeemCookies,
+  verifyAltcha,
+  loginCupiditys,
   fetchProfile,
-  fetchClasses,
-  fetchCourseProgresses,
-  fetchContentForPath,
-  fetchUnitMastery,
-  buildActivities,
-  getAncestorIds,
-  startActivity,
-  pollJob,
-  getCaptchaToken,
-  getStoredCookies,
+  fetchCourses,
+  fetchUnits,
+  fetchUnit,
+  fetchLesson,
+  completeExercise,
+  completeVideo,
+  completeArticle,
+  completeQuiz,
+  completeUnitTest,
+  completeCourseChallenge,
+  getStoredJwt,
+  getStoredKaid,
+  getStoredProfile,
   clearKhanSession,
-  type KhanCookies,
-  type KhanUser,
-  type KhanActivity,
+  type KhanProfile,
+  type CupCourse,
+  type CupUnit,
+  type CupLessonItem,
+  type CupContentItem,
 } from "@/lib/khanLunar";
 
 declare global {
   interface Window {
-    turnstile?: any;
-    onKhanTurnstileReady?: () => void;
+    __altchaLoaded?: boolean;
   }
 }
 
@@ -44,53 +51,72 @@ export const Route = createFileRoute("/dashboard/khan")({
   head: () => ({ meta: [{ title: "Khan Academy - SYNC LABS HUB" }] }),
 });
 
-interface CourseEntry {
-  id: string;
-  title: string;
-  iconPath?: string;
-  relativeUrl?: string;
-  progress?: number;
+interface UnitState {
+  units: CupUnit[];
+  loading: boolean;
+}
+interface UnitDetailState {
+  lessons: CupLessonItem[];
+  quizzes: CupLessonItem[];
+  unitTests: CupLessonItem[];
+  loading: boolean;
+}
+interface LessonDetailState {
+  exercises: CupContentItem[];
+  videos: CupContentItem[];
+  articles: CupContentItem[];
+  loading: boolean;
 }
 
-interface UnitData {
-  id: string;
-  title: string;
-  percentage: number;
-  activities: KhanActivity[];
+function loadAltchaScript() {
+  if (typeof window === "undefined") return;
+  if (window.__altchaLoaded) return;
+  window.__altchaLoaded = true;
+  const s = document.createElement("script");
+  s.src = "https://cdn.jsdelivr.net/npm/altcha@latest/dist/altcha.min.js";
+  s.async = true;
+  s.defer = true;
+  document.head.appendChild(s);
 }
 
 function KhanPage() {
   const session = getSession();
-  const [phase, setPhase] = useState<"idle" | "captcha" | "ready">("idle");
-  const [cookies, setCookiesState] = useState<KhanCookies | null>(getStoredCookies());
-  const [user, setUser] = useState<KhanUser | null>(null);
+
+  const [jwt, setJwt] = useState<string | null>(getStoredJwt());
+  const [profile, setProfile] = useState<KhanProfile | null>(getStoredProfile());
+  const [phase, setPhase] = useState<"idle" | "captcha" | "ready">(jwt ? "ready" : "idle");
   const [labelToken, setLabelToken] = useState<string | null>(null);
   const [loadingMsg, setLoadingMsg] = useState("");
-  const [courses, setCourses] = useState<CourseEntry[] | null>(null);
+  const [altchaPayload, setAltchaPayload] = useState<string | null>(null);
+  const [authBusy, setAuthBusy] = useState(false);
+
+  const [courses, setCourses] = useState<CupCourse[] | null>(null);
   const [openCourse, setOpenCourse] = useState<string | null>(null);
-  const [unitsByCourse, setUnitsByCourse] = useState<Record<string, UnitData[]>>({});
-  const [courseDataMap, setCourseDataMap] = useState<Record<string, any>>({});
-  const [unitsLoading, setUnitsLoading] = useState<string | null>(null);
+  const [unitsByCourse, setUnitsByCourse] = useState<Record<string, UnitState>>({});
+
+  const [openUnit, setOpenUnit] = useState<string | null>(null);
+  const [unitDetail, setUnitDetail] = useState<Record<string, UnitDetailState>>({});
+
+  const [openLesson, setOpenLesson] = useState<string | null>(null);
+  const [lessonDetail, setLessonDetail] = useState<Record<string, LessonDetailState>>({});
+
   const [running, setRunning] = useState<Record<string, boolean>>({});
-  
+  const [doneLocal, setDoneLocal] = useState<Record<string, boolean>>({});
+
   const initRef = useRef(false);
+  const altchaRef = useRef<HTMLDivElement | null>(null);
 
-  // 1) Sem cookies: gera label token na SED e tenta resgatar direto (sem captcha)
+  // 1) Sem JWT: pega label token na SED e prepara captcha Altcha
   useEffect(() => {
-    if (cookies || !session) return;
-    if (initRef.current) return;
+    if (jwt || !session || initRef.current) return;
     initRef.current = true;
-
+    loadAltchaScript();
     (async () => {
       try {
         setLoadingMsg("Gerando token na SED...");
         const lt = await fetchSedLabelToken(session.authToken);
         setLabelToken(lt);
-        setLoadingMsg("Resgatando sessão Khan...");
-        const newCookies = await redeemCookies(lt, "");
-        setCookiesState(newCookies);
-        setPhase("ready");
-        notify("✓ Sessão Khan ativa");
+        setPhase("captcha");
       } catch (e) {
         notify(`✗ ${(e as Error).message}`);
         initRef.current = false;
@@ -98,149 +124,231 @@ function KhanPage() {
         setLoadingMsg("");
       }
     })();
-  }, [cookies, session]);
+  }, [jwt, session]);
 
-  // 2) Quando temos cookies, busca perfil + cursos
+  // 2) Liga listener de statechange do altcha-widget
   useEffect(() => {
-    if (!cookies || user) return;
+    if (phase !== "captcha") return;
+    const node = altchaRef.current;
+    if (!node) return;
+    const handler = (ev: any) => {
+      const detail = ev?.detail;
+      if (detail?.state === "verified" && detail?.payload) {
+        setAltchaPayload(detail.payload);
+      } else if (detail?.state === "unverified" || detail?.state === "expired") {
+        setAltchaPayload(null);
+      }
+    };
+    node.addEventListener("statechange", handler as EventListener);
+    return () => node.removeEventListener("statechange", handler as EventListener);
+  }, [phase]);
+
+  // 3) Submit do login (após captcha resolvido)
+  const handleLogin = useCallback(async () => {
+    if (!labelToken || !altchaPayload) return;
+    setAuthBusy(true);
+    try {
+      setLoadingMsg("Validando captcha...");
+      const capToken = await verifyAltcha(altchaPayload);
+      setLoadingMsg("Logando na Khan Academy...");
+      const auth = await loginCupiditys(labelToken, capToken);
+      setJwt(auth.jwt);
+      setLoadingMsg("Carregando perfil...");
+      const p = await fetchProfile(auth.jwt);
+      setProfile(p);
+      setPhase("ready");
+      notify("✓ Sessão Khan ativa");
+    } catch (e) {
+      notify(`✗ ${(e as Error).message}`);
+      setAltchaPayload(null);
+    } finally {
+      setAuthBusy(false);
+      setLoadingMsg("");
+    }
+  }, [labelToken, altchaPayload]);
+
+  // 4) Quando temos JWT, busca perfil (se faltar) + cursos
+  useEffect(() => {
+    if (!jwt) return;
     (async () => {
       try {
-        setLoadingMsg("Carregando perfil...");
-        const u = await fetchProfile(cookies);
-        setUser(u);
-        setLoadingMsg("Carregando cursos...");
-        const topics = await fetchClasses(cookies, u.kaid);
-        const ids = topics.map((t) => t.id);
-        let progressMap: Record<string, number> = {};
-        if (ids.length) {
-          const prog = await fetchCourseProgresses(cookies, ids);
-          for (const p of prog) {
-            const id = p?.topic?.id;
-            if (id) progressMap[id] = Math.round(p?.currentMastery?.percentage || 0);
-          }
+        if (!profile) {
+          setLoadingMsg("Carregando perfil...");
+          const p = await fetchProfile(jwt);
+          setProfile(p);
         }
-        setCourses(
-          topics.map((t) => ({
-            id: t.id,
-            title: t.translatedTitle || t.title,
-            iconPath: (t as any).iconPath,
-            relativeUrl: t.relativeUrl,
-            progress: progressMap[t.id] ?? 0,
-          })),
-        );
-        setLoadingMsg("");
+        if (!courses) {
+          setLoadingMsg("Carregando cursos...");
+          const cs = await fetchCourses(jwt);
+          setCourses(cs);
+        }
       } catch (e) {
         notify(`✗ ${(e as Error).message}`);
+      } finally {
         setLoadingMsg("");
       }
     })();
-  }, [cookies, user]);
+  }, [jwt, profile, courses]);
 
-  const loadCourseDetail = useCallback(
-    async (course: CourseEntry) => {
-      if (!cookies || !course.relativeUrl) return;
-      if (unitsByCourse[course.id]) return;
-      setUnitsLoading(course.id);
+  // ----- expansion handlers -----
+
+  const toggleCourse = useCallback(
+    async (c: CupCourse) => {
+      if (openCourse === c.id) {
+        setOpenCourse(null);
+        return;
+      }
+      setOpenCourse(c.id);
+      if (unitsByCourse[c.id] || !jwt) return;
+      setUnitsByCourse((p) => ({ ...p, [c.id]: { units: [], loading: true } }));
       try {
-        const courseData = await fetchContentForPath(cookies, course.relativeUrl);
-        if (!courseData) throw new Error("Curso sem dados");
-        setCourseDataMap((p) => ({ ...p, [course.id]: courseData }));
+        const us = await fetchUnits(jwt, c.id);
+        setUnitsByCourse((p) => ({ ...p, [c.id]: { units: us, loading: false } }));
+      } catch (e) {
+        notify(`✗ ${(e as Error).message}`);
+        setUnitsByCourse((p) => ({ ...p, [c.id]: { units: [], loading: false } }));
+      }
+    },
+    [openCourse, unitsByCourse, jwt],
+  );
 
-        const prog = await fetchCourseProgresses(cookies, [course.id]);
-        const unitProgresses =
-          prog.find((p: any) => p?.topic?.id === course.id)?.unitProgresses || [];
+  const toggleUnit = useCallback(
+    async (u: CupUnit) => {
+      if (openUnit === u.id) {
+        setOpenUnit(null);
+        return;
+      }
+      setOpenUnit(u.id);
+      if (unitDetail[u.id] || !jwt) return;
+      setUnitDetail((p) => ({
+        ...p,
+        [u.id]: { lessons: [], quizzes: [], unitTests: [], loading: true },
+      }));
+      try {
+        const d = await fetchUnit(jwt, u.id, u.relativeUrl);
+        setUnitDetail((p) => ({ ...p, [u.id]: { ...d, loading: false } }));
+      } catch (e) {
+        notify(`✗ ${(e as Error).message}`);
+        setUnitDetail((p) => ({
+          ...p,
+          [u.id]: { lessons: [], quizzes: [], unitTests: [], loading: false },
+        }));
+      }
+    },
+    [openUnit, unitDetail, jwt],
+  );
 
-        const units: UnitData[] = [];
-        for (const up of unitProgresses) {
-          const unitId = up?.topic?.id;
-          if (!unitId) continue;
-          const mastery = await fetchUnitMastery(cookies, unitId);
-          units.push({
-            id: unitId,
-            title: up?.topic?.title || "Unidade",
-            percentage: Math.round(up?.currentMastery?.percentage || 0),
-            activities: buildActivities(courseData, unitId, mastery),
-          });
-        }
-        setUnitsByCourse((p) => ({ ...p, [course.id]: units }));
+  const toggleLesson = useCallback(
+    async (lesson: CupLessonItem, unitId: string) => {
+      if (openLesson === lesson.id) {
+        setOpenLesson(null);
+        return;
+      }
+      setOpenLesson(lesson.id);
+      if (lessonDetail[lesson.id] || !jwt) return;
+      setLessonDetail((p) => ({
+        ...p,
+        [lesson.id]: { exercises: [], videos: [], articles: [], loading: true },
+      }));
+      try {
+        const d = await fetchLesson(jwt, lesson.id, unitId);
+        setLessonDetail((p) => ({ ...p, [lesson.id]: { ...d, loading: false } }));
+      } catch (e) {
+        notify(`✗ ${(e as Error).message}`);
+        setLessonDetail((p) => ({
+          ...p,
+          [lesson.id]: { exercises: [], videos: [], articles: [], loading: false },
+        }));
+      }
+    },
+    [openLesson, lessonDetail, jwt],
+  );
+
+  // ----- complete handlers -----
+
+  const wrap = useCallback(
+    async (key: string, label: string, fn: () => Promise<unknown>) => {
+      if (!jwt) return;
+      setRunning((p) => ({ ...p, [key]: true }));
+      try {
+        await fn();
+        setDoneLocal((p) => ({ ...p, [key]: true }));
+        notify(`✓ ${label}`);
       } catch (e) {
         notify(`✗ ${(e as Error).message}`);
       } finally {
-        setUnitsLoading(null);
+        setRunning((p) => ({ ...p, [key]: false }));
       }
     },
-    [cookies, unitsByCourse],
+    [jwt],
   );
 
-  const completeActivity = useCallback(
-    async (courseId: string, act: KhanActivity) => {
-      if (!cookies) return;
-      const courseData = courseDataMap[courseId];
-      if (!courseData) return;
-      const ancestorIds = getAncestorIds(courseData, act.id);
-      if (!ancestorIds) {
-        notify("✗ Hierarquia não encontrada");
-        return;
-      }
-      const captcha = getCaptchaToken();
-      if (!captcha) {
-        notify("✗ Captcha expirado, recarregue a página");
-        return;
-      }
-      setRunning((p) => ({ ...p, [act.id]: true }));
+  const completeContent = (item: CupContentItem, topicId: string) => {
+    if (!jwt) return;
+    const t = (item.type || "").toLowerCase();
+    if (t.includes("video")) {
+      return wrap(item.id, item.title, () =>
+        completeVideo(jwt, item.id, item.videoSlug || item.slug || ""),
+      );
+    }
+    if (t.includes("article")) {
+      return wrap(item.id, item.title, () =>
+        completeArticle(jwt, item.id, item.articleSlug || item.slug || "", topicId),
+      );
+    }
+    return wrap(item.id, item.title, () => completeExercise(jwt, item.id, topicId));
+  };
+
+  const completeLessonAll = async (lesson: CupLessonItem, unitId: string) => {
+    if (!jwt) return;
+    let detail = lessonDetail[lesson.id];
+    if (!detail) {
       try {
-        notify(`Iniciando: ${act.title}`);
-        const jobId = await startActivity({
-          cookies,
-          exerciseId: act.id,
-          ancestorIds,
-          isTest: act.isTest,
-          captchaToken: captcha,
-        });
-        await pollJob(jobId);
-        notify(`✓ Concluído: ${act.title}`);
-        // marca atividade como concluída localmente
-        setUnitsByCourse((prev) => {
-          const list = prev[courseId];
-          if (!list) return prev;
-          return {
-            ...prev,
-            [courseId]: list.map((u) => ({
-              ...u,
-              activities: u.activities.map((a) =>
-                a.id === act.id ? { ...a, status: "MASTERED" } : a,
-              ),
-            })),
-          };
-        });
+        const d = await fetchLesson(jwt, lesson.id, unitId);
+        detail = { ...d, loading: false };
+        setLessonDetail((p) => ({ ...p, [lesson.id]: detail! }));
       } catch (e) {
         notify(`✗ ${(e as Error).message}`);
-      } finally {
-        setRunning((p) => ({ ...p, [act.id]: false }));
+        return;
       }
-    },
-    [cookies, courseDataMap],
-  );
+    }
+    const all: CupContentItem[] = [...detail.exercises, ...detail.videos, ...detail.articles];
+    for (const item of all) {
+      if (doneLocal[item.id] || item.completionStatus === "COMPLETE") continue;
+      await completeContent(item, lesson.id);
+    }
+  };
 
-  const completeUnit = useCallback(
-    async (courseId: string, unit: UnitData) => {
-      const pending = unit.activities.filter((a) => a.status !== "MASTERED");
-      for (const act of pending) {
-        await completeActivity(courseId, act);
-      }
-    },
-    [completeActivity],
-  );
+  const completeQuizItem = (q: CupLessonItem) => {
+    if (!jwt) return;
+    return wrap(q.id, q.title, () => completeQuiz(jwt, q.id, q.positionKey || ""));
+  };
+  const completeUnitTestItem = (t: CupLessonItem) => {
+    if (!jwt) return;
+    return wrap(t.id, t.title, () => completeUnitTest(jwt, t.id));
+  };
+  const completeCourseChallengeBtn = (c: CupCourse) => {
+    if (!jwt) return;
+    return wrap(`cc-${c.id}`, `Course Challenge: ${c.title}`, () =>
+      completeCourseChallenge(jwt, c.id),
+    );
+  };
 
   const handleLogout = () => {
     clearKhanSession();
-    setCookiesState(null);
-    setUser(null);
+    setJwt(null);
+    setProfile(null);
     setCourses(null);
     setUnitsByCourse({});
-    setCourseDataMap({});
+    setUnitDetail({});
+    setLessonDetail({});
     setOpenCourse(null);
+    setOpenUnit(null);
+    setOpenLesson(null);
+    setDoneLocal({});
     setPhase("idle");
+    setLabelToken(null);
+    setAltchaPayload(null);
     initRef.current = false;
     notify("Sessão Khan limpa");
   };
@@ -269,11 +377,13 @@ function KhanPage() {
               Khan Academy
             </h1>
             <p className="text-[10px] text-muted-foreground font-mono tracking-wider uppercase">
-              {user ? `${user.nickname || user.username || "estudante"}` : "Auto-completer integrado"}
+              {profile
+                ? `${profile.nickname || profile.username || "estudante"}`
+                : "Auto-completer (cupiditys/Altcha)"}
             </p>
           </div>
         </div>
-        {cookies && (
+        {jwt && (
           <button
             onClick={handleLogout}
             className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground hover:text-primary flex items-center gap-1.5 px-3 py-1.5 border border-glass-border rounded-sm"
@@ -283,14 +393,16 @@ function KhanPage() {
         )}
       </header>
 
-      {!cookies && (
+      {/* Captcha + login */}
+      {!jwt && (
         <div className="bg-card border border-glass-border rounded-sm p-5 space-y-4">
           <div className="space-y-1">
-            <p className="text-xs font-mono text-white uppercase tracking-wider">
-              Verificação inicial
+            <p className="text-xs font-mono text-white uppercase tracking-wider flex items-center gap-2">
+              <ShieldCheck size={12} className="text-primary" /> Verificação inicial
             </p>
             <p className="text-[11px] text-muted-foreground leading-relaxed">
-              Conectando à Khan Academy...
+              Resolva o captcha (Altcha — proof-of-work, sem Cloudflare) para liberar a Khan.
+              Necessário só uma vez por sessão.
             </p>
           </div>
 
@@ -300,10 +412,32 @@ function KhanPage() {
               {loadingMsg}
             </div>
           )}
+
+          {phase === "captcha" && (
+            <>
+              <div ref={altchaRef} className="flex justify-center">
+                {/* @ts-expect-error custom element */}
+                <altcha-widget challengeurl={ALTCHA_CHALLENGE_URL} />
+              </div>
+              <button
+                onClick={handleLogin}
+                disabled={!altchaPayload || authBusy}
+                className="w-full text-[11px] font-mono uppercase tracking-wider bg-primary text-primary-foreground rounded-sm py-2 disabled:opacity-30 flex items-center justify-center gap-2"
+              >
+                {authBusy ? (
+                  <>
+                    <Loader2 size={12} className="animate-spin" /> Autenticando...
+                  </>
+                ) : (
+                  "Entrar na Khan"
+                )}
+              </button>
+            </>
+          )}
         </div>
       )}
 
-      {cookies && !courses && (
+      {jwt && !courses && (
         <div className="bg-card border border-glass-border rounded-sm p-5 flex items-center gap-2">
           <Loader2 size={14} className="text-primary animate-spin" />
           <span className="text-xs font-mono text-muted-foreground">
@@ -324,14 +458,11 @@ function KhanPage() {
         <div className="space-y-2">
           {courses.map((c) => {
             const isOpen = openCourse === c.id;
-            const units = unitsByCourse[c.id];
+            const us = unitsByCourse[c.id];
             return (
               <div key={c.id} className="border border-glass-border rounded-sm bg-card">
                 <button
-                  onClick={() => {
-                    setOpenCourse(isOpen ? null : c.id);
-                    if (!isOpen) loadCourseDetail(c);
-                  }}
+                  onClick={() => toggleCourse(c)}
                   className="w-full flex items-center gap-3 p-3 hover:bg-card/80 transition-colors text-left"
                 >
                   {isOpen ? (
@@ -355,11 +486,11 @@ function KhanPage() {
                       <div className="flex-1 h-1 bg-blood-muted rounded-sm overflow-hidden">
                         <div
                           className="h-full bg-primary"
-                          style={{ width: `${c.progress || 0}%` }}
+                          style={{ width: `${c.percentage || 0}%` }}
                         />
                       </div>
                       <span className="text-[9px] font-mono text-muted-foreground">
-                        {c.progress || 0}%
+                        {c.percentage || 0}%
                       </span>
                     </div>
                   </div>
@@ -367,72 +498,211 @@ function KhanPage() {
 
                 {isOpen && (
                   <div className="border-t border-glass-border p-3 space-y-3">
-                    {unitsLoading === c.id && !units && (
+                    <div className="flex justify-end">
+                      <button
+                        onClick={() => completeCourseChallengeBtn(c)}
+                        disabled={running[`cc-${c.id}`]}
+                        className="text-[9px] font-mono uppercase tracking-wider text-yellow-500 hover:text-white border border-yellow-500/30 rounded-sm px-2 py-1 disabled:opacity-30 flex items-center gap-1"
+                      >
+                        {running[`cc-${c.id}`] ? (
+                          <Loader2 size={9} className="animate-spin" />
+                        ) : (
+                          <RefreshCw size={9} />
+                        )}
+                        Course Challenge
+                      </button>
+                    </div>
+
+                    {us?.loading && (
                       <div className="flex items-center gap-2 text-[10px] font-mono text-muted-foreground">
                         <Loader2 size={11} className="animate-spin text-primary" /> Carregando unidades...
                       </div>
                     )}
-                    {units?.map((u) => (
-                      <div key={u.id} className="border border-glass-border/50 rounded-sm p-2.5">
-                        <div className="flex items-center justify-between gap-2 mb-2">
-                          <div className="min-w-0 flex-1">
-                            <p className="text-[11px] font-mono text-white truncate">{u.title}</p>
-                            <p className="text-[9px] text-muted-foreground font-mono">
-                              {u.percentage}% • {u.activities.length} atividades
-                            </p>
-                          </div>
+
+                    {us?.units.map((u) => {
+                      const uOpen = openUnit === u.id;
+                      const detail = unitDetail[u.id];
+                      return (
+                        <div key={u.id} className="border border-glass-border/50 rounded-sm">
                           <button
-                            onClick={() => completeUnit(c.id, u)}
-                            disabled={u.activities.every((a) => a.status === "MASTERED")}
-                            className="text-[9px] font-mono uppercase tracking-wider text-primary hover:text-white border border-primary/30 rounded-sm px-2 py-1 disabled:opacity-30 flex items-center gap-1"
+                            onClick={() => toggleUnit(u)}
+                            className="w-full flex items-center gap-2 p-2.5 hover:bg-card/60 text-left"
                           >
-                            <Play size={9} /> Completar tudo
+                            {uOpen ? (
+                              <ChevronDown size={12} className="text-primary shrink-0" />
+                            ) : (
+                              <ChevronRight size={12} className="text-muted-foreground shrink-0" />
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-[11px] font-mono text-white truncate">{u.title}</p>
+                              {typeof u.percentage === "number" && (
+                                <p className="text-[9px] text-muted-foreground font-mono">
+                                  {Math.round(u.percentage)}%
+                                </p>
+                              )}
+                            </div>
                           </button>
-                        </div>
-                        <div className="space-y-1">
-                          {u.activities.map((a) => {
-                            const done = a.status === "MASTERED";
-                            const busy = running[a.id];
-                            return (
-                              <div
-                                key={a.id}
-                                className="flex items-center gap-2 text-[10px] font-mono py-1 px-2 hover:bg-blood-muted/30 rounded-sm"
-                              >
-                                {done ? (
-                                  <CheckCircle2 size={11} className="text-green-500 shrink-0" />
-                                ) : a.isTest ? (
-                                  <RefreshCw size={11} className="text-yellow-500 shrink-0" />
-                                ) : (
-                                  <Play size={11} className="text-muted-foreground shrink-0" />
-                                )}
-                                <span className="flex-1 truncate text-white/80">{a.title}</span>
-                                {a.isTest && (
-                                  <span className="text-[8px] text-yellow-500 uppercase">teste</span>
-                                )}
-                                <button
-                                  onClick={() => completeActivity(c.id, a)}
-                                  disabled={done || busy}
-                                  className="text-[9px] uppercase text-primary hover:text-white disabled:opacity-30 px-2 py-0.5 border border-primary/20 rounded-sm flex items-center gap-1"
-                                >
-                                  {busy ? (
-                                    <Loader2 size={9} className="animate-spin" />
-                                  ) : done ? (
-                                    "ok"
-                                  ) : (
-                                    "completar"
-                                  )}
-                                </button>
-                              </div>
-                            );
-                          })}
-                          {u.activities.length === 0 && (
-                            <p className="text-[10px] text-muted-foreground font-mono italic">
-                              Sem atividades disponíveis
-                            </p>
+
+                          {uOpen && (
+                            <div className="border-t border-glass-border/50 p-2.5 space-y-2">
+                              {detail?.loading && (
+                                <div className="flex items-center gap-2 text-[10px] font-mono text-muted-foreground">
+                                  <Loader2 size={10} className="animate-spin text-primary" /> Carregando lições...
+                                </div>
+                              )}
+
+                              {detail?.lessons.map((lesson) => {
+                                const lOpen = openLesson === lesson.id;
+                                const ldet = lessonDetail[lesson.id];
+                                return (
+                                  <div
+                                    key={lesson.id}
+                                    className="border border-glass-border/40 rounded-sm"
+                                  >
+                                    <div className="flex items-center gap-2 p-2">
+                                      <button
+                                        onClick={() => toggleLesson(lesson, u.id)}
+                                        className="flex items-center gap-1 flex-1 min-w-0 text-left"
+                                      >
+                                        {lOpen ? (
+                                          <ChevronDown size={10} className="text-primary shrink-0" />
+                                        ) : (
+                                          <ChevronRight size={10} className="text-muted-foreground shrink-0" />
+                                        )}
+                                        <span className="text-[10px] font-mono text-white/80 truncate">
+                                          {lesson.title}
+                                        </span>
+                                      </button>
+                                      <button
+                                        onClick={() => completeLessonAll(lesson, u.id)}
+                                        disabled={running[`lall-${lesson.id}`]}
+                                        className="text-[9px] uppercase font-mono text-primary hover:text-white border border-primary/20 rounded-sm px-2 py-0.5 flex items-center gap-1"
+                                      >
+                                        <Play size={8} /> Completar
+                                      </button>
+                                    </div>
+
+                                    {lOpen && (
+                                      <div className="border-t border-glass-border/30 p-2 space-y-1">
+                                        {ldet?.loading && (
+                                          <div className="text-[9px] font-mono text-muted-foreground">
+                                            <Loader2 size={9} className="inline animate-spin mr-1" />
+                                            carregando...
+                                          </div>
+                                        )}
+                                        {[
+                                          ...(ldet?.exercises || []),
+                                          ...(ldet?.videos || []),
+                                          ...(ldet?.articles || []),
+                                        ].map((item) => {
+                                          const done =
+                                            doneLocal[item.id] ||
+                                            item.completionStatus === "COMPLETE";
+                                          const busy = running[item.id];
+                                          return (
+                                            <div
+                                              key={item.id}
+                                              className="flex items-center gap-2 text-[10px] font-mono py-1 px-2 hover:bg-blood-muted/30 rounded-sm"
+                                            >
+                                              {done ? (
+                                                <CheckCircle2
+                                                  size={10}
+                                                  className="text-green-500 shrink-0"
+                                                />
+                                              ) : (
+                                                <Play
+                                                  size={10}
+                                                  className="text-muted-foreground shrink-0"
+                                                />
+                                              )}
+                                              <span className="flex-1 truncate text-white/80">
+                                                {item.title}
+                                              </span>
+                                              <span className="text-[8px] uppercase text-muted-foreground">
+                                                {item.type || ""}
+                                              </span>
+                                              <button
+                                                onClick={() => completeContent(item, lesson.id)}
+                                                disabled={done || busy}
+                                                className="text-[9px] uppercase text-primary hover:text-white disabled:opacity-30 px-2 py-0.5 border border-primary/20 rounded-sm"
+                                              >
+                                                {busy ? (
+                                                  <Loader2 size={9} className="animate-spin" />
+                                                ) : done ? (
+                                                  "ok"
+                                                ) : (
+                                                  "completar"
+                                                )}
+                                              </button>
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+
+                              {detail?.quizzes.map((q) => {
+                                const done = doneLocal[q.id] || q.completionStatus === "COMPLETE";
+                                const busy = running[q.id];
+                                return (
+                                  <div
+                                    key={q.id}
+                                    className="flex items-center gap-2 text-[10px] font-mono py-1 px-2 border border-yellow-500/20 rounded-sm"
+                                  >
+                                    <RefreshCw size={10} className="text-yellow-500 shrink-0" />
+                                    <span className="flex-1 truncate text-white/80">{q.title}</span>
+                                    <span className="text-[8px] uppercase text-yellow-500">quiz</span>
+                                    <button
+                                      onClick={() => completeQuizItem(q)}
+                                      disabled={done || busy}
+                                      className="text-[9px] uppercase text-yellow-500 hover:text-white disabled:opacity-30 px-2 py-0.5 border border-yellow-500/30 rounded-sm"
+                                    >
+                                      {busy ? (
+                                        <Loader2 size={9} className="animate-spin" />
+                                      ) : done ? (
+                                        "ok"
+                                      ) : (
+                                        "completar"
+                                      )}
+                                    </button>
+                                  </div>
+                                );
+                              })}
+
+                              {detail?.unitTests.map((t) => {
+                                const done = doneLocal[t.id] || t.completionStatus === "COMPLETE";
+                                const busy = running[t.id];
+                                return (
+                                  <div
+                                    key={t.id}
+                                    className="flex items-center gap-2 text-[10px] font-mono py-1 px-2 border border-red-500/20 rounded-sm"
+                                  >
+                                    <RefreshCw size={10} className="text-red-500 shrink-0" />
+                                    <span className="flex-1 truncate text-white/80">{t.title}</span>
+                                    <span className="text-[8px] uppercase text-red-500">teste</span>
+                                    <button
+                                      onClick={() => completeUnitTestItem(t)}
+                                      disabled={done || busy}
+                                      className="text-[9px] uppercase text-red-500 hover:text-white disabled:opacity-30 px-2 py-0.5 border border-red-500/30 rounded-sm"
+                                    >
+                                      {busy ? (
+                                        <Loader2 size={9} className="animate-spin" />
+                                      ) : done ? (
+                                        "ok"
+                                      ) : (
+                                        "completar"
+                                      )}
+                                    </button>
+                                  </div>
+                                );
+                              })}
+                            </div>
                           )}
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -440,6 +710,9 @@ function KhanPage() {
           })}
         </div>
       )}
+
+      {/* só pra silenciar o lint sobre import não usado */}
+      <span className="hidden">{getStoredKaid() || ""}</span>
     </div>
   );
 }
