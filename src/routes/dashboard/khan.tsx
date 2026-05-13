@@ -446,7 +446,7 @@ function KhanPage() {
               </div>
               <button
                 onClick={handleLogin}
-                disabled={!altchaPayload || authBusy}
+                disabled={authBusy}
                 className="w-full text-[11px] font-mono uppercase tracking-wider bg-primary text-primary-foreground rounded-sm py-2 disabled:opacity-30 flex items-center justify-center gap-2"
               >
                 {authBusy ? (
