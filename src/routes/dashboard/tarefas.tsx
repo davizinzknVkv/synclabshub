@@ -45,8 +45,21 @@ function TarefasPage() {
 
   const handleSelectAndProcess = () => {
     if (tasks.length === 0) return;
+    setModalTasks(tasks);
     setModalOpen(true);
   };
+
+  const handleOpenSingle = (task: TaskItem) => {
+    setModalTasks([task]);
+    setModalOpen(true);
+  };
+
+  const autoFetched = useRef(false);
+  useEffect(() => {
+    if (!session || autoFetched.current) return;
+    autoFetched.current = true;
+    fetchTasks("pending");
+  }, [session, fetchTasks]);
 
   const handleSubmit = useCallback(async (selectedTasks: TaskItem[], isDraft: boolean, minTime: number, maxTime: number) => {
     setModalOpen(false);
