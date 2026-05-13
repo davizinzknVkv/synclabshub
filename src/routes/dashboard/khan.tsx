@@ -243,7 +243,7 @@ function KhanPage() {
     setCourseDataMap({});
     setOpenCourse(null);
     setPhase("idle");
-    turnstileMounted.current = false;
+    initRef.current = false;
     notify("Sessão Khan limpa");
   };
 
