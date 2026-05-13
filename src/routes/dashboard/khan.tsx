@@ -13,9 +13,7 @@ import {
 import { getSession } from "@/lib/auth";
 import { NotificationContainer, notify } from "@/components/Notification";
 import {
-  TURNSTILE_SITEKEYS,
   fetchSedLabelToken,
-  validateCaptcha,
   redeemCookies,
   fetchProfile,
   fetchClasses,
@@ -75,74 +73,29 @@ function KhanPage() {
   const [unitsLoading, setUnitsLoading] = useState<string | null>(null);
   const [running, setRunning] = useState<Record<string, boolean>>({});
   
-  const turnstileMounted = useRef(false);
+  const initRef = useRef(false);
 
-  // 1) Se não tem cookies, prepara label token + carrega Turnstile
+  // 1) Sem cookies: gera label token na SED e tenta resgatar direto (sem captcha)
   useEffect(() => {
     if (cookies || !session) return;
-    if (turnstileMounted.current) return;
-    turnstileMounted.current = true;
+    if (initRef.current) return;
+    initRef.current = true;
 
     (async () => {
       try {
         setLoadingMsg("Gerando token na SED...");
         const lt = await fetchSedLabelToken(session.authToken);
         setLabelToken(lt);
-        setPhase("captcha");
-
-        // injeta script Turnstile
-        if (!document.querySelector("script[data-khan-turnstile]")) {
-          const s = document.createElement("script");
-          s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onKhanTurnstileReady";
-          s.async = true;
-          s.defer = true;
-          s.setAttribute("data-khan-turnstile", "1");
-          document.head.appendChild(s);
-        }
-
-        let solved = false;
-        const tryRedeem = async (cfToken: string, sitekey: string) => {
-          if (solved) return;
-          solved = true;
-          try {
-            setLoadingMsg(`Validando captcha (${sitekey.slice(-6)})...`);
-            const { token: capToken } = await validateCaptcha(cfToken);
-            setLoadingMsg("Resgatando sessão Khan...");
-            const newCookies = await redeemCookies(lt, capToken);
-            setCookiesState(newCookies);
-            setPhase("ready");
-            notify("✓ Sessão Khan ativa");
-          } catch (e) {
-            const msg = (e as Error).message;
-            notify(`✗ ${msg}`);
-            // se falhou (ex: 403 no /token), permite tentar o outro captcha
-            solved = false;
-            try { window.turnstile?.reset(); } catch {}
-          } finally {
-            setLoadingMsg("");
-          }
-        };
-
-        window.onKhanTurnstileReady = () => {
-          if (!window.turnstile) return;
-          for (const { key, label } of TURNSTILE_SITEKEYS) {
-            const el = document.getElementById(`khan-turnstile-${key}`);
-            if (!el || el.dataset.rendered === "1") continue;
-            el.dataset.rendered = "1";
-            window.turnstile.render(el, {
-              sitekey: key,
-              theme: "dark",
-              callback: (cfToken: string) => tryRedeem(cfToken, key),
-              "error-callback": () => notify(`✗ Falha no ${label}`),
-            });
-          }
-        };
-
-        // se script já estava carregado
-        if (window.turnstile) window.onKhanTurnstileReady?.();
+        setLoadingMsg("Resgatando sessão Khan...");
+        const newCookies = await redeemCookies(lt, "");
+        setCookiesState(newCookies);
+        setPhase("ready");
+        notify("✓ Sessão Khan ativa");
       } catch (e) {
         notify(`✗ ${(e as Error).message}`);
-        turnstileMounted.current = false;
+        initRef.current = false;
+      } finally {
+        setLoadingMsg("");
       }
     })();
   }, [cookies, session]);
@@ -288,7 +241,7 @@ function KhanPage() {
     setCourseDataMap({});
     setOpenCourse(null);
     setPhase("idle");
-    turnstileMounted.current = false;
+    initRef.current = false;
     notify("Sessão Khan limpa");
   };
 
@@ -337,8 +290,7 @@ function KhanPage() {
               Verificação inicial
             </p>
             <p className="text-[11px] text-muted-foreground leading-relaxed">
-              Resolva o captcha abaixo para liberar o acesso à Khan Academy. Isso é necessário só
-              uma vez por sessão.
+              Conectando à Khan Academy...
             </p>
           </div>
 
@@ -348,20 +300,6 @@ function KhanPage() {
               {loadingMsg}
             </div>
           )}
-
-          <div className="space-y-3">
-            <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider text-center">
-              Resolva qualquer um dos captchas abaixo
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-              {TURNSTILE_SITEKEYS.map(({ key, label }) => (
-                <div key={key} className="flex flex-col items-center gap-1">
-                  <span className="text-[9px] font-mono text-muted-foreground uppercase">{label}</span>
-                  <div id={`khan-turnstile-${key}`} />
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       )}
 
