@@ -22,6 +22,7 @@ function TarefasPage() {
   const [tasks, setTasks] = useState<TaskItem[]>([]);
   const [targets, setTargets] = useState<string[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
+  const [modalTasks, setModalTasks] = useState<TaskItem[]>([]);
   const [fetched, setFetched] = useState(false);
 
   const fetchTasks = useCallback(async (filter: "pending" | "expired") => {
