@@ -106,7 +106,7 @@ export async function loginCupiditys(
     }),
   });
   const data = await r.json().catch(() => ({}));
-  if (!r.ok || !data?.success) {
+  if (!r.ok || !data?.jwt) {
     throw new Error(data?.error || `Login HTTP ${r.status}`);
   }
   saveAuth(data.jwt, data.kaid);
