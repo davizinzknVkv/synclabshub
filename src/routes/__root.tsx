@@ -29,18 +29,27 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Sync Labs" },
-      { name: "description", content: "sync labs hub" },
+      { title: "Sync Automaçao Escolar" },
+      { name: "description", content: "# Sync Labs
+
+**O que é o Sync Labs?**
+O **Sync Labs** é um ecossistema digital e hub de automação escolar inteligente desenvolvido para otimizar, monitorizar e" },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Sync Labs" },
-      { property: "og:description", content: "sync labs hub" },
+      { property: "og:title", content: "Sync Automaçao Escolar" },
+      { property: "og:description", content: "# Sync Labs
+
+**O que é o Sync Labs?**
+O **Sync Labs** é um ecossistema digital e hub de automação escolar inteligente desenvolvido para otimizar, monitorizar e" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
-      { name: "twitter:title", content: "Sync Labs" },
-      { name: "twitter:description", content: "sync labs hub" },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/d5d58ff5-131c-489b-8807-4c0e86ee517c" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/d5d58ff5-131c-489b-8807-4c0e86ee517c" },
+      { name: "twitter:title", content: "Sync Automaçao Escolar" },
+      { name: "twitter:description", content: "# Sync Labs
+
+**O que é o Sync Labs?**
+O **Sync Labs** é um ecossistema digital e hub de automação escolar inteligente desenvolvido para otimizar, monitorizar e" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/bce958be-24d2-432a-ad67-e6661cd4e515" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/bce958be-24d2-432a-ad67-e6661cd4e515" },
     ],
     links: [
       {
