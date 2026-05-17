@@ -164,8 +164,15 @@ function KhanPage() {
   const handleLogin = useCallback(async () => {
     let payload = altchaPayload;
     if (!payload) {
-      const widget = altchaRef.current?.querySelector("altcha-widget") as any;
-      payload = widget?.value || widget?.getAttribute?.("value") || null;
+      const root = altchaRef.current;
+      const widget = root?.querySelector("altcha-widget") as any;
+      // tenta de várias fontes: prop value, atributo, input[name=altcha] no shadow ou luz
+      payload =
+        widget?.value ||
+        widget?.getAttribute?.("value") ||
+        (root?.querySelector('input[name="altcha"]') as HTMLInputElement | null)?.value ||
+        (widget?.shadowRoot?.querySelector('input[name="altcha"]') as HTMLInputElement | null)?.value ||
+        null;
     }
     if (!labelToken || !payload) {
       notify("✗ Resolva o captcha primeiro");
