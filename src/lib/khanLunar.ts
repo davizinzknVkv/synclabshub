@@ -1,6 +1,6 @@
 // Khan integration usando o stack do khanto (cupiditys.lol):
 //   - Captcha: Altcha (proof-of-work, sem secret externa)
-//   - Auth: JWT retornado por /api/token
+//   - Auth: JWT retornado por /api/sso quando usamos token da SED
 //   - Conclusão de atividades: chamadas síncronas em /api/complete/*
 // Todas as requests externas passam pelo proxy server-side em /api/cupiditys/*
 
@@ -23,13 +23,26 @@ export interface KhanProfile {
 // ----------------- Storage helpers -----------------
 
 export function getStoredJwt(): string | null {
-  try { return localStorage.getItem(LS.jwt); } catch { return null; }
+  try {
+    return localStorage.getItem(LS.jwt);
+  } catch {
+    return null;
+  }
 }
 export function getStoredKaid(): string | null {
-  try { return localStorage.getItem(LS.kaid); } catch { return null; }
+  try {
+    return localStorage.getItem(LS.kaid);
+  } catch {
+    return null;
+  }
 }
 export function getStoredProfile(): KhanProfile | null {
-  try { const r = localStorage.getItem(LS.profile); return r ? JSON.parse(r) : null; } catch { return null; }
+  try {
+    const r = localStorage.getItem(LS.profile);
+    return r ? JSON.parse(r) : null;
+  } catch {
+    return null;
+  }
 }
 function saveAuth(jwt: string, kaid: string) {
   localStorage.setItem(LS.jwt, jwt);
@@ -56,9 +69,7 @@ export async function fetchSedLabelToken(authToken: string): Promise<string> {
   const token =
     data?.token ||
     data?.access_token ||
-    (typeof data?.redirect === "string"
-      ? new URL(data.redirect).searchParams.get("token")
-      : null);
+    (typeof data?.redirect === "string" ? new URL(data.redirect).searchParams.get("token") : null);
   if (!token) throw new Error("SED não retornou token");
   return token as string;
 }
@@ -86,13 +97,11 @@ export async function loginCupiditys(
   labelToken: string,
   captchaToken: string,
 ): Promise<{ jwt: string; kaid: string }> {
-  const r = await fetch(`${PROXY}/khan/api/token`, {
+  const r = await fetch(`${PROXY}/khan/api/sso`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       token: labelToken,
-      locale: "pt-BR",
-      country: "BR",
       captchaToken,
     }),
   });
@@ -218,7 +227,12 @@ export async function completeExercise(jwt: string, exerciseId: string, topicId:
 export async function completeVideo(jwt: string, videoId: string, videoSlug: string) {
   return api(jwt, "/complete/video", { videoId, videoSlug });
 }
-export async function completeArticle(jwt: string, articleId: string, articleSlug: string, topicId: string) {
+export async function completeArticle(
+  jwt: string,
+  articleId: string,
+  articleSlug: string,
+  topicId: string,
+) {
   return api(jwt, "/complete/article", { articleId, articleSlug, topicId });
 }
 export async function completeQuiz(jwt: string, topicId: string, positionKey: string) {
