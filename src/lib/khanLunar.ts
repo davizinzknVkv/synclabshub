@@ -1,6 +1,6 @@
 // Khan integration usando o stack do khanto (cupiditys.lol):
 //   - Captcha: Altcha (proof-of-work, sem secret externa)
-//   - Auth: JWT retornado por /api/token
+//   - Auth: JWT retornado por /api/sso quando usamos token da SED
 //   - Conclusão de atividades: chamadas síncronas em /api/complete/*
 // Todas as requests externas passam pelo proxy server-side em /api/cupiditys/*
 
@@ -86,13 +86,11 @@ export async function loginCupiditys(
   labelToken: string,
   captchaToken: string,
 ): Promise<{ jwt: string; kaid: string }> {
-  const r = await fetch(`${PROXY}/khan/api/token`, {
+  const r = await fetch(`${PROXY}/khan/api/sso`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       token: labelToken,
-      locale: "pt-BR",
-      country: "BR",
       captchaToken,
     }),
   });
