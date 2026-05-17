@@ -147,7 +147,11 @@ function KhanPage() {
     const interval = setInterval(() => {
       const widget = node.querySelector("altcha-widget") as any;
       if (!widget) return;
-      const val = widget.value || widget.getAttribute?.("value");
+      const val =
+        widget.value ||
+        widget.getAttribute?.("value") ||
+        (node.querySelector('input[name="altcha"]') as HTMLInputElement | null)?.value ||
+        (widget.shadowRoot?.querySelector('input[name="altcha"]') as HTMLInputElement | null)?.value;
       if (val && typeof val === "string" && val.length > 20) {
         setAltchaPayload((prev) => (prev === val ? prev : val));
       }
