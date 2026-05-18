@@ -15,6 +15,7 @@ import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as DashboardTarefasRouteImport } from './routes/dashboard/tarefas'
 import { Route as DashboardStatusRouteImport } from './routes/dashboard/status'
 import { Route as DashboardRedacaoRouteImport } from './routes/dashboard/redacao'
+import { Route as DashboardPreparaspRouteImport } from './routes/dashboard/preparasp'
 import { Route as DashboardLeiaspRouteImport } from './routes/dashboard/leiasp'
 import { Route as DashboardKhanRouteImport } from './routes/dashboard/khan'
 import { Route as DashboardApostilasRouteImport } from './routes/dashboard/apostilas'
@@ -55,6 +56,11 @@ const DashboardStatusRoute = DashboardStatusRouteImport.update({
 const DashboardRedacaoRoute = DashboardRedacaoRouteImport.update({
   id: '/redacao',
   path: '/redacao',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardPreparaspRoute = DashboardPreparaspRouteImport.update({
+  id: '/preparasp',
+  path: '/preparasp',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardLeiaspRoute = DashboardLeiaspRouteImport.update({
@@ -120,6 +126,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/apostilas': typeof DashboardApostilasRoute
   '/dashboard/khan': typeof DashboardKhanRoute
   '/dashboard/leiasp': typeof DashboardLeiaspRoute
+  '/dashboard/preparasp': typeof DashboardPreparaspRoute
   '/dashboard/redacao': typeof DashboardRedacaoRoute
   '/dashboard/status': typeof DashboardStatusRoute
   '/dashboard/tarefas': typeof DashboardTarefasRoute
@@ -138,6 +145,7 @@ export interface FileRoutesByTo {
   '/dashboard/apostilas': typeof DashboardApostilasRoute
   '/dashboard/khan': typeof DashboardKhanRoute
   '/dashboard/leiasp': typeof DashboardLeiaspRoute
+  '/dashboard/preparasp': typeof DashboardPreparaspRoute
   '/dashboard/redacao': typeof DashboardRedacaoRoute
   '/dashboard/status': typeof DashboardStatusRoute
   '/dashboard/tarefas': typeof DashboardTarefasRoute
@@ -158,6 +166,7 @@ export interface FileRoutesById {
   '/dashboard/apostilas': typeof DashboardApostilasRoute
   '/dashboard/khan': typeof DashboardKhanRoute
   '/dashboard/leiasp': typeof DashboardLeiaspRoute
+  '/dashboard/preparasp': typeof DashboardPreparaspRoute
   '/dashboard/redacao': typeof DashboardRedacaoRoute
   '/dashboard/status': typeof DashboardStatusRoute
   '/dashboard/tarefas': typeof DashboardTarefasRoute
@@ -179,6 +188,7 @@ export interface FileRouteTypes {
     | '/dashboard/apostilas'
     | '/dashboard/khan'
     | '/dashboard/leiasp'
+    | '/dashboard/preparasp'
     | '/dashboard/redacao'
     | '/dashboard/status'
     | '/dashboard/tarefas'
@@ -197,6 +207,7 @@ export interface FileRouteTypes {
     | '/dashboard/apostilas'
     | '/dashboard/khan'
     | '/dashboard/leiasp'
+    | '/dashboard/preparasp'
     | '/dashboard/redacao'
     | '/dashboard/status'
     | '/dashboard/tarefas'
@@ -216,6 +227,7 @@ export interface FileRouteTypes {
     | '/dashboard/apostilas'
     | '/dashboard/khan'
     | '/dashboard/leiasp'
+    | '/dashboard/preparasp'
     | '/dashboard/redacao'
     | '/dashboard/status'
     | '/dashboard/tarefas'
@@ -284,6 +296,13 @@ declare module '@tanstack/react-router' {
       path: '/redacao'
       fullPath: '/dashboard/redacao'
       preLoaderRoute: typeof DashboardRedacaoRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/preparasp': {
+      id: '/dashboard/preparasp'
+      path: '/preparasp'
+      fullPath: '/dashboard/preparasp'
+      preLoaderRoute: typeof DashboardPreparaspRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/dashboard/leiasp': {
@@ -370,6 +389,7 @@ interface DashboardRouteChildren {
   DashboardApostilasRoute: typeof DashboardApostilasRoute
   DashboardKhanRoute: typeof DashboardKhanRoute
   DashboardLeiaspRoute: typeof DashboardLeiaspRoute
+  DashboardPreparaspRoute: typeof DashboardPreparaspRoute
   DashboardRedacaoRoute: typeof DashboardRedacaoRoute
   DashboardStatusRoute: typeof DashboardStatusRoute
   DashboardTarefasRoute: typeof DashboardTarefasRoute
@@ -380,6 +400,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardApostilasRoute: DashboardApostilasRoute,
   DashboardKhanRoute: DashboardKhanRoute,
   DashboardLeiaspRoute: DashboardLeiaspRoute,
+  DashboardPreparaspRoute: DashboardPreparaspRoute,
   DashboardRedacaoRoute: DashboardRedacaoRoute,
   DashboardStatusRoute: DashboardStatusRoute,
   DashboardTarefasRoute: DashboardTarefasRoute,
