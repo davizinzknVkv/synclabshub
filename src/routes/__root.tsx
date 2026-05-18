@@ -30,24 +30,15 @@ export const Route = createRootRoute({
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Sync Automaçao Escolar" },
-      { name: "description", content: "# Sync Labs
-
-**O que é o Sync Labs?**
-O **Sync Labs** é um ecossistema digital e hub de automação escolar inteligente desenvolvido para otimizar, monitorizar e" },
+      { name: "description", content: "Sync Labs — ecossistema digital e hub de automação escolar inteligente para otimizar e monitorizar tarefas escolares." },
       { name: "author", content: "Lovable" },
       { property: "og:title", content: "Sync Automaçao Escolar" },
-      { property: "og:description", content: "# Sync Labs
-
-**O que é o Sync Labs?**
-O **Sync Labs** é um ecossistema digital e hub de automação escolar inteligente desenvolvido para otimizar, monitorizar e" },
+      { property: "og:description", content: "Sync Labs — ecossistema digital e hub de automação escolar inteligente para otimizar e monitorizar tarefas escolares." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
       { name: "twitter:title", content: "Sync Automaçao Escolar" },
-      { name: "twitter:description", content: "# Sync Labs
-
-**O que é o Sync Labs?**
-O **Sync Labs** é um ecossistema digital e hub de automação escolar inteligente desenvolvido para otimizar, monitorizar e" },
+      { name: "twitter:description", content: "Sync Labs — ecossistema digital e hub de automação escolar inteligente para otimizar e monitorizar tarefas escolares." },
       { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/bce958be-24d2-432a-ad67-e6661cd4e515" },
       { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/bce958be-24d2-432a-ad67-e6661cd4e515" },
     ],
