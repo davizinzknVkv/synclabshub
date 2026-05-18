@@ -11,7 +11,7 @@ export const Route = createFileRoute("/dashboard/status")({
 });
 
 const ADMIN_STORAGE_KEY = "sync_labs_admin_auth";
-const ADMIN_PASSWORD = "syncadmin2026";
+const ADMIN_PASSWORD = "Sync@Hub#2026!Lab";
 
 interface StatusLog {
   id: string;
