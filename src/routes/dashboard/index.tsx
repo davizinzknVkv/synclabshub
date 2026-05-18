@@ -11,6 +11,7 @@ import iconStatus from "@/assets/icons/status.png";
 import iconKhan from "@/assets/icons/khan.png";
 import iconAlura from "@/assets/icons/alura.png";
 import iconApostilas from "@/assets/icons/apostilas.png";
+import iconPreparaSp from "@/assets/icons/prepara-sp.png";
 
 export const Route = createFileRoute("/dashboard/")({
   component: DashboardHome,
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/dashboard/")({
 
 const SCRIPTS = [
   { name: "Tarefa SP", icon: iconTarefa, url: "/dashboard/tarefas" },
+  { name: "Prepara SP", icon: iconPreparaSp, url: "/dashboard/preparasp" },
   { name: "Redação", icon: iconRedacao, url: "/dashboard/redacao" },
   { name: "Leia SP", icon: iconLeiaSp, url: "/dashboard/leiasp" },
   { name: "Khan Academy", icon: iconKhan, url: "/dashboard/khan" },
