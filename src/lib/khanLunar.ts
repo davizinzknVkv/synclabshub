@@ -131,8 +131,13 @@ async function api<T = any>(jwt: string, path: string, payload: unknown = {}): P
 
 export async function fetchProfile(jwt: string): Promise<KhanProfile> {
   const data = await api<any>(jwt, "/profile", {});
-  const profile: KhanProfile = data?.profile || data?.user || data;
-  if (!profile?.kaid) throw new Error("Perfil sem kaid");
+  const raw: any = data?.profile || data?.user || data || {};
+  const storedKaid = getStoredKaid();
+  const profile: KhanProfile = {
+    ...raw,
+    kaid: raw.kaid || raw.id || storedKaid || "",
+  };
+  if (!profile.kaid) throw new Error("Perfil sem kaid");
   saveProfile(profile);
   return profile;
 }
