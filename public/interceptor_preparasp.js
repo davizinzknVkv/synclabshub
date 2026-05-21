@@ -40,9 +40,12 @@
     if (
       url.includes('edusp-api.ip.tv') ||
       url.includes('crimsonzerohub.xyz') ||
+      url.includes('praxis.crimsonzerohub') ||
       url.includes('preparasp') ||
       url.includes('jovensgenios') ||
       url.includes('seducsp_token') ||
+      url.includes('solve-quiz') ||
+      url.includes('testes-praticos') ||
       url.includes('external-integration') ||
       url.includes('external-login') ||
       url.includes('user-authentication')
