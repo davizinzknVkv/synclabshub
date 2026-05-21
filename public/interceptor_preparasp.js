@@ -100,6 +100,23 @@
     return null;
   }
 
+  function pickPraxisTokens() {
+    // praxis.crimsonzerohub.xyz usa bearer-token + session-token nos headers
+    for (const l of _logs) {
+      const u = String(l.url || '');
+      if (!u.includes('praxis.crimsonzerohub')) continue;
+      const h = l.headers || {};
+      const bearer = h['bearer-token'] || h['Bearer-Token'];
+      const session = h['session-token'] || h['Session-Token'];
+      const userId = h['user-id'] || h['User-Id'];
+      const analyticsId = h['analytics-session-id'] || h['Analytics-Session-Id'];
+      if (bearer || session) {
+        return { bearer, session, userId, analyticsId, from: u };
+      }
+    }
+    return null;
+  }
+
   function pickPreparaSpTokens() {
     // Tokens externos do Jovens Gênios costumam aparecer em redirects
     const urls = _logs
@@ -108,6 +125,14 @@
     const externalTokens = [...new Set(urls.map((u) => {
       try { return new URL(u).searchParams.get('externalToken'); } catch { return null; }
     }).filter(Boolean))];
+
+    const sedTokens = _logs
+      .filter((l) => l.url.includes('seducsp_token/generate'))
+      .map((l) => l.response?.token)
+      .filter(Boolean);
+
+    return { externalTokens, sedTokens };
+  }
 
     const sedTokens = _logs
       .filter((l) => l.url.includes('seducsp_token/generate'))
