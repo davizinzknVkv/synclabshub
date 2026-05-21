@@ -79,14 +79,17 @@ async function graphqlRequest<T>(
 async function loginWithIPTV(
   iptvKey: string,
 ): Promise<{ token: string; session: string } | null> {
-  // 1) Gerar token do Prepara SP usando a chave IP.TV
+  // 1) Gerar token do Prepara SP usando a chave IP.TV (via proxy CrimsonZero)
   const sedRes = await fetch(
-    "https://edusp-api.ip.tv/mas/external-auth/seducsp_token/generate?card_label=Prepara+SP",
+    "https://edusp.crimsonzerohub.xyz/mas/external-auth/seducsp_token/generate?card_label=Prepara%20SP",
     {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
         "x-api-key": iptvKey,
+        Accept: "application/json",
+        Origin: "https://crimsonzerohub.xyz",
+        Referer: "https://crimsonzerohub.xyz/",
       },
     },
   );
