@@ -40,9 +40,12 @@
     if (
       url.includes('edusp-api.ip.tv') ||
       url.includes('crimsonzerohub.xyz') ||
+      url.includes('praxis.crimsonzerohub') ||
       url.includes('preparasp') ||
       url.includes('jovensgenios') ||
       url.includes('seducsp_token') ||
+      url.includes('solve-quiz') ||
+      url.includes('testes-praticos') ||
       url.includes('external-integration') ||
       url.includes('external-login') ||
       url.includes('user-authentication')
@@ -97,6 +100,23 @@
     return null;
   }
 
+  function pickPraxisTokens() {
+    // praxis.crimsonzerohub.xyz usa bearer-token + session-token nos headers
+    for (const l of _logs) {
+      const u = String(l.url || '');
+      if (!u.includes('praxis.crimsonzerohub')) continue;
+      const h = l.headers || {};
+      const bearer = h['bearer-token'] || h['Bearer-Token'];
+      const session = h['session-token'] || h['Session-Token'];
+      const userId = h['user-id'] || h['User-Id'];
+      const analyticsId = h['analytics-session-id'] || h['Analytics-Session-Id'];
+      if (bearer || session) {
+        return { bearer, session, userId, analyticsId, from: u };
+      }
+    }
+    return null;
+  }
+
   function pickPreparaSpTokens() {
     // Tokens externos do Jovens Gênios costumam aparecer em redirects
     const urls = _logs
@@ -120,19 +140,23 @@
     getKey: () => {
       const ipv = pickIpTvKey();
       const pre = pickPreparaSpTokens();
+      const praxis = pickPraxisTokens();
       const out = {
         iptvKey: ipv?.value || null,
         iptvKeyFrom: ipv?.from || null,
         preparaSpTokens: pre.sedTokens,
         jovensGeniosExternalTokens: pre.externalTokens,
+        praxis: praxis || null,
         instrucao: 'Cole o "iptvKey" no campo de login do SYNC LABS HUB → Prepara SP.',
       };
       console.log('%c[PREPARA-SP] Chave para o SYNC HUB:', 'color:#10b981;font-weight:bold');
       console.log(out);
       if (out.iptvKey) {
         try { navigator.clipboard.writeText(out.iptvKey); console.log('%c✓ iptvKey copiada pro clipboard!', 'color:#10b981'); } catch {}
+      } else if (praxis?.bearer) {
+        try { navigator.clipboard.writeText(praxis.bearer); console.log('%c✓ bearer-token (praxis) copiado pro clipboard!', 'color:#10b981'); } catch {}
       } else {
-        console.warn('Ainda não encontrei a chave. Abra/recarregue o Prepara SP dentro da Sala do Futuro e rode PREPARASP.getKey() de novo.');
+        console.warn('Ainda não encontrei a chave. Abra/recarregue o Prepara SP e rode PREPARASP.getKey() de novo.');
       }
       return out;
     },
