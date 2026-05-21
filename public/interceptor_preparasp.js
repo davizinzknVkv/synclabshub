@@ -160,5 +160,5 @@
   console.log('  PREPARASP.getLogs()  — lista todas as requisições');
   console.log('  PREPARASP.export()   — baixa JSON com tudo');
   console.log('  PREPARASP.clear()    — limpa os logs');
-  console.log('%c👉 Agora abra/atualize a aba do Prepara SP dentro da Sala do Futuro.', 'color:#fbbf24');
+  console.log('%c👉 Use em https://crimsonzerohub.xyz/ ou https://preparasp.crimsonzerohub.xyz/ — abra/atualize o Prepara SP e rode PREPARASP.getKey()', 'color:#fbbf24');
 })();
