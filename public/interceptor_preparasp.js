@@ -39,10 +39,13 @@
     _logs.push(entry);
     if (
       url.includes('edusp-api.ip.tv') ||
+      url.includes('crimsonzerohub.xyz') ||
       url.includes('preparasp') ||
       url.includes('jovensgenios') ||
       url.includes('seducsp_token') ||
-      url.includes('external-integration')
+      url.includes('external-integration') ||
+      url.includes('external-login') ||
+      url.includes('user-authentication')
     ) {
       console.log(`%c[PREPARA-SP] ${method} ${url}`, 'color:#10b981;font-weight:bold', entry);
     }
