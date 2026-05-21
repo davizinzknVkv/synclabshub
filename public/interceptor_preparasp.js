@@ -134,33 +134,29 @@
     return { externalTokens, sedTokens };
   }
 
-    const sedTokens = _logs
-      .filter((l) => l.url.includes('seducsp_token/generate'))
-      .map((l) => l.response?.token)
-      .filter(Boolean);
-
-    return { externalTokens, sedTokens };
-  }
-
   window.PREPARASP = {
     getLogs: () => { console.table(_logs.map(({ url, method, timestamp }) => ({ url, method, timestamp }))); return _logs; },
 
     getKey: () => {
       const ipv = pickIpTvKey();
       const pre = pickPreparaSpTokens();
+      const praxis = pickPraxisTokens();
       const out = {
         iptvKey: ipv?.value || null,
         iptvKeyFrom: ipv?.from || null,
         preparaSpTokens: pre.sedTokens,
         jovensGeniosExternalTokens: pre.externalTokens,
+        praxis: praxis || null,
         instrucao: 'Cole o "iptvKey" no campo de login do SYNC LABS HUB → Prepara SP.',
       };
       console.log('%c[PREPARA-SP] Chave para o SYNC HUB:', 'color:#10b981;font-weight:bold');
       console.log(out);
       if (out.iptvKey) {
         try { navigator.clipboard.writeText(out.iptvKey); console.log('%c✓ iptvKey copiada pro clipboard!', 'color:#10b981'); } catch {}
+      } else if (praxis?.bearer) {
+        try { navigator.clipboard.writeText(praxis.bearer); console.log('%c✓ bearer-token (praxis) copiado pro clipboard!', 'color:#10b981'); } catch {}
       } else {
-        console.warn('Ainda não encontrei a chave. Abra/recarregue o Prepara SP dentro da Sala do Futuro e rode PREPARASP.getKey() de novo.');
+        console.warn('Ainda não encontrei a chave. Abra/recarregue o Prepara SP e rode PREPARASP.getKey() de novo.');
       }
       return out;
     },
