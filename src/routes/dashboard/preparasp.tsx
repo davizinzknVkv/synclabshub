@@ -219,22 +219,6 @@ function PreparaSpPage() {
         />
       )}
     </div>
-
-      {showAuth && (
-        <AuthModal
-          initial={auth}
-          onClose={() => setShowAuth(false)}
-          onSave={(a) => { setAuth(a); saveAuth(a); setShowAuth(false); notify("TOKENS SALVOS"); }}
-        />
-      )}
-      {adding && (
-        <AddActivityModal
-          defaultDay={showAllDays ? new Date().getDay() : filterDay}
-          onClose={() => setAdding(false)}
-          onSave={(act) => { persist([...activities, act]); setAdding(false); }}
-        />
-      )}
-    </div>
   );
 }
 
