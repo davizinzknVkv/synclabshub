@@ -413,26 +413,41 @@ function AddActivityModal({
 
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-card border border-glass-border rounded-sm p-4 w-full max-w-md max-h-[90vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-bold text-white font-mono uppercase tracking-widest">{title}</h3>
-          <button onClick={onClose} className="text-muted-foreground hover:text-white"><X size={14} /></button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-md animate-in fade-in duration-300" onClick={onClose}>
+      <div 
+        className="bg-surface border-4 border-foreground shadow-[12px_12px_0_0_rgba(0,0,0,0.5)] w-full max-w-md max-h-[90vh] overflow-auto animate-in zoom-in-95 duration-200" 
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between p-6 border-b-2 border-border bg-muted/20">
+          <h3 className="text-xl font-black text-white uppercase tracking-tighter italic">{title}</h3>
+          <button onClick={onClose} className="w-10 h-10 flex items-center justify-center hover:bg-destructive hover:text-white transition-colors">
+            <X size={20} />
+          </button>
         </div>
-        {children}
+        <div className="p-6">
+          {children}
+        </div>
       </div>
     </div>
   );
 }
 
 function Field({
-  label, value, onChange, placeholder,
-}: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) {
+  label, value, onChange, placeholder, type = "text"
+}: { label: string; value: string; onChange: (v: string) => void; placeholder?: string, type?: string }) {
   return (
-    <label className="block space-y-1">
-      <span className="text-[9px] uppercase tracking-widest text-muted-foreground font-mono">{label}</span>
+    <label className="block space-y-2">
+      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{label}</span>
       <input
-        value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
+        type={type}
+        value={value} 
+        onChange={(e) => onChange(e.target.value)} 
+        placeholder={placeholder}
+        className="input-obsidian w-full px-4 py-3 text-sm focus:ring-0"
+      />
+    </label>
+  );
+}
         className="w-full bg-blood-muted border border-glass-border rounded-sm px-2 py-1.5 text-[11px] font-mono text-white placeholder:text-muted-foreground outline-none focus:border-primary/50"
       />
     </label>
