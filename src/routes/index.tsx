@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useCallback, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import logo from "@/assets/logo.png?as=webp";
+import logo from "@/assets/logo.png";
 import { NotificationContainer, notify } from "@/components/Notification";
 import { setSession, getSession, saveCreds, loadCreds, FALLBACK_ROOM_ICON } from "@/lib/auth";
 

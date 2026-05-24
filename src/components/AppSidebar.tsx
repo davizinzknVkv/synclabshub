@@ -3,7 +3,7 @@ import {
   Home, CheckSquare, PenTool, MessageCircle, Heart, ChevronLeft, ChevronRight, LogOut, Menu, X,
 } from "lucide-react";
 import { useState } from "react";
-import logo from "@/assets/logo.png?as=webp";
+import logo from "@/assets/logo.png";
 import { clearSession } from "@/lib/auth";
 import { useIsMobile } from "@/hooks/use-mobile";
 
