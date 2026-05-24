@@ -9,25 +9,27 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
-import { Route as DashboardTarefasRouteImport } from './routes/dashboard/tarefas'
-import { Route as DashboardStatusRouteImport } from './routes/dashboard/status'
-import { Route as DashboardRedacaoRouteImport } from './routes/dashboard/redacao'
-import { Route as DashboardPreparaspRouteImport } from './routes/dashboard/preparasp'
-import { Route as DashboardLeiaspRouteImport } from './routes/dashboard/leiasp'
-import { Route as DashboardKhanRouteImport } from './routes/dashboard/khan'
-import { Route as DashboardApostilasRouteImport } from './routes/dashboard/apostilas'
-import { Route as ApiPdfProxyRouteImport } from './routes/api/pdf-proxy'
-import { Route as ApiStatusEndpointRouteImport } from './routes/api/status.$endpoint'
-import { Route as ApiProxySplatRouteImport } from './routes/api/proxy.$'
-import { Route as ApiPreparaspSplatRouteImport } from './routes/api/preparasp.$'
-import { Route as ApiLeiaspSplatRouteImport } from './routes/api/leiasp.$'
-import { Route as ApiCupiditysSplatRouteImport } from './routes/api/cupiditys.$'
-import { Route as ApiCatalystCompleteRouteImport } from './routes/api/catalyst.complete'
-import { Route as ApiAiGenerateRouteImport } from './routes/api/ai.generate'
-import { Route as ApiCatalystJobJobIdRouteImport } from './routes/api/catalyst.job.$jobId'
+import { lazyRouteComponent } from '@tanstack/react-router'
+
+const DashboardRouteImport = lazyRouteComponent(() => import('./routes/dashboard'))
+const IndexRouteImport = lazyRouteComponent(() => import('./routes/index'))
+const DashboardIndexRouteImport = lazyRouteComponent(() => import('./routes/dashboard/index'))
+const DashboardTarefasRouteImport = lazyRouteComponent(() => import('./routes/dashboard/tarefas'))
+const DashboardStatusRouteImport = lazyRouteComponent(() => import('./routes/dashboard/status'))
+const DashboardRedacaoRouteImport = lazyRouteComponent(() => import('./routes/dashboard/redacao'))
+const DashboardPreparaspRouteImport = lazyRouteComponent(() => import('./routes/dashboard/preparasp'))
+const DashboardLeiaspRouteImport = lazyRouteComponent(() => import('./routes/dashboard/leiasp'))
+const DashboardKhanRouteImport = lazyRouteComponent(() => import('./routes/dashboard/khan'))
+const DashboardApostilasRouteImport = lazyRouteComponent(() => import('./routes/dashboard/apostilas'))
+const ApiPdfProxyRouteImport = lazyRouteComponent(() => import('./routes/api/pdf-proxy'))
+const ApiStatusEndpointRouteImport = lazyRouteComponent(() => import('./routes/api/status.$endpoint'))
+const ApiProxySplatRouteImport = lazyRouteComponent(() => import('./routes/api/proxy.$'))
+const ApiPreparaspSplatRouteImport = lazyRouteComponent(() => import('./routes/api/preparasp.$'))
+const ApiLeiaspSplatRouteImport = lazyRouteComponent(() => import('./routes/api/leiasp.$'))
+const ApiCupiditysSplatRouteImport = lazyRouteComponent(() => import('./routes/api/cupiditys.$'))
+const ApiCatalystCompleteRouteImport = lazyRouteComponent(() => import('./routes/api/catalyst.complete'))
+const ApiAiGenerateRouteImport = lazyRouteComponent(() => import('./routes/api/ai.generate'))
+const ApiCatalystJobJobIdRouteImport = lazyRouteComponent(() => import('./routes/api/catalyst.job.$jobId'))
 
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
