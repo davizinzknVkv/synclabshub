@@ -448,8 +448,3 @@ function Field({
     </label>
   );
 }
-        className="w-full bg-blood-muted border border-glass-border rounded-sm px-2 py-1.5 text-[11px] font-mono text-white placeholder:text-muted-foreground outline-none focus:border-primary/50"
-      />
-    </label>
-  );
-}
