@@ -7,7 +7,7 @@ import {
 import { autoSolveQuiz, type PreparaSpAuth } from "@/lib/preparasp";
 import {
   loadAuth, saveAuth, loadActivities, saveActivities,
-  SUBJECTS, subjectMeta, WEEKDAYS, type Activity,
+  SUBJECTS, subjectMeta, WEEKDAYS, type Activity, type ActivityStatus,
 } from "@/lib/preparaspStore";
 import { NotificationContainer, notify } from "@/components/Notification";
 
@@ -30,10 +30,14 @@ function PreparaSpPage() {
 
   const persist = (next: Activity[]) => { setActivities(next); saveActivities(next); };
 
-  const visible = useMemo(
-    () => showAllDays ? activities : activities.filter((a) => a.weekday === filterDay),
-    [activities, filterDay, showAllDays],
-  );
+  const visible = useMemo(() => {
+    const sorted = [...activities].sort((a, b) => {
+      if (a.status === "running") return -1;
+      if (b.status === "running") return 1;
+      return 0;
+    });
+    return showAllDays ? sorted : sorted.filter((a) => a.weekday === filterDay);
+  }, [activities, filterDay, showAllDays]);
 
   const totalDone = activities.filter((a) => a.status === "done").length;
   const progress = activities.length ? Math.round((totalDone / activities.length) * 100) : 0;
@@ -41,16 +45,28 @@ function PreparaSpPage() {
   const solve = useCallback(async (act: Activity) => {
     if (!auth) { notify("CONFIGURE OS TOKENS PRIMEIRO"); setShowAuth(true); return; }
     if (!act.quizId || act.questionIds.length === 0) { notify("ATIVIDADE SEM QUIZ_ID/QUESTIONS"); return; }
-    const upd = (patch: Partial<Activity>) =>
-      persist(loadActivities().map((x) => x.id === act.id ? { ...x, ...patch } : x));
-    upd({ status: "running", lastMessage: "resolvendo…" });
+    
+    setActivities(prev => prev.map(x => x.id === act.id ? { ...x, status: "running" as const, lastMessage: "resolvendo…" } : x));
+    
     try {
       const { ok, fail } = await autoSolveQuiz(auth, act.quizId, act.questionIds);
-      upd({ status: fail === 0 ? "done" : "error", lastMessage: `${ok} ok · ${fail} falhas` });
+      const status = (fail === 0 ? "done" : "error") as ActivityStatus;
+      const lastMessage = `${ok} ok · ${fail} falhas`;
+      
+      setActivities(prev => {
+        const next = prev.map(x => x.id === act.id ? { ...x, status, lastMessage } : x);
+        saveActivities(next);
+        return next;
+      });
+      
       notify(`${act.title.toUpperCase()} • ${ok} OK • ${fail} FALHAS`);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "erro";
-      upd({ status: "error", lastMessage: msg });
+      setActivities(prev => {
+        const next = prev.map(x => x.id === act.id ? { ...x, status: "error" as const, lastMessage: msg } : x);
+        saveActivities(next);
+        return next;
+      });
       notify(msg.toUpperCase());
     }
   }, [auth]);
