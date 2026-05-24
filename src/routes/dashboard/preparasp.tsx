@@ -46,12 +46,11 @@ function PreparaSpPage() {
     if (!auth) { notify("CONFIGURE OS TOKENS PRIMEIRO"); setShowAuth(true); return; }
     if (!act.quizId || act.questionIds.length === 0) { notify("ATIVIDADE SEM QUIZ_ID/QUESTIONS"); return; }
     
-    // Usamos o setter direto para garantir que pegamos o estado mais recente se houver múltiplas chamadas
-    setActivities(prev => prev.map(x => x.id === act.id ? { ...x, status: "running", lastMessage: "resolvendo…" } : x));
+    setActivities(prev => prev.map(x => x.id === act.id ? { ...x, status: "running" as const, lastMessage: "resolvendo…" } : x));
     
     try {
       const { ok, fail } = await autoSolveQuiz(auth, act.quizId, act.questionIds);
-      const status = fail === 0 ? "done" : "error";
+      const status = (fail === 0 ? "done" : "error") as ActivityStatus;
       const lastMessage = `${ok} ok · ${fail} falhas`;
       
       setActivities(prev => {
@@ -64,7 +63,7 @@ function PreparaSpPage() {
     } catch (e) {
       const msg = e instanceof Error ? e.message : "erro";
       setActivities(prev => {
-        const next = prev.map(x => x.id === act.id ? { ...x, status: "error", lastMessage: msg } : x);
+        const next = prev.map(x => x.id === act.id ? { ...x, status: "error" as const, lastMessage: msg } : x);
         saveActivities(next);
         return next;
       });

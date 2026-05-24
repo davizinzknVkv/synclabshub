@@ -32,7 +32,7 @@ async function call<T>(
   action: string,
   params: Record<string, unknown>,
   auth: PreparaSpAuth,
-): Promise<{ data: T; auth: PreparaSpAuth }> {
+): Promise<{ data: T; auth?: PreparaSpAuth }> {
   const res = await fetch(PROXY, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
