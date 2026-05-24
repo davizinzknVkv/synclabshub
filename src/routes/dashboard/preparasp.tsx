@@ -211,75 +211,71 @@ function ActivityRow({
     activity.status === "running" ? Loader2 : null;
 
   return (
-    <div className="border border-glass-border rounded-sm bg-card overflow-hidden">
+    <div className="card-brutal rounded-none bg-card overflow-hidden">
       <button
         onClick={onToggle}
-        className="w-full flex items-center gap-3 p-3 hover:bg-blood-muted/40 transition-colors text-left"
+        className="w-full flex items-center gap-4 p-4 hover:bg-surface-hover/50 transition-all text-left group"
       >
-        {open
-          ? <ChevronDown size={14} className="text-muted-foreground shrink-0" />
-          : <ChevronRight size={14} className="text-muted-foreground shrink-0" />
-        }
+        <div className={`transition-transform duration-200 ${open ? "rotate-90" : ""}`}>
+          <ChevronRight size={16} className="text-primary" />
+        </div>
         <div
-          className="w-8 h-8 rounded-sm flex items-center justify-center text-base shrink-0"
+          className="w-10 h-10 rounded-full flex items-center justify-center text-lg shrink-0 shadow-inner"
           style={{ background: `${meta.color}22`, border: `1px solid ${meta.color}55` }}
         >
           {meta.emoji}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[11px] font-mono uppercase tracking-wider text-white truncate">
-            {meta.label} — {activity.title}
+          <h3 className="text-sm font-bold uppercase tracking-wide text-white group-hover:text-primary transition-colors">
+            {activity.title}
+          </h3>
+          <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
+            {meta.label} • {activity.questionIds.length} questões
           </p>
-          <div className="mt-1.5 h-1 rounded-full bg-blood-muted overflow-hidden">
+          <div className="mt-2 h-1.5 rounded-full bg-surface-border overflow-hidden">
             <div
-              className="h-full transition-all"
+              className="h-full transition-all duration-500"
               style={{
                 width: `${pct}%`,
-                background: activity.status === "error" ? "#ef4444" : meta.color,
+                background: activity.status === "error" ? "var(--destructive)" : "var(--primary)",
+                boxShadow: activity.status !== "pending" ? "0 0 10px var(--primary)" : "none"
               }}
             />
           </div>
         </div>
-        <span className="text-[10px] font-mono text-muted-foreground tabular-nums shrink-0">
-          {pct}%
-        </span>
       </button>
 
       {open && (
-        <div className="border-t border-glass-border p-3 space-y-3 bg-blood-muted/30">
-          <div className="flex flex-wrap gap-2 text-[10px] font-mono text-muted-foreground">
-            <span className="px-2 py-0.5 rounded-sm bg-blood-muted border border-glass-border">
+        <div className="border-t-2 border-border p-4 bg-surface/50 space-y-4 animate-in slide-in-from-top-2">
+          <div className="flex flex-wrap gap-2">
+            <span className="px-3 py-1 rounded-full text-[10px] font-bold font-mono uppercase bg-surface text-foreground border border-border">
               {WEEKDAYS[activity.weekday].long}
             </span>
-            <span className="px-2 py-0.5 rounded-sm bg-blood-muted border border-glass-border">
-              quiz: {activity.quizId.slice(0, 8)}…
-            </span>
-            <span className="px-2 py-0.5 rounded-sm bg-blood-muted border border-glass-border">
-              {activity.questionIds.length} questões
-            </span>
             {StatusIcon && (
-              <span className="px-2 py-0.5 rounded-sm bg-blood-muted border border-glass-border flex items-center gap-1">
-                <StatusIcon size={10} className={activity.status === "running" ? "animate-spin" : ""} />
+              <span className={`px-3 py-1 rounded-full text-[10px] font-bold font-mono uppercase flex items-center gap-1.5 ${
+                activity.status === "done" ? "bg-primary/10 text-primary border border-primary/20" :
+                activity.status === "error" ? "bg-destructive/10 text-destructive border border-destructive/20" :
+                "bg-accent/10 text-accent border border-accent/20"
+              }`}>
+                <StatusIcon size={12} className={activity.status === "running" ? "animate-spin" : ""} />
                 {activity.lastMessage || activity.status}
               </span>
             )}
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <button
               onClick={onSolve}
               disabled={activity.status === "running"}
-              className="flex-1 px-3 py-1.5 rounded-sm text-[10px] font-mono uppercase tracking-wider border border-primary bg-primary/20 text-primary hover:bg-primary/30 disabled:opacity-50 flex items-center justify-center gap-1.5"
+              className="btn-blood flex-1 py-2 text-[11px] flex items-center justify-center gap-2"
             >
-              {activity.status === "running"
-                ? <Loader2 size={11} className="animate-spin" />
-                : <Play size={11} />}
-              Resolver
+              {activity.status === "running" ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />}
+              RESOLVER
             </button>
             <button
               onClick={onDelete}
-              className="px-3 py-1.5 rounded-sm text-[10px] font-mono uppercase tracking-wider border border-glass-border bg-blood-muted text-muted-foreground hover:text-red-400 hover:border-red-500/40 flex items-center gap-1.5"
+              className="px-4 py-2 rounded-none bg-surface border-2 border-border text-muted-foreground hover:bg-destructive/10 hover:border-destructive hover:text-destructive transition-all"
             >
-              <Trash2 size={11} /> Remover
+              <Trash2 size={14} />
             </button>
           </div>
         </div>
