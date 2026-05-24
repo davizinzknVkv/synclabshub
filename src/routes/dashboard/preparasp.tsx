@@ -7,7 +7,7 @@ import {
 import { autoSolveQuiz, type PreparaSpAuth } from "@/lib/preparasp";
 import {
   loadAuth, saveAuth, loadActivities, saveActivities,
-  SUBJECTS, subjectMeta, WEEKDAYS, type Activity,
+  SUBJECTS, subjectMeta, WEEKDAYS, type Activity, type ActivityStatus,
 } from "@/lib/preparaspStore";
 import { NotificationContainer, notify } from "@/components/Notification";
 
