@@ -39,7 +39,7 @@ async function call<T>(
     body: JSON.stringify({ action, ...auth, ...params }),
   });
   const json = (await res.json()) as ProxyResponse<T>;
-  if (!json.success || json.data === undefined || !json.auth) {
+  if (!json.success || json.data === undefined) {
     throw new Error(json.error || "Erro no Prepara SP");
   }
   return { data: json.data as T, auth: json.auth };

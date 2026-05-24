@@ -29,8 +29,8 @@ function authHeaders(a: PraxisAuth) {
     "bearer-token": a.bearerToken,
     "session-token": a.sessionToken,
     "user-id": a.userId,
-    origin: "https://crimsonzerohub.xyz",
-    referer: "https://crimsonzerohub.xyz/",
+    origin: "https://saladofuturo.educacao.sp.gov.br",
+    referer: "https://saladofuturo.educacao.sp.gov.br/",
   };
   if (a.analyticsSessionId) h["analytics-session-id"] = a.analyticsSessionId;
   return h;
