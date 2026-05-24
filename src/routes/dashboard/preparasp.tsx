@@ -311,7 +311,7 @@ const ActivityRow = memo(({
       )}
     </div>
   );
-}
+});
 
 // ─────────── modais ───────────
 function AuthModal({
@@ -325,7 +325,7 @@ function AuthModal({
   const submit = () => {
     if (!bearer.trim() || !session.trim() || !user.trim()) {
       notify("PREENCHA BEARER, SESSION E USER-ID"); return;
-});
+    }
     onSave({
       bearerToken: bearer.trim(),
       sessionToken: session.trim(),
