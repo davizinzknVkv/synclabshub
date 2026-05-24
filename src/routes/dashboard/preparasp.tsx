@@ -72,108 +72,153 @@ function PreparaSpPage() {
   }, [auth]);
 
   return (
-    <div className="p-4 sm:p-6 max-w-5xl mx-auto space-y-5">
+    <div className="p-6 max-w-5xl mx-auto space-y-8 relative">
+      <div className="fixed inset-0 bg-obsidian-grid pointer-events-none opacity-40" />
       <NotificationContainer />
 
-      {/* header igual khan */}
-      <header className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-sm bg-blood-muted border border-primary/20 flex items-center justify-center">
-            <GraduationCap size={18} className="text-primary" />
+      <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 relative z-10">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 bg-primary flex items-center justify-center border-4 border-foreground shadow-[4px_4px_0_0_var(--foreground)] rotate-[-2deg]">
+            <GraduationCap size={28} className="text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-lg font-medium text-white tracking-tight font-mono uppercase">
-              Prepara SP
+            <h1 className="text-3xl font-black text-white tracking-tighter uppercase italic leading-none">
+              PREPARA SP
             </h1>
-            <p className="text-[10px] text-muted-foreground font-mono tracking-wider uppercase">
-              {auth ? "estudante" : "configure os tokens praxis"}
+            <p className="text-xs text-primary font-mono font-bold tracking-[0.2em] uppercase mt-1">
+              {auth ? "STUDENT_LOGGED_IN" : "SYSTEM_AUTH_REQUIRED"}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
           <button
             onClick={() => setAdding(true)}
-            className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground hover:text-primary flex items-center gap-1.5 px-3 py-1.5 border border-glass-border rounded-sm"
+            className="btn-blood px-4 py-2 text-xs flex items-center gap-2 flex-1 sm:flex-none justify-center"
           >
-            <Plus size={11} /> Nova
+            <Plus size={16} /> NOVA TAREFA
           </button>
           <button
             onClick={() => setShowAuth(true)}
-            className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground hover:text-primary flex items-center gap-1.5 px-3 py-1.5 border border-glass-border rounded-sm"
+            className="px-4 py-2 bg-surface border-2 border-foreground text-xs font-bold text-white shadow-[4px_4px_0_0_var(--foreground)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0_0_var(--primary)] transition-all flex items-center gap-2 flex-1 sm:flex-none justify-center"
           >
-            <KeyRound size={11} /> Tokens {auth ? "✓" : "—"}
+            <KeyRound size={14} /> TOKENS {auth ? "✓" : "—"}
           </button>
           {auth && (
             <button
               onClick={() => { saveAuth(null); setAuth(null); notify("TOKENS LIMPOS"); }}
-              className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground hover:text-primary flex items-center gap-1.5 px-3 py-1.5 border border-glass-border rounded-sm"
+              className="px-4 py-2 border-2 border-destructive/50 text-xs font-bold text-destructive hover:bg-destructive hover:text-white transition-colors"
             >
-              <LogOut size={11} /> Sair
+              <LogOut size={14} />
             </button>
           )}
         </div>
       </header>
 
-      {/* filtro dias */}
-      <div className="flex flex-wrap items-center gap-1.5">
-        <button
-          onClick={() => setShowAllDays(true)}
-          className={`px-2.5 py-1 rounded-sm text-[10px] font-mono uppercase tracking-wider border ${
-            showAllDays ? "border-primary bg-primary/20 text-primary" : "border-glass-border bg-blood-muted text-muted-foreground hover:text-white"
-          }`}
-        >
-          Tudo
-        </button>
-        {WEEKDAYS.map((d, i) => {
-          const sel = !showAllDays && filterDay === i;
-          const count = activities.filter((a) => a.weekday === i).length;
-          return (
-            <button
-              key={i}
-              onClick={() => { setShowAllDays(false); setFilterDay(i); }}
-              className={`px-2.5 py-1 rounded-sm text-[10px] font-mono uppercase tracking-wider border ${
-                sel ? "border-primary bg-primary/20 text-primary" : "border-glass-border bg-blood-muted text-muted-foreground hover:text-white"
-              }`}
-            >
-              {d.short} {count > 0 && <span className="opacity-60">·{count}</span>}
-            </button>
-          );
-        })}
+      <div className="relative z-10">
+        <div className="flex flex-wrap items-center gap-2 p-1 bg-surface/50 border-2 border-border backdrop-blur-md">
+          <button
+            onClick={() => setShowAllDays(true)}
+            className={`px-4 py-2 text-xs font-black uppercase tracking-widest transition-all ${
+              showAllDays 
+              ? "bg-primary text-primary-foreground" 
+              : "text-muted-foreground hover:text-white hover:bg-white/5"
+            }`}
+          >
+            TUDO
+          </button>
+          <div className="h-4 w-px bg-border mx-1" />
+          {WEEKDAYS.map((d, i) => {
+            const sel = !showAllDays && filterDay === i;
+            const count = activities.filter((a) => a.weekday === i).length;
+            return (
+              <button
+                key={i}
+                onClick={() => { setShowAllDays(false); setFilterDay(i); }}
+                className={`px-4 py-2 text-xs font-bold uppercase transition-all ${
+                  sel 
+                  ? "bg-primary/20 text-primary border-b-2 border-primary" 
+                  : "text-muted-foreground hover:text-white"
+                }`}
+              >
+                {d.short} {count > 0 && <span className="text-[10px] ml-1 opacity-50">({count})</span>}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* lista */}
-      {visible.length === 0 ? (
-        <div className="bg-card border border-dashed border-glass-border rounded-sm p-8 text-center">
-          <p className="text-[11px] text-muted-foreground font-mono">
-            Nenhuma atividade {showAllDays ? "cadastrada" : `para ${WEEKDAYS[filterDay].long.toLowerCase()}`}.
-          </p>
-          <button
-            onClick={() => setAdding(true)}
-            className="mt-3 px-3 py-1.5 rounded-sm text-[10px] font-mono uppercase tracking-wider border border-primary bg-primary/20 text-primary hover:bg-primary/30"
-          >
-            + Adicionar atividade
-          </button>
-        </div>
-      ) : (
-        <div className="space-y-2">
-          {visible.map((a) => (
-            <ActivityRow
-              key={a.id}
-              activity={a}
-              open={openId === a.id}
-              onToggle={() => setOpenId((p) => p === a.id ? null : a.id)}
-              onSolve={() => solve(a)}
-              onDelete={() => persist(activities.filter((x) => x.id !== a.id))}
+      <div className="relative z-10 space-y-4">
+        {visible.length === 0 ? (
+          <div className="card-brutal bg-surface/30 p-12 text-center">
+            <div className="w-16 h-16 bg-muted/20 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-dashed border-border">
+              <Plus size={24} className="text-muted-foreground" />
+            </div>
+            <h2 className="text-lg font-bold text-white mb-2 uppercase">Nenhuma tarefa encontrada</h2>
+            <p className="text-sm text-muted-foreground max-w-xs mx-auto mb-6">
+              Adicione uma nova atividade para começar a resolver automaticamente.
+            </p>
+            <button
+              onClick={() => setAdding(true)}
+              className="btn-blood px-8 py-3"
+            >
+              CRIAR PRIMEIRA TAREFA
+            </button>
+          </div>
+        ) : (
+          <div className="grid gap-4">
+            {visible.map((a) => (
+              <ActivityRow
+                key={a.id}
+                activity={a}
+                open={openId === a.id}
+                onToggle={() => setOpenId((p) => p === a.id ? null : a.id)}
+                onSolve={() => solve(a)}
+                onDelete={() => {
+                  const next = activities.filter((x) => x.id !== a.id);
+                  setActivities(next);
+                  saveActivities(next);
+                }}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {activities.length > 0 && (
+        <div className="relative z-10 p-6 bg-surface border-2 border-border shadow-[4px_4px_0_0_var(--border)]">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-black uppercase tracking-widest text-muted-foreground">Status do Sistema</span>
+            <span className="text-xs font-mono font-bold text-primary">{totalDone}/{activities.length} COMPLETADO</span>
+          </div>
+          <div className="h-4 bg-background border-2 border-border p-0.5">
+            <div 
+              className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-1000 shadow-[0_0_15px_rgba(235,255,0,0.3)]"
+              style={{ width: `${progress}%` }}
             />
-          ))}
+          </div>
         </div>
       )}
 
-      {activities.length > 0 && (
-        <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
-          progresso geral · {totalDone}/{activities.length} ({progress}%)
-        </div>
+      {showAuth && (
+        <AuthModal
+          initial={auth}
+          onClose={() => setShowAuth(false)}
+          onSave={(a) => { setAuth(a); saveAuth(a); setShowAuth(false); notify("TOKENS SALVOS"); }}
+        />
       )}
+      {adding && (
+        <AddActivityModal
+          defaultDay={showAllDays ? new Date().getDay() : filterDay}
+          onClose={() => setAdding(false)}
+          onSave={(act) => {
+            const next = [...activities, act];
+            setActivities(next);
+            saveActivities(next);
+            setAdding(false);
+          }}
+        />
+      )}
+    </div>
 
       {showAuth && (
         <AuthModal
