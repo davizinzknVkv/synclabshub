@@ -72,106 +72,130 @@ function PreparaSpPage() {
   }, [auth]);
 
   return (
-    <div className="p-4 sm:p-6 max-w-5xl mx-auto space-y-5">
+    <div className="p-6 max-w-5xl mx-auto space-y-8 relative">
+      <div className="fixed inset-0 bg-obsidian-grid pointer-events-none opacity-40" />
       <NotificationContainer />
 
-      {/* header igual khan */}
-      <header className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-sm bg-blood-muted border border-primary/20 flex items-center justify-center">
-            <GraduationCap size={18} className="text-primary" />
+      <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 relative z-10">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 bg-primary flex items-center justify-center border-4 border-foreground shadow-[4px_4px_0_0_var(--foreground)] rotate-[-2deg]">
+            <GraduationCap size={28} className="text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-lg font-medium text-white tracking-tight font-mono uppercase">
-              Prepara SP
+            <h1 className="text-3xl font-black text-white tracking-tighter uppercase italic leading-none">
+              PREPARA SP
             </h1>
-            <p className="text-[10px] text-muted-foreground font-mono tracking-wider uppercase">
-              {auth ? "estudante" : "configure os tokens praxis"}
+            <p className="text-xs text-primary font-mono font-bold tracking-[0.2em] uppercase mt-1">
+              {auth ? "STUDENT_LOGGED_IN" : "SYSTEM_AUTH_REQUIRED"}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
           <button
             onClick={() => setAdding(true)}
-            className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground hover:text-primary flex items-center gap-1.5 px-3 py-1.5 border border-glass-border rounded-sm"
+            className="btn-blood px-4 py-2 text-xs flex items-center gap-2 flex-1 sm:flex-none justify-center"
           >
-            <Plus size={11} /> Nova
+            <Plus size={16} /> NOVA TAREFA
           </button>
           <button
             onClick={() => setShowAuth(true)}
-            className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground hover:text-primary flex items-center gap-1.5 px-3 py-1.5 border border-glass-border rounded-sm"
+            className="px-4 py-2 bg-surface border-2 border-foreground text-xs font-bold text-white shadow-[4px_4px_0_0_var(--foreground)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0_0_var(--primary)] transition-all flex items-center gap-2 flex-1 sm:flex-none justify-center"
           >
-            <KeyRound size={11} /> Tokens {auth ? "✓" : "—"}
+            <KeyRound size={14} /> TOKENS {auth ? "✓" : "—"}
           </button>
           {auth && (
             <button
               onClick={() => { saveAuth(null); setAuth(null); notify("TOKENS LIMPOS"); }}
-              className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground hover:text-primary flex items-center gap-1.5 px-3 py-1.5 border border-glass-border rounded-sm"
+              className="px-4 py-2 border-2 border-destructive/50 text-xs font-bold text-destructive hover:bg-destructive hover:text-white transition-colors"
             >
-              <LogOut size={11} /> Sair
+              <LogOut size={14} />
             </button>
           )}
         </div>
       </header>
 
-      {/* filtro dias */}
-      <div className="flex flex-wrap items-center gap-1.5">
-        <button
-          onClick={() => setShowAllDays(true)}
-          className={`px-2.5 py-1 rounded-sm text-[10px] font-mono uppercase tracking-wider border ${
-            showAllDays ? "border-primary bg-primary/20 text-primary" : "border-glass-border bg-blood-muted text-muted-foreground hover:text-white"
-          }`}
-        >
-          Tudo
-        </button>
-        {WEEKDAYS.map((d, i) => {
-          const sel = !showAllDays && filterDay === i;
-          const count = activities.filter((a) => a.weekday === i).length;
-          return (
-            <button
-              key={i}
-              onClick={() => { setShowAllDays(false); setFilterDay(i); }}
-              className={`px-2.5 py-1 rounded-sm text-[10px] font-mono uppercase tracking-wider border ${
-                sel ? "border-primary bg-primary/20 text-primary" : "border-glass-border bg-blood-muted text-muted-foreground hover:text-white"
-              }`}
-            >
-              {d.short} {count > 0 && <span className="opacity-60">·{count}</span>}
-            </button>
-          );
-        })}
+      <div className="relative z-10">
+        <div className="flex flex-wrap items-center gap-2 p-1 bg-surface/50 border-2 border-border backdrop-blur-md">
+          <button
+            onClick={() => setShowAllDays(true)}
+            className={`px-4 py-2 text-xs font-black uppercase tracking-widest transition-all ${
+              showAllDays 
+              ? "bg-primary text-primary-foreground" 
+              : "text-muted-foreground hover:text-white hover:bg-white/5"
+            }`}
+          >
+            TUDO
+          </button>
+          <div className="h-4 w-px bg-border mx-1" />
+          {WEEKDAYS.map((d, i) => {
+            const sel = !showAllDays && filterDay === i;
+            const count = activities.filter((a) => a.weekday === i).length;
+            return (
+              <button
+                key={i}
+                onClick={() => { setShowAllDays(false); setFilterDay(i); }}
+                className={`px-4 py-2 text-xs font-bold uppercase transition-all ${
+                  sel 
+                  ? "bg-primary/20 text-primary border-b-2 border-primary" 
+                  : "text-muted-foreground hover:text-white"
+                }`}
+              >
+                {d.short} {count > 0 && <span className="text-[10px] ml-1 opacity-50">({count})</span>}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* lista */}
-      {visible.length === 0 ? (
-        <div className="bg-card border border-dashed border-glass-border rounded-sm p-8 text-center">
-          <p className="text-[11px] text-muted-foreground font-mono">
-            Nenhuma atividade {showAllDays ? "cadastrada" : `para ${WEEKDAYS[filterDay].long.toLowerCase()}`}.
-          </p>
-          <button
-            onClick={() => setAdding(true)}
-            className="mt-3 px-3 py-1.5 rounded-sm text-[10px] font-mono uppercase tracking-wider border border-primary bg-primary/20 text-primary hover:bg-primary/30"
-          >
-            + Adicionar atividade
-          </button>
-        </div>
-      ) : (
-        <div className="space-y-2">
-          {visible.map((a) => (
-            <ActivityRow
-              key={a.id}
-              activity={a}
-              open={openId === a.id}
-              onToggle={() => setOpenId((p) => p === a.id ? null : a.id)}
-              onSolve={() => solve(a)}
-              onDelete={() => persist(activities.filter((x) => x.id !== a.id))}
-            />
-          ))}
-        </div>
-      )}
+      <div className="relative z-10 space-y-4">
+        {visible.length === 0 ? (
+          <div className="card-brutal bg-surface/30 p-12 text-center">
+            <div className="w-16 h-16 bg-muted/20 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-dashed border-border">
+              <Plus size={24} className="text-muted-foreground" />
+            </div>
+            <h2 className="text-lg font-bold text-white mb-2 uppercase">Nenhuma tarefa encontrada</h2>
+            <p className="text-sm text-muted-foreground max-w-xs mx-auto mb-6">
+              Adicione uma nova atividade para começar a resolver automaticamente.
+            </p>
+            <button
+              onClick={() => setAdding(true)}
+              className="btn-blood px-8 py-3"
+            >
+              CRIAR PRIMEIRA TAREFA
+            </button>
+          </div>
+        ) : (
+          <div className="grid gap-4">
+            {visible.map((a) => (
+              <ActivityRow
+                key={a.id}
+                activity={a}
+                open={openId === a.id}
+                onToggle={() => setOpenId((p) => p === a.id ? null : a.id)}
+                onSolve={() => solve(a)}
+                onDelete={() => {
+                  const next = activities.filter((x) => x.id !== a.id);
+                  setActivities(next);
+                  saveActivities(next);
+                }}
+              />
+            ))}
+          </div>
+        )}
+      </div>
 
       {activities.length > 0 && (
-        <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
-          progresso geral · {totalDone}/{activities.length} ({progress}%)
+        <div className="relative z-10 p-6 bg-surface border-2 border-border shadow-[4px_4px_0_0_var(--border)]">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-black uppercase tracking-widest text-muted-foreground">Status do Sistema</span>
+            <span className="text-xs font-mono font-bold text-primary">{totalDone}/{activities.length} COMPLETADO</span>
+          </div>
+          <div className="h-4 bg-background border-2 border-border p-0.5">
+            <div 
+              className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-1000 shadow-[0_0_15px_rgba(235,255,0,0.3)]"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
         </div>
       )}
 
@@ -186,7 +210,12 @@ function PreparaSpPage() {
         <AddActivityModal
           defaultDay={showAllDays ? new Date().getDay() : filterDay}
           onClose={() => setAdding(false)}
-          onSave={(act) => { persist([...activities, act]); setAdding(false); }}
+          onSave={(act) => {
+            const next = [...activities, act];
+            setActivities(next);
+            saveActivities(next);
+            setAdding(false);
+          }}
         />
       )}
     </div>
@@ -211,75 +240,71 @@ function ActivityRow({
     activity.status === "running" ? Loader2 : null;
 
   return (
-    <div className="border border-glass-border rounded-sm bg-card overflow-hidden">
+    <div className="card-brutal rounded-none bg-card overflow-hidden">
       <button
         onClick={onToggle}
-        className="w-full flex items-center gap-3 p-3 hover:bg-blood-muted/40 transition-colors text-left"
+        className="w-full flex items-center gap-4 p-4 hover:bg-surface-hover/50 transition-all text-left group"
       >
-        {open
-          ? <ChevronDown size={14} className="text-muted-foreground shrink-0" />
-          : <ChevronRight size={14} className="text-muted-foreground shrink-0" />
-        }
+        <div className={`transition-transform duration-200 ${open ? "rotate-90" : ""}`}>
+          <ChevronRight size={16} className="text-primary" />
+        </div>
         <div
-          className="w-8 h-8 rounded-sm flex items-center justify-center text-base shrink-0"
+          className="w-10 h-10 rounded-full flex items-center justify-center text-lg shrink-0 shadow-inner"
           style={{ background: `${meta.color}22`, border: `1px solid ${meta.color}55` }}
         >
           {meta.emoji}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[11px] font-mono uppercase tracking-wider text-white truncate">
-            {meta.label} — {activity.title}
+          <h3 className="text-sm font-bold uppercase tracking-wide text-white group-hover:text-primary transition-colors">
+            {activity.title}
+          </h3>
+          <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
+            {meta.label} • {activity.questionIds.length} questões
           </p>
-          <div className="mt-1.5 h-1 rounded-full bg-blood-muted overflow-hidden">
+          <div className="mt-2 h-1.5 rounded-full bg-surface-border overflow-hidden">
             <div
-              className="h-full transition-all"
+              className="h-full transition-all duration-500"
               style={{
                 width: `${pct}%`,
-                background: activity.status === "error" ? "#ef4444" : meta.color,
+                background: activity.status === "error" ? "var(--destructive)" : "var(--primary)",
+                boxShadow: activity.status !== "pending" ? "0 0 10px var(--primary)" : "none"
               }}
             />
           </div>
         </div>
-        <span className="text-[10px] font-mono text-muted-foreground tabular-nums shrink-0">
-          {pct}%
-        </span>
       </button>
 
       {open && (
-        <div className="border-t border-glass-border p-3 space-y-3 bg-blood-muted/30">
-          <div className="flex flex-wrap gap-2 text-[10px] font-mono text-muted-foreground">
-            <span className="px-2 py-0.5 rounded-sm bg-blood-muted border border-glass-border">
+        <div className="border-t-2 border-border p-4 bg-surface/50 space-y-4 animate-in slide-in-from-top-2">
+          <div className="flex flex-wrap gap-2">
+            <span className="px-3 py-1 rounded-full text-[10px] font-bold font-mono uppercase bg-surface text-foreground border border-border">
               {WEEKDAYS[activity.weekday].long}
             </span>
-            <span className="px-2 py-0.5 rounded-sm bg-blood-muted border border-glass-border">
-              quiz: {activity.quizId.slice(0, 8)}…
-            </span>
-            <span className="px-2 py-0.5 rounded-sm bg-blood-muted border border-glass-border">
-              {activity.questionIds.length} questões
-            </span>
             {StatusIcon && (
-              <span className="px-2 py-0.5 rounded-sm bg-blood-muted border border-glass-border flex items-center gap-1">
-                <StatusIcon size={10} className={activity.status === "running" ? "animate-spin" : ""} />
+              <span className={`px-3 py-1 rounded-full text-[10px] font-bold font-mono uppercase flex items-center gap-1.5 ${
+                activity.status === "done" ? "bg-primary/10 text-primary border border-primary/20" :
+                activity.status === "error" ? "bg-destructive/10 text-destructive border border-destructive/20" :
+                "bg-accent/10 text-accent border border-accent/20"
+              }`}>
+                <StatusIcon size={12} className={activity.status === "running" ? "animate-spin" : ""} />
                 {activity.lastMessage || activity.status}
               </span>
             )}
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <button
               onClick={onSolve}
               disabled={activity.status === "running"}
-              className="flex-1 px-3 py-1.5 rounded-sm text-[10px] font-mono uppercase tracking-wider border border-primary bg-primary/20 text-primary hover:bg-primary/30 disabled:opacity-50 flex items-center justify-center gap-1.5"
+              className="btn-blood flex-1 py-2 text-[11px] flex items-center justify-center gap-2"
             >
-              {activity.status === "running"
-                ? <Loader2 size={11} className="animate-spin" />
-                : <Play size={11} />}
-              Resolver
+              {activity.status === "running" ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />}
+              RESOLVER
             </button>
             <button
               onClick={onDelete}
-              className="px-3 py-1.5 rounded-sm text-[10px] font-mono uppercase tracking-wider border border-glass-border bg-blood-muted text-muted-foreground hover:text-red-400 hover:border-red-500/40 flex items-center gap-1.5"
+              className="px-4 py-2 rounded-none bg-surface border-2 border-border text-muted-foreground hover:bg-destructive/10 hover:border-destructive hover:text-destructive transition-all"
             >
-              <Trash2 size={11} /> Remover
+              <Trash2 size={14} />
             </button>
           </div>
         </div>
@@ -388,27 +413,37 @@ function AddActivityModal({
 
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-card border border-glass-border rounded-sm p-4 w-full max-w-md max-h-[90vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-bold text-white font-mono uppercase tracking-widest">{title}</h3>
-          <button onClick={onClose} className="text-muted-foreground hover:text-white"><X size={14} /></button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-md animate-in fade-in duration-300" onClick={onClose}>
+      <div 
+        className="bg-surface border-4 border-foreground shadow-[12px_12px_0_0_rgba(0,0,0,0.5)] w-full max-w-md max-h-[90vh] overflow-auto animate-in zoom-in-95 duration-200" 
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between p-6 border-b-2 border-border bg-muted/20">
+          <h3 className="text-xl font-black text-white uppercase tracking-tighter italic">{title}</h3>
+          <button onClick={onClose} className="w-10 h-10 flex items-center justify-center hover:bg-destructive hover:text-white transition-colors">
+            <X size={20} />
+          </button>
         </div>
-        {children}
+        <div className="p-6">
+          {children}
+        </div>
       </div>
     </div>
   );
 }
 
 function Field({
-  label, value, onChange, placeholder,
-}: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) {
+  label, value, onChange, placeholder, type = "text"
+}: { label: string; value: string; onChange: (v: string) => void; placeholder?: string, type?: string }) {
   return (
-    <label className="block space-y-1">
-      <span className="text-[9px] uppercase tracking-widest text-muted-foreground font-mono">{label}</span>
+    <label className="block space-y-2">
+      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">{label}</span>
       <input
-        value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
-        className="w-full bg-blood-muted border border-glass-border rounded-sm px-2 py-1.5 text-[11px] font-mono text-white placeholder:text-muted-foreground outline-none focus:border-primary/50"
+        type={type}
+        value={value} 
+        onChange={(e) => onChange(e.target.value)} 
+        placeholder={placeholder}
+        className="input-obsidian w-full px-4 py-3 text-sm focus:ring-0"
       />
     </label>
   );
