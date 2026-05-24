@@ -15,6 +15,7 @@ import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as DashboardTarefasRouteImport } from './routes/dashboard/tarefas'
 import { Route as DashboardStatusRouteImport } from './routes/dashboard/status'
 import { Route as DashboardReworkRouteImport } from './routes/dashboard/rework'
+import { Route as DashboardRevisaoLinguagensRouteImport } from './routes/dashboard/revisao-linguagens'
 import { Route as DashboardRedacaoRouteImport } from './routes/dashboard/redacao'
 import { Route as DashboardPreparaspRouteImport } from './routes/dashboard/preparasp'
 import { Route as DashboardLeiaspRouteImport } from './routes/dashboard/leiasp'
@@ -60,6 +61,12 @@ const DashboardReworkRoute = DashboardReworkRouteImport.update({
   path: '/rework',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardRevisaoLinguagensRoute =
+  DashboardRevisaoLinguagensRouteImport.update({
+    id: '/revisao-linguagens',
+    path: '/revisao-linguagens',
+    getParentRoute: () => DashboardRoute,
+  } as any)
 const DashboardRedacaoRoute = DashboardRedacaoRouteImport.update({
   id: '/redacao',
   path: '/redacao',
@@ -140,6 +147,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/leiasp': typeof DashboardLeiaspRoute
   '/dashboard/preparasp': typeof DashboardPreparaspRoute
   '/dashboard/redacao': typeof DashboardRedacaoRoute
+  '/dashboard/revisao-linguagens': typeof DashboardRevisaoLinguagensRoute
   '/dashboard/rework': typeof DashboardReworkRoute
   '/dashboard/status': typeof DashboardStatusRoute
   '/dashboard/tarefas': typeof DashboardTarefasRoute
@@ -161,6 +169,7 @@ export interface FileRoutesByTo {
   '/dashboard/leiasp': typeof DashboardLeiaspRoute
   '/dashboard/preparasp': typeof DashboardPreparaspRoute
   '/dashboard/redacao': typeof DashboardRedacaoRoute
+  '/dashboard/revisao-linguagens': typeof DashboardRevisaoLinguagensRoute
   '/dashboard/rework': typeof DashboardReworkRoute
   '/dashboard/status': typeof DashboardStatusRoute
   '/dashboard/tarefas': typeof DashboardTarefasRoute
@@ -184,6 +193,7 @@ export interface FileRoutesById {
   '/dashboard/leiasp': typeof DashboardLeiaspRoute
   '/dashboard/preparasp': typeof DashboardPreparaspRoute
   '/dashboard/redacao': typeof DashboardRedacaoRoute
+  '/dashboard/revisao-linguagens': typeof DashboardRevisaoLinguagensRoute
   '/dashboard/rework': typeof DashboardReworkRoute
   '/dashboard/status': typeof DashboardStatusRoute
   '/dashboard/tarefas': typeof DashboardTarefasRoute
@@ -208,6 +218,7 @@ export interface FileRouteTypes {
     | '/dashboard/leiasp'
     | '/dashboard/preparasp'
     | '/dashboard/redacao'
+    | '/dashboard/revisao-linguagens'
     | '/dashboard/rework'
     | '/dashboard/status'
     | '/dashboard/tarefas'
@@ -229,6 +240,7 @@ export interface FileRouteTypes {
     | '/dashboard/leiasp'
     | '/dashboard/preparasp'
     | '/dashboard/redacao'
+    | '/dashboard/revisao-linguagens'
     | '/dashboard/rework'
     | '/dashboard/status'
     | '/dashboard/tarefas'
@@ -251,6 +263,7 @@ export interface FileRouteTypes {
     | '/dashboard/leiasp'
     | '/dashboard/preparasp'
     | '/dashboard/redacao'
+    | '/dashboard/revisao-linguagens'
     | '/dashboard/rework'
     | '/dashboard/status'
     | '/dashboard/tarefas'
@@ -321,6 +334,13 @@ declare module '@tanstack/react-router' {
       path: '/rework'
       fullPath: '/dashboard/rework'
       preLoaderRoute: typeof DashboardReworkRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/revisao-linguagens': {
+      id: '/dashboard/revisao-linguagens'
+      path: '/revisao-linguagens'
+      fullPath: '/dashboard/revisao-linguagens'
+      preLoaderRoute: typeof DashboardRevisaoLinguagensRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/dashboard/redacao': {
@@ -430,6 +450,7 @@ interface DashboardRouteChildren {
   DashboardLeiaspRoute: typeof DashboardLeiaspRoute
   DashboardPreparaspRoute: typeof DashboardPreparaspRoute
   DashboardRedacaoRoute: typeof DashboardRedacaoRoute
+  DashboardRevisaoLinguagensRoute: typeof DashboardRevisaoLinguagensRoute
   DashboardReworkRoute: typeof DashboardReworkRoute
   DashboardStatusRoute: typeof DashboardStatusRoute
   DashboardTarefasRoute: typeof DashboardTarefasRoute
@@ -442,6 +463,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardLeiaspRoute: DashboardLeiaspRoute,
   DashboardPreparaspRoute: DashboardPreparaspRoute,
   DashboardRedacaoRoute: DashboardRedacaoRoute,
+  DashboardRevisaoLinguagensRoute: DashboardRevisaoLinguagensRoute,
   DashboardReworkRoute: DashboardReworkRoute,
   DashboardStatusRoute: DashboardStatusRoute,
   DashboardTarefasRoute: DashboardTarefasRoute,
