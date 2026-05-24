@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, memo } from "react";
 import {
   GraduationCap, Loader2, LogOut, Play, Plus, Trash2,
-  ChevronDown, ChevronRight, KeyRound, CheckCircle2, AlertCircle, X,
+  ChevronRight, KeyRound, CheckCircle2, AlertCircle, X,
 } from "lucide-react";
 import { autoSolveQuiz, type PreparaSpAuth } from "@/lib/preparasp";
 import {
@@ -223,12 +223,12 @@ function PreparaSpPage() {
 }
 
 // ─────────── linha estilo khan ───────────
-function ActivityRow({
+const ActivityRow = memo(({
   activity, open, onToggle, onSolve, onDelete,
 }: {
   activity: Activity; open: boolean;
   onToggle: () => void; onSolve: () => void; onDelete: () => void;
-}) {
+}) => {
   const meta = subjectMeta(activity.subject);
   const pct =
     activity.status === "done" ? 100 :
@@ -311,7 +311,7 @@ function ActivityRow({
       )}
     </div>
   );
-}
+});
 
 // ─────────── modais ───────────
 function AuthModal({
