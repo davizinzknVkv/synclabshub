@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useCallback, useEffect } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Heart } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { NotificationContainer, notify } from "@/components/Notification";
 import { setSession, getSession, saveCreds, loadCreds, FALLBACK_ROOM_ICON } from "@/lib/auth";
@@ -98,64 +98,66 @@ function Index() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-background overflow-hidden antialiased p-4">
-      {/* Blood glow ambient */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blood-glow pointer-events-none mix-blend-screen" />
-
-      {/* Grid texture */}
-      <div className="absolute inset-0 bg-obsidian-grid pointer-events-none" />
+      {/* Aurora orbs */}
+      <div className="absolute inset-0 bg-aurora pointer-events-none" />
+      <div className="absolute inset-0 bg-grid-lines pointer-events-none opacity-60" />
+      <div className="absolute top-1/4 -left-32 w-[480px] h-[480px] rounded-full opacity-50 pointer-events-none bg-aurora-animated"
+           style={{ background: "radial-gradient(circle, oklch(0.66 0.24 280 / 0.5), transparent 70%)" }} />
+      <div className="absolute bottom-1/4 -right-32 w-[480px] h-[480px] rounded-full opacity-40 pointer-events-none bg-aurora-animated"
+           style={{ background: "radial-gradient(circle, oklch(0.82 0.17 200 / 0.4), transparent 70%)", animationDelay: "-9s" }} />
 
       {/* Login card */}
-      <main className="relative z-10 w-full max-w-[460px] p-8 sm:p-10 bg-card border-2 border-border card-brutal rounded-xl">
-
-        {/* Header */}
-        <header className="mb-10">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="size-12 bg-primary border-2 border-foreground flex items-center justify-center rounded-md rotate-3">
-              <img src={logo} alt="Sync Labs" className="w-7 h-7" />
+      <main className="relative z-10 w-full max-w-[440px] p-8 sm:p-10 glass-strong rounded-2xl shadow-2xl">
+        <header className="mb-8">
+          <div className="flex items-center justify-between mb-7">
+            <div className="flex items-center gap-3">
+              <div className="relative w-11 h-11 rounded-xl flex items-center justify-center"
+                   style={{ background: "var(--gradient-primary)", boxShadow: "0 8px 24px -8px oklch(0.66 0.24 280 / 0.7), inset 0 1px 0 0 oklch(1 0 0 / 0.25)" }}>
+                <img src={logo} alt="Sync Labs" className="w-6 h-6 brightness-0 invert" />
+              </div>
+              <div>
+                <div className="text-base font-bold font-display text-white leading-none">Sync<span className="text-gradient">Labs</span></div>
+                <div className="text-[10px] text-muted-foreground font-mono mt-1 tracking-wider">PLATAFORMA · v2.0</div>
+              </div>
             </div>
-            <div className="h-px flex-1 bg-border" />
-            <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-[0.2em]">v2.0</span>
+            <div className="flex items-center gap-1.5 text-[10px] text-emerald-400 font-mono">
+              <span className="status-online w-1.5 h-1.5 rounded-full bg-emerald-400" /> ONLINE
+            </div>
           </div>
-          <h1 className="text-4xl font-bold tracking-tight text-foreground leading-none">
-            sync<span className="text-acid">/</span>labs
+          <h1 className="text-3xl font-bold tracking-tight text-white font-display leading-tight">
+            Bem-vindo de <span className="text-gradient">volta</span>
           </h1>
-          <p className="text-sm text-muted-foreground mt-2 font-mono">
-            // automação escolar — sem firula
+          <p className="text-sm text-muted-foreground mt-2">
+            Entre com seu RA para acessar a plataforma.
           </p>
         </header>
 
-        {/* Form */}
-        <form className="flex flex-col gap-6" onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
+        <form className="flex flex-col gap-5" onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
 
           {/* RA */}
-          <div className="flex flex-col gap-2.5">
-            <label className="text-[11px] text-muted-foreground uppercase tracking-widest font-mono flex items-center gap-2">
-              <span className="size-1 bg-blood/40 rounded-full inline-block" />
-              RA
-            </label>
+          <div className="flex flex-col gap-2">
+            <label className="text-[11px] text-muted-foreground uppercase tracking-wider font-mono font-semibold">Registro do Aluno</label>
             <div className="flex gap-2">
-              <div className="relative flex-grow">
-                <input
-                  type="text"
-                  value={raNumero}
-                  onChange={e => setRaNumero(e.target.value)}
-                  placeholder="Número"
-                  className="input-obsidian w-full px-3 py-3 rounded-sm text-sm tracking-wider"
-                />
-              </div>
+              <input
+                type="text"
+                value={raNumero}
+                onChange={e => setRaNumero(e.target.value)}
+                placeholder="Número"
+                className="input-premium flex-grow px-3.5 py-3 text-sm font-mono tracking-wider"
+              />
               <input
                 type="text"
                 value={raDigito}
                 onChange={e => setRaDigito(e.target.value)}
                 placeholder="D"
                 maxLength={1}
-                className="input-obsidian w-14 text-center px-2 py-3 rounded-sm text-sm"
+                className="input-premium w-14 text-center px-2 py-3 text-sm font-mono"
               />
               <div className="relative w-20 shrink-0">
                 <select
                   value={raUf}
                   onChange={e => setRaUf(e.target.value)}
-                  className="input-obsidian w-full appearance-none pl-3 pr-6 py-3 rounded-sm text-sm cursor-pointer text-center"
+                  className="input-premium w-full appearance-none pl-3 pr-6 py-3 text-sm cursor-pointer text-center font-mono"
                 >
                   {UF_LIST.map(uf => (
                     <option key={uf} value={uf} className="bg-card">{uf}</option>
@@ -169,67 +171,50 @@ function Index() {
           </div>
 
           {/* Password */}
-          <div className="flex flex-col gap-2.5">
-            <label className="text-[11px] text-muted-foreground uppercase tracking-widest font-mono flex items-center gap-2">
-              <span className="size-1 bg-blood/40 rounded-full inline-block" />
-              Senha
-            </label>
+          <div className="flex flex-col gap-2">
+            <label className="text-[11px] text-muted-foreground uppercase tracking-wider font-mono font-semibold">Senha</label>
             <div className="relative">
               <input
                 type={showPwd ? "text" : "password"}
                 value={pwd}
                 onChange={e => setPwd(e.target.value)}
                 placeholder="••••••••••••"
-                className="input-obsidian w-full px-3 py-3 pr-10 rounded-sm text-sm tracking-[0.3em]"
+                className="input-premium w-full px-3.5 py-3 pr-10 text-sm tracking-[0.2em]"
               />
               <button
                 type="button"
                 onClick={() => setShowPwd(!showPwd)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-white transition-colors"
               >
                 {showPwd ? <Eye size={16} /> : <EyeOff size={16} />}
               </button>
             </div>
           </div>
 
-          {/* Submit */}
-          <div className="mt-2">
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-blood w-full py-3.5 rounded-md font-mono text-sm uppercase tracking-[0.15em] disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                  Entrando...
-                </span>
-              ) : (
-                "ENTRAR →"
-              )}
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn-premium w-full py-3.5 text-sm mt-1 inline-flex items-center justify-center gap-2"
+          >
+            {loading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Autenticando...
+              </>
+            ) : (
+              <>Entrar na plataforma <span aria-hidden>→</span></>
+            )}
+          </button>
         </form>
 
-        {/* Footer */}
-        <footer className="mt-10 pt-6 border-t border-glass-border/50 flex justify-between items-center">
-          <a
-            href="https://discord.gg/y5tNWGVPSU"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex items-center gap-2 text-[11px] text-muted-foreground hover:text-foreground transition-colors uppercase tracking-widest font-mono"
-          >
-            <div className="size-1.5 border border-muted-foreground group-hover:border-foreground group-hover:bg-foreground transition-all rounded-[1px]" />
-            Discord
+        <footer className="mt-8 pt-6 border-t border-white/5 flex justify-between items-center">
+          <a href="https://discord.gg/y5tNWGVPSU" target="_blank" rel="noopener noreferrer"
+            className="flex items-center gap-2 text-xs text-muted-foreground hover:text-white transition-colors">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent" /> Discord
           </a>
-          <a
-            href="https://livepix.gg/davizinzkn"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex items-center gap-2 text-[11px] text-muted-foreground hover:text-foreground transition-colors uppercase tracking-widest font-mono"
-          >
-            <div className="size-1.5 border border-muted-foreground group-hover:border-foreground group-hover:bg-foreground transition-all rounded-[1px]" />
-            Doações
+          <a href="https://livepix.gg/davizinzkn" target="_blank" rel="noopener noreferrer"
+            className="flex items-center gap-2 text-xs text-muted-foreground hover:text-white transition-colors">
+            <Heart size={12} className="text-pink-400" /> Apoiar projeto
           </a>
         </footer>
       </main>

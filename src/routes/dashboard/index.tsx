@@ -1,176 +1,257 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
-import { CheckCircle, Heart, Calendar, TrendingUp, CheckSquare, PenTool, ArrowRight, Loader2 } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { motion } from "framer-motion";
+import {
+  CheckCircle2, Calendar, TrendingUp, Heart, ArrowUpRight,
+  Activity, Zap, Sparkles, Bell, Search, Plus,
+} from "lucide-react";
 import { getSession } from "@/lib/auth";
 import { fetchDashboardStats } from "@/lib/api";
 import type { DashboardStats } from "@/lib/api";
 import iconTarefa from "@/assets/icons/tarefa-sp.png";
 import iconRedacao from "@/assets/icons/redacao.png";
 import iconLeiaSp from "@/assets/icons/leia-sp.png";
-import iconStatus from "@/assets/icons/status.png";
 import iconKhan from "@/assets/icons/khan.png";
-import iconAlura from "@/assets/icons/alura.png";
 import iconApostilas from "@/assets/icons/apostilas.png";
 import iconPreparaSp from "@/assets/icons/prepara-sp.png";
 
 export const Route = createFileRoute("/dashboard/")({
   component: DashboardHome,
-  head: () => ({
-    meta: [{ title: "Dashboard - SYNC LABS HUB" }],
-  }),
+  head: () => ({ meta: [{ title: "Dashboard — Sync Labs" }] }),
 });
 
 const SCRIPTS = [
-  { name: "Tarefa SP", icon: iconTarefa, url: "/dashboard/tarefas" },
-  { name: "Prepara SP", icon: iconPreparaSp, url: "/dashboard/preparasp" },
-  { name: "Redação", icon: iconRedacao, url: "/dashboard/redacao" },
-  { name: "Leia SP", icon: iconLeiaSp, url: "/dashboard/leiasp" },
-  { name: "Khan Academy", icon: iconKhan, url: "/dashboard/khan" },
-  { name: "Apostilas", icon: iconApostilas, url: "/dashboard/apostilas" },
-  { name: "Alura", icon: iconAlura, url: "#" },
+  { name: "Tarefa SP", desc: "Lições e pendências", icon: iconTarefa, url: "/dashboard/tarefas", badge: null },
+  { name: "Prepara SP", desc: "Caderno do aluno", icon: iconPreparaSp, url: "/dashboard/preparasp", badge: "HOT" },
+  { name: "Redação", desc: "IA generativa", icon: iconRedacao, url: "/dashboard/redacao", badge: "AI" },
+  { name: "Leia SP", desc: "Leitura assistida", icon: iconLeiaSp, url: "/dashboard/leiasp", badge: null },
+  { name: "Khan Academy", desc: "Resoluções", icon: iconKhan, url: "/dashboard/khan", badge: null },
+  { name: "Apostilas", desc: "Banco de provas", icon: iconApostilas, url: "/dashboard/apostilas", badge: null },
 ];
+
+// Animated counter
+function Counter({ value, suffix = "" }: { value: number; suffix?: string }) {
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    const start = performance.now();
+    const dur = 900;
+    let raf = 0;
+    const tick = (t: number) => {
+      const p = Math.min(1, (t - start) / dur);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setN(Math.round(value * eased));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [value]);
+  return <>{n}{suffix}</>;
+}
+
+function Topbar({ name }: { name: string }) {
+  return (
+    <div className="hidden md:flex items-center gap-3 px-6 py-3 border-b border-white/5 glass-strong">
+      <div className="relative flex-1 max-w-md">
+        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        <input
+          placeholder="Buscar scripts, automações..."
+          className="input-premium w-full pl-9 pr-3 py-2 text-sm"
+        />
+        <kbd className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-mono text-muted-foreground bg-white/5 border border-white/10 rounded px-1.5 py-0.5">⌘K</kbd>
+      </div>
+      <div className="flex items-center gap-2 ml-auto">
+        <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/5">
+          <Sparkles size={13} className="text-accent" />
+          <span className="text-xs font-mono text-muted-foreground">Créditos: <span className="text-white font-bold">∞</span></span>
+        </div>
+        <button className="relative w-9 h-9 rounded-lg bg-white/[0.03] border border-white/5 flex items-center justify-center text-muted-foreground hover:text-white hover:border-primary/40 transition-all">
+          <Bell size={15} />
+          <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-destructive shadow-[0_0_8px_currentColor]" />
+        </button>
+        <div className="flex items-center gap-2 pl-2 ml-1 border-l border-white/5">
+          <div className="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold text-white"
+               style={{ background: "var(--gradient-primary)" }}>
+            {name[0]?.toUpperCase()}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function DashboardHome() {
   const session = getSession();
   const displayName = session?.nick || session?.ra || "Aluno";
   const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [loadingStats, setLoadingStats] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!session) return;
-    setLoadingStats(true);
+    setLoading(true);
     fetchDashboardStats(session.authToken, session.externalId)
       .then(setStats)
       .catch(() => setStats({ pendencias: 0, faltas: 0, frequencia: 100 }))
-      .finally(() => setLoadingStats(false));
+      .finally(() => setLoading(false));
   }, [session?.authToken, session?.externalId]);
 
-  const statCards = [
+  const statCards = useMemo(() => [
     {
-      icon: CheckCircle,
-      label: "Pendências",
-      value: loadingStats ? null : String(stats?.pendencias ?? 0),
-      color: "text-primary",
-      borderColor: "border-primary/20",
+      icon: CheckCircle2, label: "Pendências", value: stats?.pendencias ?? 0, suffix: "",
+      tint: "from-violet-500/20 to-violet-500/5", iconColor: "text-primary",
+      trend: stats?.pendencias === 0 ? "Tudo em dia" : "ação necessária",
     },
     {
-      icon: Heart,
-      label: "Doação",
-      value: "♥",
-      color: "text-pink-500",
-      borderColor: "border-pink-500/20",
+      icon: Calendar, label: "Faltas", value: stats?.faltas ?? 0, suffix: "",
+      tint: "from-cyan-500/20 to-cyan-500/5", iconColor: "text-accent",
+      trend: (stats?.faltas ?? 0) < 5 ? "controle" : "atenção",
     },
     {
-      icon: Calendar,
-      label: "Faltas",
-      value: loadingStats ? null : String(stats?.faltas ?? 0),
-      color: "text-blue-400",
-      borderColor: "border-blue-400/20",
+      icon: TrendingUp, label: "Frequência", value: stats?.frequencia ?? 100, suffix: "%",
+      tint: "from-emerald-500/20 to-emerald-500/5", iconColor: "text-emerald-400",
+      trend: (stats?.frequencia ?? 100) >= 75 ? "presença ok" : "abaixo do mínimo",
     },
     {
-      icon: TrendingUp,
-      label: "Frequência",
-      value: loadingStats ? null : `${stats?.frequencia ?? 100}%`,
-      color: stats && stats.frequencia >= 75 ? "text-emerald-400" : "text-primary",
-      borderColor: stats && stats.frequencia >= 75 ? "border-emerald-400/20" : "border-primary/20",
-      subtitle: stats && stats.frequencia >= 75 ? "Presença boa" : stats && stats.frequencia < 75 ? "Atenção!" : undefined,
-      subtitleColor: stats && stats.frequencia >= 75 ? "text-emerald-400" : "text-primary",
+      icon: Heart, label: "Apoiar", value: 0, suffix: "",
+      isLink: "https://livepix.gg/davizinzkn",
+      tint: "from-pink-500/20 to-pink-500/5", iconColor: "text-pink-400",
+      trend: "doe ao projeto",
     },
-  ];
+  ], [stats]);
 
   return (
-    <div className="p-4 sm:p-6 max-w-5xl mx-auto space-y-6 sm:space-y-8">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <div className="w-10 h-10 rounded-sm bg-blood-muted border border-primary/20 flex items-center justify-center text-primary font-mono font-bold text-sm">
-          {displayName[0]?.toUpperCase()}
-        </div>
-        <div>
-          <h1 className="text-lg font-medium text-white tracking-tight">
-            Olá, <span className="uppercase font-mono">{displayName}</span>
-          </h1>
-          <p className="text-xs text-muted-foreground font-mono tracking-wider">
-            {stats?.turma || "Sync Labs Hub"}
-          </p>
-        </div>
-      </div>
+    <div className="min-h-screen relative">
+      {/* Ambient bg */}
+      <div className="fixed inset-0 bg-aurora pointer-events-none" />
+      <div className="fixed inset-0 bg-grid-lines pointer-events-none opacity-50" />
 
-      {/* Stats cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        {statCards.map((stat) => (
-          <div
-            key={stat.label}
-            className={`bg-card border ${stat.borderColor} rounded-sm p-4`}
+      <div className="relative">
+        <Topbar name={displayName} />
+
+        <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-8">
+          {/* Welcome */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+            className="flex flex-wrap items-end justify-between gap-4"
           >
-            <stat.icon size={16} className={stat.color} />
-            {stat.value === null ? (
-              <div className="mt-3 flex items-center gap-2">
-                <Loader2 size={16} className="animate-spin text-muted-foreground" />
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wider bg-primary/10 text-primary border border-primary/20">
+                  {stats?.turma || "Sync Labs Hub"}
+                </span>
+                <span className="px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wider bg-emerald-400/10 text-emerald-400 border border-emerald-400/20 flex items-center gap-1">
+                  <span className="status-online w-1 h-1 rounded-full bg-emerald-400" /> sistemas ativos
+                </span>
               </div>
-            ) : (
-              <p className="text-2xl font-bold text-white mt-3 font-mono">{stat.value}</p>
-            )}
-            <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-widest font-mono">{stat.label}</p>
-            {"subtitle" in stat && stat.subtitle && (
-              <p className={`text-[10px] mt-1 font-mono ${stat.subtitleColor}`}>{stat.subtitle}</p>
-            )}
-          </div>
-        ))}
-      </div>
-
-      {/* Scripts section */}
-      <div>
-        <div className="flex items-center gap-2 mb-4">
-          <span className="w-0.5 h-4 bg-primary rounded-full" />
-          <h2 className="text-xs font-bold text-white uppercase tracking-[0.15em] font-mono">
-            Scripts Disponíveis
-          </h2>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
-          {SCRIPTS.map((script) => (
+              <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white font-display">
+                Olá, <span className="text-gradient">{displayName}</span>
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                Sua central de automação inteligente. Tudo sob controle.
+              </p>
+            </div>
             <Link
-              key={script.name}
-              to={script.url}
-              className="flex flex-col items-center gap-2 p-4 bg-card border border-glass-border rounded-sm hover:border-primary/30 hover:bg-blood-muted transition-all group"
+              to="/dashboard/tarefas"
+              className="btn-premium inline-flex items-center gap-2 px-5 py-2.5 text-sm"
             >
-              <img src={script.icon} alt={script.name} className="w-10 h-10 object-contain" loading="lazy" width={40} height={40} />
-              <span className="text-[10px] font-mono font-medium text-muted-foreground group-hover:text-foreground text-center transition-colors uppercase tracking-wider">
-                {script.name}
-              </span>
+              <Plus size={15} /> Nova automação
             </Link>
-          ))}
+          </motion.div>
+
+          {/* Stats grid */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            {statCards.map((stat, i) => {
+              const Wrapper: any = stat.isLink ? "a" : "div";
+              const wrapperProps = stat.isLink
+                ? { href: stat.isLink, target: "_blank", rel: "noopener noreferrer" }
+                : {};
+              return (
+                <motion.div
+                  key={stat.label}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                >
+                  <Wrapper {...wrapperProps} className="card-premium block p-4 sm:p-5 cursor-pointer">
+                    <div className={`absolute inset-0 bg-gradient-to-br ${stat.tint} opacity-60 pointer-events-none`} />
+                    <div className="relative">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className={`w-9 h-9 rounded-lg bg-white/[0.04] border border-white/5 flex items-center justify-center ${stat.iconColor}`}>
+                          <stat.icon size={17} />
+                        </div>
+                        <ArrowUpRight size={14} className="text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                      <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground font-mono mb-1">{stat.label}</p>
+                      <div className="text-3xl font-bold text-white font-display tabular-nums">
+                        {loading ? (
+                          <div className="h-8 w-16 skeleton-shimmer rounded-md" />
+                        ) : (
+                          <Counter value={stat.value} suffix={stat.suffix} />
+                        )}
+                      </div>
+                      <p className="text-[11px] text-muted-foreground mt-2 flex items-center gap-1">
+                        <Activity size={11} className={stat.iconColor} /> {stat.trend}
+                      </p>
+                    </div>
+                  </Wrapper>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          {/* Scripts grid */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-lg font-bold text-white font-display flex items-center gap-2">
+                  <Zap size={16} className="text-accent" /> Scripts disponíveis
+                </h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Automações prontas para executar</p>
+              </div>
+              <span className="text-[10px] font-mono text-muted-foreground">
+                {SCRIPTS.length} ATIVOS
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+              {SCRIPTS.map((script, i) => (
+                <motion.div
+                  key={script.name}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 + i * 0.04 }}
+                >
+                  <Link
+                    to={script.url}
+                    className="card-premium group block p-5"
+                  >
+                    <div className="relative flex items-start gap-4">
+                      <div className="relative">
+                        <div className="absolute inset-0 rounded-xl blur-xl opacity-60 group-hover:opacity-100 transition-opacity"
+                          style={{ background: "var(--gradient-primary)" }} />
+                        <div className="relative w-12 h-12 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center">
+                          <img src={script.icon} alt="" className="w-7 h-7 object-contain" loading="lazy" width={28} height={28} />
+                        </div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="text-sm font-bold text-white tracking-tight">{script.name}</h3>
+                          {script.badge && (
+                            <span className="text-[9px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded text-accent-foreground"
+                              style={{ background: script.badge === "AI" ? "var(--gradient-primary)" : "oklch(0.66 0.26 22)" }}>
+                              {script.badge}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground">{script.desc}</p>
+                      </div>
+                      <ArrowUpRight size={15} className="text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+                    </div>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          </div>
         </div>
-      </div>
-
-      {/* Quick actions */}
-      <div className="space-y-2">
-        <Link
-          to="/dashboard/tarefas"
-          className="flex items-center justify-between bg-card border border-glass-border rounded-sm p-4 hover:border-primary/30 transition-all group"
-        >
-          <div className="flex items-center gap-3">
-            <CheckSquare size={16} className="text-primary" />
-            <div>
-              <p className="text-xs font-mono font-semibold text-white uppercase tracking-wider">Tarefa SP</p>
-              <p className="text-[10px] text-muted-foreground font-mono">Lições pendentes e expiradas</p>
-            </div>
-          </div>
-          <ArrowRight size={14} className="text-muted-foreground group-hover:text-primary transition-colors" />
-        </Link>
-
-        <Link
-          to="/dashboard/redacao"
-          className="flex items-center justify-between bg-card border border-glass-border rounded-sm p-4 hover:border-primary/30 transition-all group"
-        >
-          <div className="flex items-center gap-3">
-            <PenTool size={16} className="text-primary" />
-            <div>
-              <p className="text-xs font-mono font-semibold text-white uppercase tracking-wider">Redação Paulista</p>
-              <p className="text-[10px] text-muted-foreground font-mono">Gerar e enviar redações com IA</p>
-            </div>
-          </div>
-          <ArrowRight size={14} className="text-muted-foreground group-hover:text-primary transition-colors" />
-        </Link>
       </div>
     </div>
   );
