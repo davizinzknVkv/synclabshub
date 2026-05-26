@@ -253,21 +253,19 @@ function RevisaoLinguagensPage() {
           </div>
         </motion.div>
       ) : (
-        <div className="relative z-10 space-y-6">
+        <div className="relative z-10 space-y-8">
           {/* Progresso e Navegação */}
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex-1">
-              <div className="flex justify-between text-[10px] font-black uppercase mb-2">
-                <span className="text-primary">Progresso da Revisão</span>
-                <span className="text-white">{currentIdx + 1} de {LANGUAGES_9TH_GRADE_QUESTIONS.length}</span>
-              </div>
-              <div className="h-3 bg-surface border-2 border-border p-0.5">
-                <motion.div 
-                  initial={{ width: 0 }}
-                  animate={{ width: `${progress}%` }}
-                  className="h-full bg-primary shadow-[0_0_10px_rgba(235,255,0,0.5)]"
-                />
-              </div>
+          <div className="glass p-5 rounded-2xl border-surface-border/50">
+            <div className="flex justify-between text-[11px] font-black uppercase tracking-widest mb-3">
+              <span className="text-primary">Evolução da Prova</span>
+              <span className="text-white opacity-80">{currentIdx + 1} de {LANGUAGES_9TH_GRADE_QUESTIONS.length} Questões</span>
+            </div>
+            <div className="h-2 bg-surface rounded-full overflow-hidden border border-surface-border/30">
+              <motion.div 
+                initial={{ width: 0 }}
+                animate={{ width: `${progress}%` }}
+                className="h-full bg-gradient-primary shadow-glow-violet"
+              />
             </div>
           </div>
 
@@ -278,39 +276,39 @@ function RevisaoLinguagensPage() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.2 }}
-              className="card-brutal bg-surface p-8 min-h-[400px] flex flex-col"
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="card-premium p-8 md:p-12 min-h-[450px] flex flex-col border-surface-border/50"
             >
-              <div className="flex items-center gap-2 mb-6">
-                <div className="px-3 py-1 bg-primary text-primary-foreground font-black text-xs italic">
-                  Q{currentQuestion.id}
+              <div className="flex items-center gap-4 mb-8">
+                <div className="px-4 py-1.5 bg-primary/20 text-primary rounded-xl font-black text-xs italic border border-primary/30 tracking-widest shadow-glow-violet/10">
+                  QUESTÃO #{currentQuestion.id}
                 </div>
-                <div className="h-px flex-1 bg-border" />
+                <div className="h-px flex-1 bg-surface-border/30" />
               </div>
 
-              <h2 className="text-lg md:text-xl font-bold text-white mb-8 leading-relaxed">
+              <h2 className="text-xl md:text-2xl font-bold text-white mb-10 leading-tight tracking-tight">
                 {currentQuestion.text}
               </h2>
 
-              <div className="space-y-3 mt-auto">
+              <div className="grid gap-4 mt-auto">
                 {currentQuestion.options.map((opt, idx) => {
                   const isSelected = answers[currentQuestion.id] === idx;
                   return (
                     <button
                       key={idx}
                       onClick={() => handleAnswer(idx)}
-                      className={`w-full p-4 text-left text-sm font-bold uppercase transition-all flex items-center gap-4 group border-2 ${
+                      className={`w-full p-5 text-left text-sm font-bold uppercase transition-all flex items-center gap-5 group rounded-2xl border-2 ${
                         isSelected 
-                        ? "bg-primary text-primary-foreground border-foreground translate-x-1" 
-                        : "bg-background text-muted-foreground border-border hover:border-primary hover:text-white"
+                        ? "bg-primary/20 text-white border-primary shadow-glow-violet/20 translate-x-1" 
+                        : "bg-surface/50 text-muted-foreground border-surface-border hover:border-primary/50 hover:text-white"
                       }`}
                     >
-                      <div className={`w-6 h-6 shrink-0 border-2 flex items-center justify-center font-mono text-xs ${
-                        isSelected ? "bg-white text-black border-black" : "border-border group-hover:border-primary"
+                      <div className={`w-8 h-8 shrink-0 rounded-xl border-2 flex items-center justify-center font-black text-xs transition-all ${
+                        isSelected ? "bg-primary text-white border-primary" : "border-surface-border group-hover:border-primary/50"
                       }`}>
                         {String.fromCharCode(65 + idx)}
                       </div>
-                      {opt}
+                      <span className="flex-1">{opt}</span>
                     </button>
                   );
                 })}
@@ -319,28 +317,28 @@ function RevisaoLinguagensPage() {
           </AnimatePresence>
 
           {/* Controles de Navegação Inferior */}
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center justify-between gap-6 pt-4">
             <button
               onClick={handlePrev}
               disabled={currentIdx === 0}
-              className="px-6 py-3 border-4 border-foreground shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] bg-surface text-white font-black uppercase text-xs flex items-center gap-2 disabled:opacity-30 disabled:shadow-none disabled:translate-x-0 disabled:translate-y-0 transition-all hover:translate-x-[-2px] hover:translate-y-[-2px]"
+              className="px-8 py-4 glass hover:bg-surface rounded-2xl border-surface-border text-white font-black uppercase text-xs flex items-center gap-3 disabled:opacity-30 transition-all hover:translate-x-[-2px]"
             >
-              <ChevronLeft size={16} /> Anterior
+              <ChevronLeft size={18} /> Anterior
             </button>
 
             {currentIdx === LANGUAGES_9TH_GRADE_QUESTIONS.length - 1 ? (
               <button
                 onClick={handleSubmit}
-                className="px-8 py-3 bg-primary text-primary-foreground border-4 border-foreground shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] font-black uppercase text-xs flex items-center gap-2 hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all"
+                className="btn-premium px-10 py-4 text-xs flex items-center gap-3"
               >
-                ENTREGAR <Send size={16} />
+                FINALIZAR AVALIAÇÃO <Send size={18} />
               </button>
             ) : (
               <button
                 onClick={handleNext}
-                className="px-6 py-3 border-4 border-foreground shadow-[4px_4px_0_0_rgba(0,0,0,0.5)] bg-surface text-white font-black uppercase text-xs flex items-center gap-2 hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all"
+                className="px-8 py-4 glass hover:bg-surface rounded-2xl border-surface-border text-white font-black uppercase text-xs flex items-center gap-3 transition-all hover:translate-x-[2px]"
               >
-                Próxima <ChevronRight size={16} />
+                Próxima Questão <ChevronRight size={18} />
               </button>
             )}
           </div>
