@@ -154,22 +154,59 @@ function StatusDashboard() {
 
   return (
     <div className="min-h-screen p-4 md:p-8 space-y-8 bg-aurora">
-      <div className="flex items-center justify-between">
+      <NotificationContainer />
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-2xl bg-gradient-primary p-0.5 shadow-glow-violet">
             <div className="w-full h-full rounded-2xl bg-background flex items-center justify-center">
               <Activity className="w-6 h-6 text-primary" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-tighter">Status das Tarefas</h1>
+          <div>
+            <h1 className="text-2xl font-bold text-white tracking-tighter">Painel de Controle</h1>
+            <p className="text-xs text-muted-foreground font-mono uppercase tracking-widest mt-1">Admin Dashboard</p>
+          </div>
         </div>
-        <button
-          onClick={fetchLogs}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-surface hover:bg-surface-hover border border-surface-border text-sm font-semibold transition-all hover:border-primary/50"
-        >
-          <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
-          Atualizar
-        </button>
+        
+        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+          {settings && (
+            <div className="flex items-center gap-2 p-1 glass rounded-xl border-surface-border">
+              <button
+                onClick={() => updateSetting('maintenance_mode', !settings.maintenance_mode)}
+                disabled={updating}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
+                  settings.maintenance_mode 
+                    ? "bg-red-500/20 text-red-400 border border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.2)]" 
+                    : "text-muted-foreground hover:text-white"
+                }`}
+              >
+                <ShieldAlert size={14} />
+                Manutenção: {settings.maintenance_mode ? "ON" : "OFF"}
+              </button>
+              <div className="w-px h-4 bg-surface-border mx-1" />
+              <button
+                onClick={() => updateSetting('scripts_enabled', !settings.scripts_enabled)}
+                disabled={updating}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
+                  !settings.scripts_enabled 
+                    ? "bg-amber-500/20 text-amber-400 border border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.2)]" 
+                    : "bg-emerald-500/10 text-emerald-400"
+                }`}
+              >
+                {settings.scripts_enabled ? <Zap size={14} /> : <ZapOff size={14} />}
+                Scripts: {settings.scripts_enabled ? "Ativos" : "Desligados"}
+              </button>
+            </div>
+          )}
+          
+          <button
+            onClick={fetchLogs}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-surface hover:bg-surface-hover border border-surface-border text-sm font-semibold transition-all hover:border-primary/50"
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+            Atualizar
+          </button>
+        </div>
       </div>
 
       {/* Stats cards */}
