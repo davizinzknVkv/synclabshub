@@ -69,8 +69,39 @@ function StatusDashboard() {
     setLoading(false);
   };
 
+  const fetchSettings = async () => {
+    const { data, error } = await supabase
+      .from("site_settings")
+      .select("*")
+      .single();
+
+    if (!error && data) {
+      setSettings(data as SiteSettings);
+    }
+  };
+
+  const updateSetting = async (field: keyof SiteSettings, value: boolean) => {
+    if (!settings || updating) return;
+    setUpdating(true);
+    const { error } = await supabase
+      .from("site_settings")
+      .update({ [field]: value })
+      .eq("id", settings.id);
+
+    if (!error) {
+      setSettings({ ...settings, [field]: value });
+      notify(`${field.replace('_', ' ').toUpperCase()} ATUALIZADO`);
+    } else {
+      notify("ERRO AO ATUALIZAR CONFIGURAÇÃO");
+    }
+    setUpdating(false);
+  };
+
   useEffect(() => {
-    if (authenticated) fetchLogs();
+    if (authenticated) {
+      fetchLogs();
+      fetchSettings();
+    }
   }, [authenticated]);
 
   if (!authenticated) {
