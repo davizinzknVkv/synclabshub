@@ -84,8 +84,13 @@ function DashboardHome() {
   const displayName = session?.nick || session?.ra || "Aluno";
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [settings, setSettings] = useState<{ maintenance_mode: boolean; scripts_enabled: boolean } | null>(null);
 
   useEffect(() => {
+    supabase.from("site_settings").select("*").single().then(({ data }) => {
+      if (data) setSettings(data as any);
+    });
+
     if (!session) return;
     setLoading(true);
     fetchDashboardStats(session.authToken, session.externalId)
