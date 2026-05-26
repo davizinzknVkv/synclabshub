@@ -14,6 +14,22 @@ export const Route = createFileRoute("/api/ai/generate")({
       },
       POST: async ({ request }) => {
         try {
+          // Restrict to same-origin / known frontend hosts to avoid open AI credit abuse.
+          const origin = request.headers.get("origin") || request.headers.get("referer") || "";
+          const allowed = [
+            "lovable.app",
+            "lovableproject.com",
+            "synclabshub",
+            "localhost",
+            "127.0.0.1",
+          ];
+          if (!origin || !allowed.some((h) => origin.includes(h))) {
+            return Response.json(
+              { error: "Forbidden" },
+              { status: 403, headers: corsHeaders },
+            );
+          }
+
           const { prompt, system } = (await request.json()) as {
             prompt: string;
             system?: string;
