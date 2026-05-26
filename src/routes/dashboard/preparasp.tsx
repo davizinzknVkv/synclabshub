@@ -72,43 +72,45 @@ function PreparaSpPage() {
   }, [auth]);
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-8 relative">
-      <div className="fixed inset-0 bg-obsidian-grid pointer-events-none opacity-40" />
+    <div className="p-6 md:p-10 max-w-6xl mx-auto space-y-10 bg-aurora min-h-screen">
+      <div className="fixed inset-0 bg-grid-lines pointer-events-none opacity-20" />
       <NotificationContainer />
 
-      <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 relative z-10">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 bg-primary flex items-center justify-center border-4 border-foreground shadow-[4px_4px_0_0_var(--foreground)] rotate-[-2deg]">
-            <GraduationCap size={28} className="text-primary-foreground" />
+      <header className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 relative z-10">
+        <div className="flex items-center gap-5">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-hero p-0.5 shadow-glow-violet rotate-[-3deg]">
+            <div className="w-full h-full rounded-2xl bg-background flex items-center justify-center">
+              <GraduationCap size={32} className="text-primary" />
+            </div>
           </div>
           <div>
-            <h1 className="text-3xl font-black text-white tracking-tighter uppercase italic leading-none">
+            <h1 className="text-4xl font-black text-white tracking-tighter uppercase italic leading-none">
               PREPARA SP
             </h1>
-            <p className="text-xs text-primary font-mono font-bold tracking-[0.2em] uppercase mt-1">
-              {auth ? "STUDENT_LOGGED_IN" : "SYSTEM_AUTH_REQUIRED"}
+            <p className="text-xs text-primary font-mono font-bold tracking-[0.3em] uppercase mt-2 opacity-80">
+              {auth ? "SYSTEM_AUTHENTICATED" : "AUTH_PENDING"}
             </p>
           </div>
         </div>
-        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
           <button
             onClick={() => setAdding(true)}
-            className="btn-blood px-4 py-2 text-xs flex items-center gap-2 flex-1 sm:flex-none justify-center"
+            className="btn-premium px-6 py-3 text-xs flex items-center gap-2 flex-1 md:flex-none justify-center"
           >
-            <Plus size={16} /> NOVA TAREFA
+            <Plus size={18} /> NOVA TAREFA
           </button>
           <button
             onClick={() => setShowAuth(true)}
-            className="px-4 py-2 bg-surface border-2 border-foreground text-xs font-bold text-white shadow-[4px_4px_0_0_var(--foreground)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0_0_var(--primary)] transition-all flex items-center gap-2 flex-1 sm:flex-none justify-center"
+            className="px-6 py-3 glass hover:bg-surface rounded-xl border-surface-border text-xs font-black text-white transition-all flex items-center gap-2 flex-1 md:flex-none justify-center"
           >
-            <KeyRound size={14} /> TOKENS {auth ? "✓" : "—"}
+            <KeyRound size={16} className="text-primary" /> TOKENS {auth ? "✓" : "—"}
           </button>
           {auth && (
             <button
               onClick={() => { saveAuth(null); setAuth(null); notify("TOKENS LIMPOS"); }}
-              className="px-4 py-2 border-2 border-destructive/50 text-xs font-bold text-destructive hover:bg-destructive hover:text-white transition-colors"
+              className="p-3 glass hover:bg-red-500/10 rounded-xl border-surface-border text-red-400 transition-colors"
             >
-              <LogOut size={14} />
+              <LogOut size={18} />
             </button>
           )}
         </div>
