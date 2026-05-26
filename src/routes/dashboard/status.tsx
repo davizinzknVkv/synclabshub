@@ -110,15 +110,19 @@ function StatusDashboard() {
   const totalTasks = logs.reduce((sum, l) => sum + l.task_count, 0);
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-4 md:p-6 space-y-6">
+    <div className="min-h-screen p-4 md:p-8 space-y-8 bg-aurora">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Activity className="w-6 h-6 text-primary" />
-          <h1 className="text-xl font-bold">Status das Tarefas</h1>
+          <div className="w-12 h-12 rounded-2xl bg-gradient-primary p-0.5 shadow-glow-violet">
+            <div className="w-full h-full rounded-2xl bg-background flex items-center justify-center">
+              <Activity className="w-6 h-6 text-primary" />
+            </div>
+          </div>
+          <h1 className="text-2xl font-bold text-white tracking-tighter">Status das Tarefas</h1>
         </div>
         <button
           onClick={fetchLogs}
-          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted hover:bg-muted/80 text-sm transition-colors"
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-surface hover:bg-surface-hover border border-surface-border text-sm font-semibold transition-all hover:border-primary/50"
         >
           <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
           Atualizar
@@ -126,78 +130,70 @@ function StatusDashboard() {
       </div>
 
       {/* Stats cards */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="bg-muted/50 rounded-xl p-4 border border-border">
-          <div className="flex items-center gap-2 text-green-400 mb-1">
-            <CheckCircle className="w-4 h-4" />
-            <span className="text-xs font-medium">Sucesso</span>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {[
+          { label: "Sucesso", value: successCount, color: "text-emerald-400", icon: CheckCircle },
+          { label: "Erro", value: errorCount, color: "text-red-400", icon: XCircle },
+          { label: "Total Tarefas", value: totalTasks, color: "text-primary", icon: Clock },
+        ].map((stat, i) => (
+          <div key={i} className="glass rounded-2xl p-6 border-surface-border">
+            <div className={`flex items-center gap-2 ${stat.color} mb-2`}>
+              <stat.icon className="w-5 h-5" />
+              <span className="text-xs font-bold uppercase tracking-widest opacity-80">{stat.label}</span>
+            </div>
+            <p className="text-4xl font-black text-white tracking-tight">{stat.value}</p>
           </div>
-          <p className="text-2xl font-bold">{successCount}</p>
-        </div>
-        <div className="bg-muted/50 rounded-xl p-4 border border-border">
-          <div className="flex items-center gap-2 text-red-400 mb-1">
-            <XCircle className="w-4 h-4" />
-            <span className="text-xs font-medium">Erro</span>
-          </div>
-          <p className="text-2xl font-bold">{errorCount}</p>
-        </div>
-        <div className="bg-muted/50 rounded-xl p-4 border border-border">
-          <div className="flex items-center gap-2 text-primary mb-1">
-            <Clock className="w-4 h-4" />
-            <span className="text-xs font-medium">Total Tarefas</span>
-          </div>
-          <p className="text-2xl font-bold">{totalTasks}</p>
-        </div>
+        ))}
       </div>
 
       {/* Logs table */}
-      <div className="bg-muted/30 rounded-xl border border-border overflow-hidden">
+      <div className="glass-strong rounded-2xl border border-surface-border overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border text-muted-foreground">
-                <th className="text-left p-3 font-medium">RA</th>
-                <th className="text-left p-3 font-medium">Tipo</th>
-                <th className="text-center p-3 font-medium">Qtd</th>
-                <th className="text-center p-3 font-medium">Status</th>
-                <th className="text-left p-3 font-medium">Mensagem</th>
-                <th className="text-left p-3 font-medium">Data</th>
+              <tr className="border-b border-surface-border text-muted-foreground text-xs uppercase tracking-widest">
+                <th className="text-left p-4 font-bold">RA</th>
+                <th className="text-left p-4 font-bold">Tipo</th>
+                <th className="text-center p-4 font-bold">Qtd</th>
+                <th className="text-center p-4 font-bold">Status</th>
+                <th className="text-left p-4 font-bold">Mensagem</th>
+                <th className="text-left p-4 font-bold">Data</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="p-8 text-center text-muted-foreground">
+                  <td colSpan={6} className="p-12 text-center text-muted-foreground">
                     Carregando...
                   </td>
                 </tr>
               ) : logs.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="p-8 text-center text-muted-foreground">
+                  <td colSpan={6} className="p-12 text-center text-muted-foreground">
                     Nenhum registro encontrado
                   </td>
                 </tr>
               ) : (
                 logs.map((log) => (
-                  <tr key={log.id} className="border-b border-border/50 hover:bg-muted/20">
-                    <td className="p-3 font-mono text-xs">{log.ra}</td>
-                    <td className="p-3">{log.task_type}</td>
-                    <td className="p-3 text-center">{log.task_count}</td>
-                    <td className="p-3 text-center">
+                  <tr key={log.id} className="border-b border-surface-border/50 hover:bg-surface/50 transition-colors">
+                    <td className="p-4 font-mono text-xs">{log.ra}</td>
+                    <td className="p-4 font-medium">{log.task_type}</td>
+                    <td className="p-4 text-center font-mono">{log.task_count}</td>
+                    <td className="p-4 text-center">
                       <span
-                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                        className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
                           log.status === "success"
-                            ? "bg-green-500/20 text-green-400"
-                            : "bg-red-500/20 text-red-400"
+                            ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                            : "bg-red-500/10 text-red-400 border border-red-500/20"
                         }`}
                       >
                         {log.status}
                       </span>
                     </td>
-                    <td className="p-3 text-muted-foreground text-xs max-w-[200px] truncate">
+                    <td className="p-4 text-muted-foreground text-xs max-w-[200px] truncate">
                       {log.message || "—"}
                     </td>
-                    <td className="p-3 text-muted-foreground text-xs whitespace-nowrap">
+                    <td className="p-4 text-muted-foreground text-xs whitespace-nowrap">
                       {new Date(log.created_at).toLocaleString("pt-BR")}
                     </td>
                   </tr>

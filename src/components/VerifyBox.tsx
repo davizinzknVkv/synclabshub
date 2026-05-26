@@ -22,26 +22,28 @@ export function VerifyBox({ onVerified }: VerifyBoxProps) {
       whileHover={{ scale: state === "idle" ? 1.02 : 1 }}
       whileTap={{ scale: state === "idle" ? 0.98 : 1 }}
       onClick={handleClick}
-      className={`flex items-center gap-3 px-5 py-3 rounded-lg border-2 font-semibold text-lg cursor-pointer select-none transition-colors mx-auto ${
+      className={`flex items-center gap-4 px-8 py-4 rounded-2xl border transition-all font-black text-xs uppercase tracking-[0.3em] shadow-lg select-none ${
         state === "verified"
-          ? "bg-primary border-primary text-primary-foreground"
-          : "bg-card border-border text-card-foreground hover:border-muted-foreground"
+          ? "bg-emerald-500/10 border-emerald-500/50 text-emerald-400"
+          : "glass border-surface-border text-white hover:border-primary/50"
       }`}
     >
       <div
-        className={`w-5 h-5 rounded-sm border-2 flex items-center justify-center text-xs transition-all ${
+        className={`w-6 h-6 rounded-xl border-2 flex items-center justify-center text-xs transition-all ${
           state === "verified"
-            ? "bg-primary-foreground border-primary-foreground text-primary font-bold"
-            : "border-muted-foreground text-transparent"
+            ? "bg-emerald-400 border-emerald-400 text-black font-bold"
+            : "border-surface-border bg-surface"
         }`}
       >
         {state === "loading" ? (
-          <div className="w-4 h-4 border-2 border-muted-foreground border-t-primary rounded-full animate-spin" />
+          <div className="w-3 h-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+        ) : state === "verified" ? (
+          "✓"
         ) : (
-          "✔"
+          null
         )}
       </div>
-      <span>{state === "verified" ? "Verificado ✅" : state === "loading" ? "" : "SOU HUMANO"}</span>
+      <span>{state === "verified" ? "Identidade Confirmada" : state === "loading" ? "Processando..." : "SOU HUMANO"}</span>
     </motion.button>
   );
 }

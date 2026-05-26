@@ -209,37 +209,43 @@ function LeiaSPPage() {
   );
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
-      <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-widest">
-        Home / <span className="text-foreground">Leia SP</span>
-      </p>
+    <div className="p-6 md:p-10 max-w-6xl mx-auto space-y-10 min-h-screen bg-aurora">
+      <nav className="flex items-center gap-2 text-[10px] text-muted-foreground font-mono uppercase tracking-[0.2em]">
+        <span className="opacity-50">Home</span>
+        <span className="opacity-30">/</span>
+        <span className="text-primary font-bold">Leia SP</span>
+      </nav>
 
-      <div className="flex items-center gap-3">
-        <div className="w-8 h-8 bg-blood-muted border border-primary/20 rounded-sm flex items-center justify-center">
-          <BookOpen size={16} className="text-primary" />
+      <div className="flex items-center gap-4">
+        <div className="w-16 h-16 rounded-2xl bg-gradient-hero p-0.5 shadow-glow-violet rotate-[2deg]">
+          <div className="w-full h-full rounded-2xl bg-background flex items-center justify-center">
+            <BookOpen size={32} className="text-primary" />
+          </div>
         </div>
         <div>
-          <h1 className="text-sm font-bold text-white font-mono uppercase tracking-[0.15em]">
-            Leia SP — Elefante
-          </h1>
-          <p className="text-[9px] text-muted-foreground font-mono">Leitura automática em background</p>
+          <h1 className="text-3xl font-black text-white tracking-tighter uppercase italic">Leia SP</h1>
+          <p className="text-xs text-muted-foreground font-mono tracking-widest uppercase opacity-80">Plataforma Elefante • Leitura Automatizada</p>
         </div>
       </div>
 
       {/* Actions */}
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-4 p-4 glass rounded-2xl border-surface-border">
         <button
           onClick={handleFetch}
           disabled={loading || processing}
-          className="px-3 py-2 rounded-sm text-[10px] font-mono font-medium uppercase tracking-wider border border-primary bg-blood-muted text-primary hover:bg-primary/15 transition-colors"
+          className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all border ${
+            fetched 
+              ? "border-surface-border bg-surface text-white" 
+              : "border-primary bg-primary/20 text-primary shadow-glow-violet"
+          }`}
         >
           {loading ? (
             <span className="flex items-center gap-2">
-              <Loader2 size={12} className="animate-spin" />
-              Conectando...
+              <Loader2 size={14} className="animate-spin" />
+              Sincronizando...
             </span>
           ) : (
-            "Buscar Livros"
+            "Conectar Elefante"
           )}
         </button>
 
@@ -247,26 +253,26 @@ function LeiaSPPage() {
           <>
             <button
               onClick={selectAll}
-              className="px-3 py-2 rounded-sm text-[10px] font-mono font-medium uppercase tracking-wider border border-glass-border bg-card text-muted-foreground hover:text-foreground transition-colors"
+              className="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all border border-surface-border bg-surface text-muted-foreground hover:text-white"
             >
               {selected.size === books.filter((b) => b.reading_percent < 100).length
-                ? "Desmarcar"
-                : "Selecionar Incompletos"}
+                ? "Limpar Seleção"
+                : "Selecionar Pendentes"}
             </button>
             <button
               onClick={handleStartReading}
               disabled={processing || selected.size === 0}
-              className="ml-auto px-3 py-2 rounded-sm text-[10px] font-mono font-semibold uppercase tracking-wider border border-primary bg-primary/20 text-primary hover:bg-primary/30 transition-colors flex items-center gap-2 disabled:opacity-50"
+              className="ml-auto btn-premium px-8 py-2.5 text-xs flex items-center gap-2 disabled:opacity-50"
             >
               {processing ? (
                 <span className="flex items-center gap-2">
-                  <Loader2 size={12} className="animate-spin" />
+                  <Loader2 size={14} className="animate-spin" />
                   Processando...
                 </span>
               ) : (
                 <>
-                  <Play size={12} />
-                  Ler ({selected.size})
+                  <Play size={16} />
+                  Iniciar Leitura ({selected.size})
                 </>
               )}
             </button>
@@ -274,20 +280,19 @@ function LeiaSPPage() {
         )}
       </div>
 
-      {/* Book grid */}
       {!fetched ? (
-        <div className="text-center py-20 text-muted-foreground">
-          <BookOpen size={32} className="mx-auto mb-3 opacity-30" />
-          <p className="text-xs font-mono uppercase tracking-widest">
-            Clique em "Buscar Livros" para conectar ao Elefante
-          </p>
+        <div className="flex flex-col items-center justify-center py-32 space-y-6 glass rounded-3xl border-dashed border-surface-border/30">
+          <div className="w-20 h-20 rounded-2xl bg-surface border border-surface-border flex items-center justify-center text-muted-foreground/30">
+            <BookOpen size={48} />
+          </div>
+          <p className="text-xs font-mono uppercase tracking-[0.4em] text-muted-foreground">Conecte sua conta para listar as obras</p>
         </div>
       ) : books.length === 0 ? (
-        <div className="text-center py-20 text-muted-foreground">
-          <p className="text-xs font-mono uppercase tracking-widest">Nenhum livro encontrado</p>
+        <div className="flex flex-col items-center justify-center py-32 space-y-4 glass rounded-3xl border-dashed border-surface-border/30">
+          <p className="text-xs font-mono uppercase tracking-[0.3em] text-muted-foreground">Nenhuma obra encontrada na biblioteca</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {books.map((book, i) => {
             const isSelected = selected.has(book.slug);
             const isComplete = book.reading_percent >= 100;
@@ -298,88 +303,94 @@ function LeiaSPPage() {
             return (
               <motion.div
                 key={book.slug}
-                initial={{ opacity: 0, y: 15 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.02 }}
+                transition={{ delay: i * 0.04 }}
                 onClick={() => !processing && !isComplete && toggleSelect(book.slug)}
-                className={`bg-card border rounded-sm p-4 flex flex-col gap-2 transition-colors ${
+                className={`card-premium group cursor-pointer transition-all duration-300 ${
                   isComplete || isDone
-                    ? "border-emerald-500/30 bg-emerald-500/5 cursor-default"
+                    ? "border-emerald-500/20 bg-emerald-500/5 shadow-none"
                     : isError
-                    ? "border-red-500/30 bg-red-500/5 cursor-pointer"
+                    ? "border-red-500/20 bg-red-500/5"
                     : isReading
-                    ? "border-yellow-500/30 bg-yellow-500/5 cursor-default"
+                    ? "border-yellow-500/20 bg-yellow-500/5"
                     : isSelected
-                    ? "border-primary/30 bg-blood-muted cursor-pointer"
-                    : "border-glass-border hover:border-primary/20 cursor-pointer"
+                    ? "border-primary/50 bg-primary/5 shadow-glow-violet/20"
+                    : ""
                 }`}
               >
-                <div className="flex items-start justify-between gap-2">
-                  <p className="text-[9px] uppercase tracking-widest text-muted-foreground truncate font-mono">
-                    {book.author || "—"}
-                  </p>
-                  {isComplete || isDone ? (
-                    <CheckCircle size={14} className="text-emerald-400 shrink-0" />
-                  ) : isError ? (
-                    <XCircle size={14} className="text-red-400 shrink-0" />
-                  ) : isReading ? (
-                    <Loader2 size={14} className="text-yellow-400 animate-spin shrink-0" />
-                  ) : (
-                    <span
-                      className={`w-3.5 h-3.5 rounded-sm border shrink-0 transition-colors ${
-                        isSelected ? "border-primary bg-primary/30" : "border-glass-border"
-                      }`}
-                    />
-                  )}
-                </div>
-
-                <h3 className="text-xs font-medium text-white line-clamp-2 leading-snug">
-                  {book.title}
-                </h3>
-
-                {/* Progress bar */}
-                <div className="mt-auto">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-[9px] font-mono text-muted-foreground">
-                      {Math.round(book.reading_percent)}%
-                    </span>
-                    {isReading && book.jobId && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleCheckJob(book);
-                        }}
-                        className="text-[9px] font-mono text-yellow-400 hover:text-yellow-300 flex items-center gap-1"
+                <div className="p-6 space-y-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0 space-y-1">
+                      <p className="text-[10px] uppercase font-mono tracking-widest text-muted-foreground truncate">
+                        {book.author || "AUTOR DESCONHECIDO"}
+                      </p>
+                      <h3 className="text-sm font-bold text-white line-clamp-2 leading-snug group-hover:text-primary transition-colors">
+                        {book.title}
+                      </h3>
+                    </div>
+                    {isComplete || isDone ? (
+                      <CheckCircle size={18} className="text-emerald-400 shrink-0" />
+                    ) : isError ? (
+                      <XCircle size={18} className="text-red-400 shrink-0" />
+                    ) : isReading ? (
+                      <Loader2 size={18} className="text-yellow-400 animate-spin shrink-0" />
+                    ) : (
+                      <div
+                        className={`w-5 h-5 rounded-lg border-2 shrink-0 transition-all ${
+                          isSelected ? "border-primary bg-primary shadow-glow-violet" : "border-surface-border bg-surface"
+                        }`}
                       >
-                        <RefreshCw size={10} />
-                        Status
-                      </button>
+                        {isSelected && <div className="w-full h-full flex items-center justify-center"><div className="w-2 h-2 rounded-full bg-white" /></div>}
+                      </div>
                     )}
                   </div>
-                  <div className="w-full h-1 bg-surface rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all ${
-                        isComplete || isDone
-                          ? "bg-emerald-500"
-                          : isReading
-                          ? "bg-yellow-500"
-                          : "bg-primary/50"
-                      }`}
-                      style={{ width: `${Math.min(book.reading_percent, 100)}%` }}
-                    />
-                  </div>
-                </div>
 
-                {/* Status message */}
-                {book.jobMessage && (
-                  <p
-                    className={`text-[9px] font-mono uppercase tracking-wider ${
-                      isDone ? "text-emerald-400" : isError ? "text-red-400" : "text-yellow-400"
-                    }`}
-                  >
-                    {book.jobMessage}
-                  </p>
-                )}
+                  <div className="space-y-3 pt-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                         <div className={`w-1.5 h-1.5 rounded-full ${isComplete ? "bg-emerald-400" : isReading ? "bg-yellow-400 animate-pulse" : "bg-primary"}`} />
+                         <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Progresso</span>
+                      </div>
+                      <span className="text-[10px] font-mono font-bold text-white">
+                        {Math.round(book.reading_percent)}%
+                      </span>
+                    </div>
+                    <div className="w-full h-1.5 bg-surface rounded-full overflow-hidden border border-surface-border">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${Math.min(book.reading_percent, 100)}%` }}
+                        className={`h-full rounded-full transition-all duration-1000 ${
+                          isComplete || isDone
+                            ? "bg-emerald-500"
+                            : isReading
+                            ? "bg-yellow-400"
+                            : "bg-gradient-primary"
+                        }`}
+                      />
+                    </div>
+                  </div>
+
+                  {book.jobMessage && (
+                    <div className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest p-2 rounded-lg ${
+                      isDone ? "bg-emerald-500/10 text-emerald-400" : isError ? "bg-red-500/10 text-red-400" : "bg-yellow-500/10 text-yellow-400"
+                    }`}>
+                      {isReading && <RefreshCw size={10} className="animate-spin" />}
+                      {book.jobMessage}
+                      {isReading && book.jobId && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCheckJob(book);
+                          }}
+                          className="ml-auto underline opacity-80 hover:opacity-100"
+                        >
+                          ATUALIZAR
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
               </motion.div>
             );
           })}

@@ -400,31 +400,33 @@ function KhanPage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 max-w-5xl mx-auto space-y-5">
+    <div className="p-6 md:p-10 max-w-6xl mx-auto space-y-10 min-h-screen bg-aurora">
       <NotificationContainer />
 
-      <header className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-sm bg-blood-muted border border-primary/20 flex items-center justify-center">
-            <GraduationCap size={18} className="text-primary" />
+      <header className="flex items-center justify-between gap-6 relative z-10">
+        <div className="flex items-center gap-5">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-hero p-0.5 shadow-glow-violet rotate-[3deg]">
+            <div className="w-full h-full rounded-2xl bg-background flex items-center justify-center">
+              <GraduationCap size={32} className="text-primary" />
+            </div>
           </div>
           <div>
-            <h1 className="text-lg font-medium text-white tracking-tight font-mono uppercase">
+            <h1 className="text-3xl font-black text-white tracking-tighter uppercase italic leading-none">
               Khan Academy
             </h1>
-            <p className="text-[10px] text-muted-foreground font-mono tracking-wider uppercase">
+            <p className="text-[10px] text-primary font-mono font-bold tracking-[0.3em] uppercase mt-2 opacity-80">
               {profile
-                ? `${profile.nickname || profile.username || "estudante"}`
-                : "Auto-completer (cupiditys/Altcha)"}
+                ? `${profile.nickname || profile.username || "ESTUDANTE_SYNC"}`
+                : "AUTO-COMPLETER / PRAXIS"}
             </p>
           </div>
         </div>
         {jwt && (
           <button
             onClick={handleLogout}
-            className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground hover:text-primary flex items-center gap-1.5 px-3 py-1.5 border border-glass-border rounded-sm"
+            className="px-5 py-2.5 glass hover:bg-red-500/10 rounded-xl border-surface-border text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-red-400 transition-all flex items-center gap-2"
           >
-            <LogOut size={11} /> Sair
+            <LogOut size={14} /> Sair do Sistema
           </button>
         )}
       </header>
