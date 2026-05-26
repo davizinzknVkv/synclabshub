@@ -333,7 +333,6 @@ const ActivityRow = memo(({
     </div>
   );
 });
-});
 
 // ─────────── modais ───────────
 function AuthModal({
