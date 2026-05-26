@@ -51,19 +51,24 @@ export function TaskModal({ open, tasks, onClose, onSubmit }: TaskModalProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-40 flex items-center justify-center bg-background/70 backdrop-blur-sm p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-background/60 backdrop-blur-md p-4"
           onClick={onClose}
         >
           <motion.div
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: -20, opacity: 0 }}
+            initial={{ scale: 0.95, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.95, opacity: 0, y: 20 }}
             onClick={e => e.stopPropagation()}
-            className="bg-card rounded-xl border border-border shadow-2xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col"
+            className="glass-strong rounded-3xl border border-surface-border shadow-elevated w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col relative"
           >
-            <div className="flex items-center justify-between p-5 border-b border-border">
-              <h2 className="text-lg font-bold text-card-foreground">Selecionar Lições</h2>
-              <button onClick={onClose} className="text-muted-foreground hover:text-foreground text-xl font-bold">×</button>
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-primary" />
+            
+            <div className="flex items-center justify-between p-6 border-b border-surface-border/50">
+              <div className="space-y-1">
+                <h2 className="text-xl font-black text-white uppercase tracking-tighter">Configurar Execução</h2>
+                <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Sincronização via Catalyst API</p>
+              </div>
+              <button onClick={onClose} className="w-10 h-10 rounded-xl bg-surface border border-surface-border flex items-center justify-center text-muted-foreground hover:text-white transition-all">×</button>
             </div>
 
             <div className="flex-1 overflow-y-auto p-5 space-y-4">
