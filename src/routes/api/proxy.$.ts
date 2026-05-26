@@ -33,20 +33,23 @@ async function proxyRequest(request: Request, splat: string) {
   const init: RequestInit = {
     method: request.method,
     headers,
+    redirect: "follow",
   };
   if (request.method !== "GET" && request.method !== "HEAD") {
-    init.body = await request.text();
+    init.body = await request.arrayBuffer();
   }
 
   try {
     const upstream = await fetch(upstreamUrl, init);
-    const body = await upstream.text();
+    const body = await upstream.arrayBuffer();
+    const respHeaders = new Headers(corsHeaders);
+    const ct = upstream.headers.get("content-type");
+    if (ct) respHeaders.set("Content-Type", ct);
+    const cc = upstream.headers.get("cache-control");
+    if (cc) respHeaders.set("Cache-Control", cc);
     return new Response(body, {
       status: upstream.status,
-      headers: {
-        "Content-Type": upstream.headers.get("content-type") || "application/json",
-        ...corsHeaders,
-      },
+      headers: respHeaders,
     });
   } catch (error) {
     return new Response(

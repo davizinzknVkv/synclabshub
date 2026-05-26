@@ -9,6 +9,8 @@ import { getSession } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchDashboardStats } from "@/lib/api";
 import type { DashboardStats } from "@/lib/api";
+import { PendenciasModal } from "@/components/PendenciasModal";
+import { WelcomePopup } from "@/components/WelcomePopup";
 import iconTarefa from "@/assets/icons/tarefa-sp.png";
 import iconRedacao from "@/assets/icons/redacao.png";
 import iconLeiaSp from "@/assets/icons/leia-sp.png";
@@ -86,6 +88,7 @@ function DashboardHome() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [settings, setSettings] = useState<{ maintenance_mode: boolean; scripts_enabled: boolean } | null>(null);
+  const [pendOpen, setPendOpen] = useState(false);
 
   useEffect(() => {
     supabase.from("site_settings").select("*").single().then(({ data }) => {
@@ -166,9 +169,12 @@ function DashboardHome() {
           {/* Stats grid */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {statCards.map((stat, i) => {
-              const Wrapper: any = stat.isLink ? "a" : "div";
+              const isPend = stat.label === "Pendências";
+              const Wrapper: any = stat.isLink ? "a" : isPend ? "button" : "div";
               const wrapperProps = stat.isLink
                 ? { href: stat.isLink, target: "_blank", rel: "noopener noreferrer" }
+                : isPend
+                ? { onClick: () => setPendOpen(true), type: "button" }
                 : {};
               return (
                 <motion.div
@@ -177,7 +183,8 @@ function DashboardHome() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
                 >
-                  <Wrapper {...wrapperProps} className="card-premium block p-4 sm:p-5 cursor-pointer">
+                  <Wrapper {...wrapperProps} className="card-premium block p-4 sm:p-5 cursor-pointer text-left w-full">
+
                     <div className={`absolute inset-0 bg-gradient-to-br ${stat.tint} opacity-60 pointer-events-none`} />
                     <div className="relative">
                       <div className="flex items-start justify-between mb-4">
@@ -279,6 +286,9 @@ function DashboardHome() {
           </div>
         </div>
       </div>
+
+      <PendenciasModal open={pendOpen} onClose={() => setPendOpen(false)} counts={{ tarefas: stats?.pendencias ?? 0 }} />
+      <WelcomePopup />
     </div>
   );
 }
