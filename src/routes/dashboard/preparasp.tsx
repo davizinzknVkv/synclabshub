@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState, memo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   GraduationCap, Loader2, LogOut, Play, Plus, Trash2,
   ChevronRight, KeyRound, CheckCircle2, AlertCircle, X,
