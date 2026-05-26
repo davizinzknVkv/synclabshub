@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import logoUrl from "@/assets/logo.png";
+import logoUrl from "@/assets/icons/logo.png";
 
 export interface UserSession {
   ra: string;
