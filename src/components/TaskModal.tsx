@@ -71,32 +71,32 @@ export function TaskModal({ open, tasks, onClose, onSubmit }: TaskModalProps) {
               <button onClick={onClose} className="w-10 h-10 rounded-xl bg-surface border border-surface-border flex items-center justify-center text-muted-foreground hover:text-white transition-all">×</button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-5 space-y-4">
-              <label className="flex items-center gap-3 bg-surface p-3 rounded-lg border border-surface-border cursor-pointer">
-                <input type="checkbox" checked={allSelected} onChange={toggleAll} className="w-4 h-4 accent-primary" />
-                <span className="font-medium text-foreground">Selecionar Todas</span>
+            <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+              <label className="flex items-center gap-4 glass p-4 rounded-2xl border-surface-border cursor-pointer hover:bg-surface/50 transition-all">
+                <input type="checkbox" checked={allSelected} onChange={toggleAll} className="w-5 h-5 accent-primary rounded-lg border-surface-border bg-surface" />
+                <span className="font-black text-[11px] uppercase tracking-[0.2em] text-white">Selecionar Lote Completo</span>
               </label>
 
-              <div className="bg-surface rounded-lg border border-surface-border overflow-hidden">
+              <div className="glass rounded-2xl border border-surface-border/50 overflow-hidden">
                 {tasks.map(task => (
                   <div
                     key={task.id}
                     onClick={() => toggleOne(task.id)}
-                    className="flex items-center gap-3 p-3 border-b border-border last:border-b-0 hover:bg-surface-hover cursor-pointer transition-colors"
+                    className="flex items-center gap-4 p-4 border-b border-surface-border/30 last:border-b-0 hover:bg-primary/5 cursor-pointer transition-colors group"
                   >
                     <input
                       type="checkbox"
                       checked={selected.has(task.id)}
                       onChange={() => toggleOne(task.id)}
                       onClick={e => e.stopPropagation()}
-                      className="w-4 h-4 accent-primary"
+                      className="w-5 h-5 accent-primary rounded-lg border-surface-border bg-surface"
                     />
-                    <span className="flex-1 text-sm text-foreground">{task.title}</span>
+                    <span className="flex-1 text-xs font-medium text-muted-foreground group-hover:text-white transition-colors">{task.title}</span>
                     <select
                       value={scores[task.id] ?? 100}
                       onChange={e => { e.stopPropagation(); setScores(p => ({ ...p, [task.id]: +e.target.value })); }}
                       onClick={e => e.stopPropagation()}
-                      className="bg-surface border border-border rounded-md text-foreground text-xs p-1.5 min-w-16"
+                      className="bg-surface border border-surface-border rounded-xl text-white text-[10px] font-bold p-2 outline-none focus:border-primary/50 transition-all"
                     >
                       {[100, 90, 80, 70, 60, 50].map(v => (
                         <option key={v} value={v}>{v}%</option>
@@ -106,34 +106,43 @@ export function TaskModal({ open, tasks, onClose, onSubmit }: TaskModalProps) {
                 ))}
               </div>
 
-              <div className="space-y-3 p-3">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium text-foreground">Tempo Mínimo (min)</label>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Tempo Mín. (min)</label>
                   <input
                     type="number" value={minTime} min={0} max={60}
                     onChange={e => setMinTime(+e.target.value)}
-                    className="w-16 bg-transparent border border-border rounded-md text-foreground text-center p-1.5 text-sm"
+                    className="input-premium w-full text-center py-3 text-sm"
                   />
                 </div>
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium text-foreground">Tempo Máximo (min)</label>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Tempo Máx. (min)</label>
                   <input
                     type="number" value={maxTime} min={1} max={60}
                     onChange={e => setMaxTime(+e.target.value)}
-                    className="w-16 bg-transparent border border-border rounded-md text-foreground text-center p-1.5 text-sm"
+                    className="input-premium w-full text-center py-3 text-sm"
                   />
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <button onClick={() => handleSelectedTasks(false)} className="w-full py-3 bg-surface hover:bg-surface-hover border border-border rounded-lg font-semibold text-sm text-foreground transition-colors">
-                  Fazer Lições Selecionadas
+              <div className="grid gap-3 pt-4">
+                <button 
+                  onClick={() => handleSelectedTasks(false)} 
+                  className="btn-premium w-full py-4 text-xs flex items-center justify-center gap-2"
+                >
+                  EXECUTAR SELECIONADAS
                 </button>
-                <button onClick={() => handleSelectedTasks(true)} className="w-full py-3 bg-surface hover:bg-surface-hover border border-border rounded-lg font-semibold text-sm text-foreground transition-colors">
-                  Fazer Selecionadas como Rascunho
+                <button 
+                  onClick={() => handleSelectedTasks(true)} 
+                  className="w-full py-4 glass hover:bg-surface rounded-2xl border-surface-border font-black text-[10px] uppercase tracking-widest text-white transition-all"
+                >
+                  SALVAR COMO RASCUNHO
                 </button>
-                <button onClick={() => handleAllTasks(false)} className="w-full py-3 bg-surface hover:bg-surface-hover border border-border rounded-lg font-semibold text-sm text-foreground transition-colors">
-                  Fazer Todas as Lições
+                <button 
+                  onClick={() => handleAllTasks(false)} 
+                  className="w-full py-4 bg-surface/50 hover:bg-surface rounded-2xl border border-surface-border font-black text-[10px] uppercase tracking-widest text-muted-foreground hover:text-white transition-all"
+                >
+                  EXECUTAR TUDO ({tasks.length})
                 </button>
               </div>
             </div>
