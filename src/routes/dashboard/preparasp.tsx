@@ -250,77 +250,89 @@ const ActivityRow = memo(({
     activity.status === "running" ? Loader2 : null;
 
   return (
-    <div className="card-brutal rounded-none bg-card overflow-hidden">
+    <div className="card-premium overflow-hidden border-surface-border/50 group">
       <button
         onClick={onToggle}
-        className="w-full flex items-center gap-4 p-4 hover:bg-surface-hover/50 transition-all text-left group"
+        className="w-full flex items-center gap-5 p-5 hover:bg-surface/50 transition-all text-left"
       >
-        <div className={`transition-transform duration-200 ${open ? "rotate-90" : ""}`}>
-          <ChevronRight size={16} className="text-primary" />
+        <div className={`transition-transform duration-300 ${open ? "rotate-90" : ""}`}>
+          <ChevronRight size={18} className="text-primary" />
         </div>
         <div
-          className="w-10 h-10 rounded-full flex items-center justify-center text-lg shrink-0 shadow-inner"
-          style={{ background: `${meta.color}22`, border: `1px solid ${meta.color}55` }}
+          className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shrink-0 shadow-inner relative overflow-hidden"
+          style={{ background: `${meta.color}15`, border: `1px solid ${meta.color}35` }}
         >
+          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
           {meta.emoji}
         </div>
-        <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-bold uppercase tracking-wide text-white group-hover:text-primary transition-colors">
+        <div className="flex-1 min-w-0 space-y-1">
+          <h3 className="text-base font-bold text-white tracking-tight group-hover:text-primary transition-colors">
             {activity.title}
           </h3>
-          <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
-            {meta.label} • {activity.questionIds.length} questões
+          <p className="text-[10px] font-black font-mono text-muted-foreground uppercase tracking-[0.2em] opacity-60">
+            {meta.label} • {activity.questionIds.length} QUESTÕES
           </p>
-          <div className="mt-2 h-1.5 rounded-full bg-surface-border overflow-hidden">
-            <div
-              className="h-full transition-all duration-500"
+          <div className="mt-3 h-1 rounded-full bg-surface border border-surface-border overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${pct}%` }}
+              className="h-full transition-all duration-700"
               style={{
-                width: `${pct}%`,
-                background: activity.status === "error" ? "var(--destructive)" : "var(--primary)",
-                boxShadow: activity.status !== "pending" ? "0 0 10px var(--primary)" : "none"
+                background: activity.status === "error" ? "var(--destructive)" : "var(--gradient-primary)",
+                boxShadow: activity.status !== "pending" ? "0 0 12px oklch(0.66 0.24 280 / 0.4)" : "none"
               }}
             />
           </div>
         </div>
       </button>
 
-      {open && (
-        <div className="border-t-2 border-border p-4 bg-surface/50 space-y-4 animate-in slide-in-from-top-2">
-          <div className="flex flex-wrap gap-2">
-            <span className="px-3 py-1 rounded-full text-[10px] font-bold font-mono uppercase bg-surface text-foreground border border-border">
-              {WEEKDAYS[activity.weekday].long}
-            </span>
-            {StatusIcon && (
-              <span className={`px-3 py-1 rounded-full text-[10px] font-bold font-mono uppercase flex items-center gap-1.5 ${
-                activity.status === "done" ? "bg-primary/10 text-primary border border-primary/20" :
-                activity.status === "error" ? "bg-destructive/10 text-destructive border border-destructive/20" :
-                "bg-accent/10 text-accent border border-accent/20"
-              }`}>
-                <StatusIcon size={12} className={activity.status === "running" ? "animate-spin" : ""} />
-                {activity.lastMessage || activity.status}
-              </span>
-            )}
-          </div>
-          <div className="flex gap-3">
-            <button
-              onClick={onSolve}
-              disabled={activity.status === "running"}
-              className="btn-blood flex-1 py-2 text-[11px] flex items-center justify-center gap-2"
-            >
-              {activity.status === "running" ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />}
-              RESOLVER
-            </button>
-            <button
-              onClick={onDelete}
-              className="px-4 py-2 rounded-none bg-surface border-2 border-border text-muted-foreground hover:bg-destructive/10 hover:border-destructive hover:text-destructive transition-all"
-            >
-              <Trash2 size={14} />
-            </button>
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {open && (
+          <motion.div 
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="border-t border-surface-border/50 bg-surface/30 backdrop-blur-sm overflow-hidden"
+          >
+            <div className="p-6 space-y-6">
+              <div className="flex flex-wrap gap-2">
+                <span className="px-3 py-1.5 rounded-xl text-[10px] font-black font-mono uppercase tracking-widest bg-surface text-foreground border border-surface-border">
+                  {WEEKDAYS[activity.weekday].long}
+                </span>
+                {StatusIcon && (
+                  <span className={`px-3 py-1.5 rounded-xl text-[10px] font-black font-mono uppercase tracking-widest flex items-center gap-2 ${
+                    activity.status === "done" ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" :
+                    activity.status === "error" ? "bg-red-500/10 text-red-400 border border-red-500/20" :
+                    "bg-primary/10 text-primary border border-primary/20"
+                  }`}>
+                    <StatusIcon size={12} className={activity.status === "running" ? "animate-spin" : ""} />
+                    {activity.lastMessage || activity.status}
+                  </span>
+                )}
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={onSolve}
+                  disabled={activity.status === "running"}
+                  className="btn-premium flex-1 py-3 text-xs flex items-center justify-center gap-3"
+                >
+                  {activity.status === "running" ? <Loader2 size={16} className="animate-spin" /> : <Play size={16} />}
+                  INICIAR RESOLUÇÃO
+                </button>
+                <button
+                  onClick={onDelete}
+                  className="p-3 glass hover:bg-red-500/10 rounded-xl border-surface-border text-red-400 transition-all hover:border-red-500/40"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
+});
 });
 
 // ─────────── modais ───────────
