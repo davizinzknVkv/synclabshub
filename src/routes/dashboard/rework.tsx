@@ -49,14 +49,14 @@ const TaskItemCard = memo(({
   const [expanded, setExpanded] = useState(false);
 
   const priorityColors = {
-    low: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-    medium: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
-    high: "bg-red-500/10 text-red-500 border-red-500/20"
+    low: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+    medium: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
+    high: "bg-red-500/10 text-red-400 border-red-500/20"
   };
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(date);
+    return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit' }).format(date);
   };
 
   return (
@@ -65,82 +65,77 @@ const TaskItemCard = memo(({
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.98 }}
-      className="card-brutal bg-surface p-0 overflow-hidden"
+      className="card-premium overflow-hidden border-surface-border/50 group"
     >
-      <div className="p-5">
-        <div className="flex justify-between items-start gap-4 mb-3">
+      <div className="p-6">
+        <div className="flex justify-between items-start gap-4 mb-4">
           <div className="flex-1 min-w-0">
             <h3 
               onClick={() => onViewDetails(task.id)}
-              className="text-sm font-bold text-white uppercase tracking-tight hover:text-primary cursor-pointer truncate"
+              className="text-base font-bold text-white tracking-tight hover:text-primary cursor-pointer truncate transition-colors"
             >
               {task.title}
             </h3>
-            <div className="flex flex-wrap gap-2 mt-2">
-              <span className={`px-2 py-0.5 rounded-none text-[9px] font-black uppercase border-2 ${priorityColors[task.priority]}`}>
-                PRIORIDADE {task.priority}
+            <div className="flex flex-wrap gap-2 mt-3">
+              <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase border ${priorityColors[task.priority]}`}>
+                {task.priority}
               </span>
-              <span className="px-2 py-0.5 rounded-none text-[9px] font-black uppercase bg-accent/10 text-accent border-2 border-accent/20">
+              <span className="px-2 py-0.5 rounded-lg text-[9px] font-black uppercase bg-accent/10 text-accent border border-accent/20">
                 {task.currentStatus.replace('_', ' ')}
               </span>
             </div>
           </div>
           <div className="shrink-0 flex items-center gap-2">
             {task.assignee.avatarUrl ? (
-              <img src={task.assignee.avatarUrl} alt={task.assignee.name} className="w-8 h-8 rounded-none border-2 border-foreground" />
+              <img src={task.assignee.avatarUrl} alt={task.assignee.name} className="w-10 h-10 rounded-full border border-surface-border shadow-glow-violet/20" />
             ) : (
-              <div className="w-8 h-8 bg-muted/20 border-2 border-foreground flex items-center justify-center">
-                <User size={14} className="text-muted-foreground" />
+              <div className="w-10 h-10 rounded-full bg-surface border border-surface-border flex items-center justify-center text-muted-foreground">
+                <User size={16} />
               </div>
             )}
           </div>
         </div>
 
-        <p className="text-xs text-muted-foreground line-clamp-2 mb-4 leading-relaxed italic">
-          "{task.description}"
+        <p className="text-sm text-muted-foreground line-clamp-2 mb-6 leading-relaxed">
+          {task.description}
         </p>
 
-        <div className="flex items-center justify-between text-[10px] font-mono font-bold text-muted-foreground border-t-2 border-border/50 pt-4">
+        <div className="flex items-center justify-between text-[11px] font-mono font-bold text-muted-foreground/60 border-t border-surface-border/30 pt-4">
           <div className="flex items-center gap-1.5">
-            <Calendar size={12} className="text-primary" />
-            {formatDate(task.dueDate)}
+            <Calendar size={14} className="text-primary" />
+            Vence {formatDate(task.dueDate)}
           </div>
           <div className="flex items-center gap-1.5">
-            <User size={12} className="text-primary" />
-            {task.assignee.name.toUpperCase()}
+            <User size={14} className="text-primary" />
+            {task.assignee.name}
           </div>
         </div>
       </div>
 
-      <div className="bg-muted/10 p-2 flex gap-2 border-t-2 border-border">
+      <div className="bg-surface/30 p-3 flex gap-2 border-t border-surface-border/50">
         <button 
           onClick={() => setExpanded(!expanded)}
-          className="flex-1 px-3 py-2 bg-surface border-2 border-foreground text-[10px] font-black uppercase flex items-center justify-center gap-2 hover:bg-white/5 transition-colors"
+          className="flex-1 px-3 py-2 bg-surface rounded-xl border border-surface-border text-[10px] font-bold uppercase flex items-center justify-center gap-2 hover:bg-surface-hover hover:border-primary/40 transition-all"
         >
           {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           MOTIVO
         </button>
-        <button 
-          onClick={() => onEdit(task.id)}
-          className="px-3 py-2 bg-surface border-2 border-foreground hover:text-primary transition-colors"
-          title="Editar"
-        >
-          <Edit2 size={14} />
-        </button>
-        <button 
-          onClick={() => onViewDetails(task.id)}
-          className="px-3 py-2 bg-surface border-2 border-foreground hover:text-primary transition-colors"
-          title="Visualizar"
-        >
-          <ExternalLink size={14} />
-        </button>
-        <button 
-          onClick={() => onComplete(task.id)}
-          className="px-3 py-2 bg-primary text-primary-foreground border-2 border-foreground font-black uppercase text-[10px] flex items-center gap-2 hover:translate-x-[-2px] hover:translate-y-[-2px] shadow-[2px_2px_0_0_var(--foreground)] active:translate-x-0 active:translate-y-0 active:shadow-none transition-all"
-        >
-          <CheckCircle2 size={14} />
-          CONCLUIR
-        </button>
+        <div className="flex gap-1">
+          <button 
+            onClick={() => onEdit(task.id)}
+            className="p-2 rounded-xl bg-surface border border-surface-border text-muted-foreground hover:text-primary hover:border-primary/40 transition-all"
+            title="Editar"
+          >
+            <Edit2 size={16} />
+          </button>
+          <button 
+            onClick={() => onComplete(task.id)}
+            className="px-4 py-2 btn-premium text-[10px] flex items-center gap-2"
+          >
+            <CheckCircle2 size={16} />
+            CONCLUIR
+          </button>
+        </div>
       </div>
 
       <AnimatePresence>
@@ -149,19 +144,19 @@ const TaskItemCard = memo(({
             initial={{ height: 0 }}
             animate={{ height: "auto" }}
             exit={{ height: 0 }}
-            className="overflow-hidden bg-primary/5"
+            className="overflow-hidden bg-primary/5 border-t border-surface-border/30"
           >
-            <div className="p-4 text-[11px] font-mono leading-relaxed border-t-2 border-border">
-              <div className="flex items-center gap-2 text-primary mb-2 font-black italic">
+            <div className="p-6 text-[12px] leading-relaxed">
+              <div className="flex items-center gap-2 text-primary mb-3 font-bold uppercase tracking-wider">
                 <AlertCircle size={14} />
-                REGISTRO DE RETRABALHO
+                Instruções de Ajuste
               </div>
-              <p className="text-foreground/80">
-                {task.reasonForRework || "Nenhum motivo específico detalhado pelo revisor."}
+              <p className="text-foreground/90 bg-background/50 p-4 rounded-xl border border-primary/10 italic">
+                "{task.reasonForRework || "Aguardando detalhamento..."}"
               </p>
-              <div className="mt-3 text-muted-foreground/60 flex items-center gap-2 uppercase tracking-tighter">
+              <div className="mt-4 text-[10px] text-muted-foreground/60 flex items-center gap-2 uppercase font-mono">
                 <History size={12} />
-                Status anterior: {task.originalStatus}
+                Histórico: {task.originalStatus} → {task.currentStatus}
               </div>
             </div>
           </motion.div>
