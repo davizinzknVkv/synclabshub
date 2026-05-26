@@ -30,6 +30,7 @@ import { Route as ApiCupiditysSplatRouteImport } from './routes/api/cupiditys.$'
 import { Route as ApiCatalystCompleteRouteImport } from './routes/api/catalyst.complete'
 import { Route as ApiAiGenerateRouteImport } from './routes/api/ai.generate'
 import { Route as ApiAdminVerifyRouteImport } from './routes/api/admin.verify'
+import { Route as ApiAdminSettingsRouteImport } from './routes/api/admin.settings'
 import { Route as ApiAdminLogsRouteImport } from './routes/api/admin.logs'
 import { Route as ApiCatalystJobJobIdRouteImport } from './routes/api/catalyst.job.$jobId'
 
@@ -139,6 +140,11 @@ const ApiAdminVerifyRoute = ApiAdminVerifyRouteImport.update({
   path: '/api/admin/verify',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminSettingsRoute = ApiAdminSettingsRouteImport.update({
+  id: '/api/admin/settings',
+  path: '/api/admin/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAdminLogsRoute = ApiAdminLogsRouteImport.update({
   id: '/api/admin/logs',
   path: '/api/admin/logs',
@@ -165,6 +171,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/tarefas': typeof DashboardTarefasRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/api/admin/logs': typeof ApiAdminLogsRoute
+  '/api/admin/settings': typeof ApiAdminSettingsRoute
   '/api/admin/verify': typeof ApiAdminVerifyRoute
   '/api/ai/generate': typeof ApiAiGenerateRoute
   '/api/catalyst/complete': typeof ApiCatalystCompleteRoute
@@ -189,6 +196,7 @@ export interface FileRoutesByTo {
   '/dashboard/tarefas': typeof DashboardTarefasRoute
   '/dashboard': typeof DashboardIndexRoute
   '/api/admin/logs': typeof ApiAdminLogsRoute
+  '/api/admin/settings': typeof ApiAdminSettingsRoute
   '/api/admin/verify': typeof ApiAdminVerifyRoute
   '/api/ai/generate': typeof ApiAiGenerateRoute
   '/api/catalyst/complete': typeof ApiCatalystCompleteRoute
@@ -215,6 +223,7 @@ export interface FileRoutesById {
   '/dashboard/tarefas': typeof DashboardTarefasRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/api/admin/logs': typeof ApiAdminLogsRoute
+  '/api/admin/settings': typeof ApiAdminSettingsRoute
   '/api/admin/verify': typeof ApiAdminVerifyRoute
   '/api/ai/generate': typeof ApiAiGenerateRoute
   '/api/catalyst/complete': typeof ApiCatalystCompleteRoute
@@ -242,6 +251,7 @@ export interface FileRouteTypes {
     | '/dashboard/tarefas'
     | '/dashboard/'
     | '/api/admin/logs'
+    | '/api/admin/settings'
     | '/api/admin/verify'
     | '/api/ai/generate'
     | '/api/catalyst/complete'
@@ -266,6 +276,7 @@ export interface FileRouteTypes {
     | '/dashboard/tarefas'
     | '/dashboard'
     | '/api/admin/logs'
+    | '/api/admin/settings'
     | '/api/admin/verify'
     | '/api/ai/generate'
     | '/api/catalyst/complete'
@@ -291,6 +302,7 @@ export interface FileRouteTypes {
     | '/dashboard/tarefas'
     | '/dashboard/'
     | '/api/admin/logs'
+    | '/api/admin/settings'
     | '/api/admin/verify'
     | '/api/ai/generate'
     | '/api/catalyst/complete'
@@ -307,6 +319,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRouteWithChildren
   ApiPdfProxyRoute: typeof ApiPdfProxyRoute
   ApiAdminLogsRoute: typeof ApiAdminLogsRoute
+  ApiAdminSettingsRoute: typeof ApiAdminSettingsRoute
   ApiAdminVerifyRoute: typeof ApiAdminVerifyRoute
   ApiAiGenerateRoute: typeof ApiAiGenerateRoute
   ApiCatalystCompleteRoute: typeof ApiCatalystCompleteRoute
@@ -467,6 +480,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminVerifyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/settings': {
+      id: '/api/admin/settings'
+      path: '/api/admin/settings'
+      fullPath: '/api/admin/settings'
+      preLoaderRoute: typeof ApiAdminSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/logs': {
       id: '/api/admin/logs'
       path: '/api/admin/logs'
@@ -519,6 +539,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRouteWithChildren,
   ApiPdfProxyRoute: ApiPdfProxyRoute,
   ApiAdminLogsRoute: ApiAdminLogsRoute,
+  ApiAdminSettingsRoute: ApiAdminSettingsRoute,
   ApiAdminVerifyRoute: ApiAdminVerifyRoute,
   ApiAiGenerateRoute: ApiAiGenerateRoute,
   ApiCatalystCompleteRoute: ApiCatalystCompleteRoute,
