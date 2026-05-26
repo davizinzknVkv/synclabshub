@@ -37,7 +37,7 @@ export const Route = createFileRoute("/api/admin/settings")({
           maintenance_mode?: boolean;
           scripts_enabled?: boolean;
         };
-        const update: Record<string, boolean> = {};
+        const update: { maintenance_mode?: boolean; scripts_enabled?: boolean } = {};
         if (typeof body.maintenance_mode === "boolean")
           update.maintenance_mode = body.maintenance_mode;
         if (typeof body.scripts_enabled === "boolean")
