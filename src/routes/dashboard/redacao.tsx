@@ -93,48 +93,53 @@ function RedacaoPage() {
   const draftCount = redacoes.filter((r) => r.status === "draft").length;
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
-      <p className="text-sm text-muted-foreground">
-        Home / <span className="text-foreground">Redação Paulista</span>
-      </p>
+    <div className="p-6 md:p-10 max-w-6xl mx-auto space-y-10 min-h-screen bg-aurora">
+      <nav className="flex items-center gap-2 text-[10px] text-muted-foreground font-mono uppercase tracking-[0.2em]">
+        <span className="opacity-50">Home</span>
+        <span className="opacity-30">/</span>
+        <span className="text-primary font-bold">Redação Paulista</span>
+      </nav>
 
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center">
-          <PenTool size={20} className="text-primary" />
+      <div className="flex items-center gap-4">
+        <div className="w-16 h-16 rounded-2xl bg-gradient-hero p-0.5 shadow-glow-violet rotate-[-2deg]">
+          <div className="w-full h-full rounded-2xl bg-background flex items-center justify-center">
+            <PenTool size={32} className="text-primary" />
+          </div>
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Redação Paulista</h1>
-          <p className="text-sm text-muted-foreground">Gere e envie redações automaticamente com IA</p>
+          <h1 className="text-3xl font-black text-white tracking-tighter uppercase italic">Redação Paulista</h1>
+          <p className="text-xs text-muted-foreground font-mono tracking-widest uppercase opacity-80">Escrita Criativa com Inteligência Artificial</p>
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-4 p-4 glass rounded-2xl border-surface-border">
         <button
           onClick={handleFetch}
           disabled={loading}
-          className="px-5 py-2.5 rounded-lg text-sm font-semibold border border-primary bg-primary/10 text-primary hover:bg-primary/20 transition-colors flex items-center gap-2"
+          className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all border ${
+            fetched 
+              ? "border-surface-border bg-surface text-white" 
+              : "border-primary bg-primary/20 text-primary shadow-glow-violet"
+          }`}
         >
           {loading ? (
-            <>
-              <Loader2 size={16} className="animate-spin" />
-              Buscando...
-            </>
+            <span className="flex items-center gap-2">
+              <Loader2 size={14} className="animate-spin" />
+              Sincronizando...
+            </span>
           ) : (
-            <>
-              <FileText size={16} />
-              Buscar Redações
-            </>
+            "Listar Propostas"
           )}
         </button>
 
         {fetched && redacoes.length > 0 && (
-          <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            <span className="px-2 py-1 rounded bg-primary/10 text-primary font-medium">
-              {pendingCount} pendente{pendingCount !== 1 ? "s" : ""}
+          <div className="flex items-center gap-3 ml-2">
+            <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest border border-primary/20">
+              {pendingCount} Pendentes
             </span>
             {draftCount > 0 && (
-              <span className="px-2 py-1 rounded bg-yellow-500/10 text-yellow-400 font-medium">
-                {draftCount} rascunho{draftCount !== 1 ? "s" : ""}
+              <span className="px-3 py-1 rounded-full bg-yellow-500/10 text-yellow-400 text-[10px] font-black uppercase tracking-widest border border-yellow-500/20">
+                {draftCount} Rascunhos
               </span>
             )}
           </div>
