@@ -335,35 +335,35 @@ function ReworkPage() {
 
       <div className="relative z-10">
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[1, 2, 3].map(i => (
-              <div key={i} className="card-brutal h-64 bg-surface animate-pulse border-dashed" />
+              <div key={i} className="glass h-72 rounded-2xl border-dashed border-surface-border animate-pulse" />
             ))}
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="flex flex-col items-center gap-4">
-                <Loader2 className="animate-spin text-primary" size={40} />
-                <span className="text-xs font-mono font-bold uppercase tracking-widest">Sincronizando tarefas...</span>
+              <div className="flex flex-col items-center gap-5">
+                <Loader2 className="animate-spin text-primary" size={48} />
+                <span className="text-sm font-black uppercase tracking-[0.4em] text-gradient">Sincronizando banco...</span>
               </div>
             </div>
           </div>
         ) : error ? (
-          <div className="card-brutal bg-destructive/10 p-12 text-center border-destructive">
-            <AlertCircle size={48} className="text-destructive mx-auto mb-4" />
-            <h2 className="text-lg font-bold text-white mb-2 uppercase italic">ERRO NO CARREGAMENTO</h2>
-            <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-6">{error}</p>
+          <div className="glass-strong p-16 text-center border-red-500/20 rounded-3xl">
+            <AlertCircle size={64} className="text-red-500 mx-auto mb-6 opacity-80" />
+            <h2 className="text-2xl font-black text-white mb-3 uppercase italic tracking-tighter">Erro de Comunicação</h2>
+            <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-8 leading-relaxed">{error}</p>
             <button 
               onClick={() => window.location.reload()}
-              className="px-8 py-3 bg-destructive text-white font-black uppercase tracking-widest border-2 border-foreground shadow-[4px_4px_0_0_var(--foreground)]"
+              className="btn-premium px-10 py-4"
             >
               TENTAR NOVAMENTE
             </button>
           </div>
         ) : filteredAndSortedTasks.length === 0 ? (
-          <div className="card-brutal bg-primary/5 p-16 text-center border-dashed border-primary/20">
-            <CheckCircle2 size={48} className="text-primary/40 mx-auto mb-4" />
-            <h2 className="text-xl font-black text-white mb-2 uppercase">MISSÃO CUMPRIDA</h2>
-            <p className="text-sm text-muted-foreground font-mono tracking-tight uppercase">
-              {search ? "Nenhuma tarefa corresponde à sua busca." : "Nenhuma tarefa de retrabalho encontrada no momento."}
+          <div className="glass p-20 text-center border-dashed border-primary/20 rounded-3xl">
+            <CheckCircle2 size={64} className="text-primary/40 mx-auto mb-6" />
+            <h2 className="text-2xl font-black text-white mb-3 uppercase tracking-tighter">Fila Vazia</h2>
+            <p className="text-sm text-muted-foreground font-mono tracking-widest uppercase">
+              {search ? "Nenhuma tarefa corresponde à busca." : "Otimização concluída. Nenhum retrabalho pendente."}
             </p>
           </div>
         ) : (
