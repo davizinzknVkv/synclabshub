@@ -218,43 +218,63 @@ function DashboardHome() {
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-              {SCRIPTS.map((script, i) => (
-                <motion.div
-                  key={script.name}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 + i * 0.04 }}
-                >
-                  <Link
-                    to={script.url}
-                    className="card-premium group block p-5"
-                  >
-                    <div className="relative flex items-start gap-4">
-                      <div className="relative">
-                        <div className="absolute inset-0 rounded-xl blur-xl opacity-60 group-hover:opacity-100 transition-opacity"
-                          style={{ background: "var(--gradient-primary)" }} />
-                        <div className="relative w-12 h-12 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center">
-                          <img src={script.icon} alt="" className="w-7 h-7 object-contain" loading="lazy" width={28} height={28} />
-                        </div>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="text-sm font-bold text-white tracking-tight">{script.name}</h3>
-                          {script.badge && (
-                            <span className="text-[9px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded text-accent-foreground"
-                              style={{ background: script.badge === "AI" ? "var(--gradient-primary)" : "oklch(0.66 0.26 22)" }}>
-                              {script.badge}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs text-muted-foreground">{script.desc}</p>
-                      </div>
-                      <ArrowUpRight size={15} className="text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+            <div className="relative">
+              {settings?.maintenance_mode && (
+                <div className="absolute inset-0 z-20 flex items-center justify-center p-8 glass-strong rounded-3xl border border-red-500/30">
+                  <div className="text-center space-y-4 max-w-md">
+                    <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto text-red-500 animate-pulse">
+                      <ShieldAlert size={32} />
                     </div>
-                  </Link>
-                </motion.div>
-              ))}
+                    <h3 className="text-xl font-black text-white uppercase tracking-tighter italic">Sistema em Manutenção</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">Estamos otimizando nossos servidores para oferecer uma experiência superior. Voltaremos em instantes.</p>
+                  </div>
+                </div>
+              )}
+
+              <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 transition-all duration-500 ${settings?.maintenance_mode ? 'blur-md grayscale opacity-40 pointer-events-none' : ''}`}>
+                {SCRIPTS.map((script, i) => {
+                  const isDisabled = settings?.scripts_enabled === false;
+                  
+                  return (
+                    <motion.div
+                      key={script.name}
+                      initial={{ opacity: 0, y: 16 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 + i * 0.04 }}
+                    >
+                      <Link
+                        to={isDisabled ? "#" : script.url}
+                        onClick={(e) => isDisabled && e.preventDefault()}
+                        className={`card-premium group block p-5 ${isDisabled ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
+                      >
+                        <div className="relative flex items-start gap-4">
+                          <div className="relative">
+                            <div className="absolute inset-0 rounded-xl blur-xl opacity-60 group-hover:opacity-100 transition-opacity"
+                              style={{ background: isDisabled ? "oklch(0.62 0.03 270)" : "var(--gradient-primary)" }} />
+                            <div className="relative w-12 h-12 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center">
+                              <img src={script.icon} alt="" className={`w-7 h-7 object-contain ${isDisabled ? 'grayscale' : ''}`} loading="lazy" width={28} height={28} />
+                            </div>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="text-sm font-bold text-white tracking-tight">{script.name}</h3>
+                              {script.badge && (
+                                <span className="text-[9px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded text-accent-foreground"
+                                  style={{ background: script.badge === "AI" ? "var(--gradient-primary)" : "oklch(0.66 0.26 22)" }}>
+                                  {script.badge}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs text-muted-foreground">{isDisabled ? "Script temporariamente desligado" : script.desc}</p>
+                          </div>
+                          {!isDisabled && <ArrowUpRight size={15} className="text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />}
+                          {isDisabled && <ZapOff size={14} className="text-muted-foreground" />}
+                        </div>
+                      </Link>
+                    </motion.div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
