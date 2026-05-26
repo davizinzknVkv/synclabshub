@@ -89,6 +89,8 @@ function DashboardHome() {
   const [loading, setLoading] = useState(true);
   const [settings, setSettings] = useState<{ maintenance_mode: boolean; scripts_enabled: boolean } | null>(null);
   const [pendOpen, setPendOpen] = useState(false);
+
+  useEffect(() => {
     supabase.from("site_settings").select("*").single().then(({ data }) => {
       if (data) setSettings(data as any);
     });
