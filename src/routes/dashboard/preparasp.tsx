@@ -117,18 +117,18 @@ function PreparaSpPage() {
       </header>
 
       <div className="relative z-10">
-        <div className="flex flex-wrap items-center gap-2 p-1 bg-surface/50 border-2 border-border backdrop-blur-md">
+        <div className="flex flex-wrap items-center gap-2 p-2 glass rounded-2xl border-surface-border/50 backdrop-blur-xl">
           <button
             onClick={() => setShowAllDays(true)}
-            className={`px-4 py-2 text-xs font-black uppercase tracking-widest transition-all ${
+            className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-[0.2em] transition-all ${
               showAllDays 
-              ? "bg-primary text-primary-foreground" 
+              ? "bg-primary text-primary-foreground shadow-glow-violet" 
               : "text-muted-foreground hover:text-white hover:bg-white/5"
             }`}
           >
             TUDO
           </button>
-          <div className="h-4 w-px bg-border mx-1" />
+          <div className="h-4 w-px bg-surface-border mx-2" />
           {WEEKDAYS.map((d, i) => {
             const sel = !showAllDays && filterDay === i;
             const count = activities.filter((a) => a.weekday === i).length;
@@ -136,13 +136,13 @@ function PreparaSpPage() {
               <button
                 key={i}
                 onClick={() => { setShowAllDays(false); setFilterDay(i); }}
-                className={`px-4 py-2 text-xs font-bold uppercase transition-all ${
+                className={`px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${
                   sel 
-                  ? "bg-primary/20 text-primary border-b-2 border-primary" 
+                  ? "bg-primary/20 text-primary border border-primary/30" 
                   : "text-muted-foreground hover:text-white"
                 }`}
               >
-                {d.short} {count > 0 && <span className="text-[10px] ml-1 opacity-50">({count})</span>}
+                {d.short} {count > 0 && <span className="text-[10px] ml-1 opacity-60 font-mono">({count})</span>}
               </button>
             );
           })}
@@ -151,17 +151,17 @@ function PreparaSpPage() {
 
       <div className="relative z-10 space-y-4">
         {visible.length === 0 ? (
-          <div className="card-brutal bg-surface/30 p-12 text-center">
-            <div className="w-16 h-16 bg-muted/20 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-dashed border-border">
-              <Plus size={24} className="text-muted-foreground" />
+          <div className="glass p-20 text-center rounded-3xl border-dashed border-surface-border/40">
+            <div className="w-20 h-20 bg-surface border border-surface-border rounded-2xl flex items-center justify-center mx-auto mb-6 text-muted-foreground/30">
+              <Plus size={32} />
             </div>
-            <h2 className="text-lg font-bold text-white mb-2 uppercase">Nenhuma tarefa encontrada</h2>
-            <p className="text-sm text-muted-foreground max-w-xs mx-auto mb-6">
-              Adicione uma nova atividade para começar a resolver automaticamente.
+            <h2 className="text-xl font-black text-white mb-3 uppercase tracking-tight">Nenhuma Atividade</h2>
+            <p className="text-sm text-muted-foreground max-w-xs mx-auto mb-8 leading-relaxed font-medium">
+              Sua agenda está limpa. Adicione novas atividades do Prepara SP para começar.
             </p>
             <button
               onClick={() => setAdding(true)}
-              className="btn-blood px-8 py-3"
+              className="btn-premium px-10 py-4"
             >
               CRIAR PRIMEIRA TAREFA
             </button>
@@ -187,16 +187,23 @@ function PreparaSpPage() {
       </div>
 
       {activities.length > 0 && (
-        <div className="relative z-10 p-6 bg-surface border-2 border-border shadow-[4px_4px_0_0_var(--border)]">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-black uppercase tracking-widest text-muted-foreground">Status do Sistema</span>
-            <span className="text-xs font-mono font-bold text-primary">{totalDone}/{activities.length} COMPLETADO</span>
+        <div className="relative z-10 p-8 glass rounded-3xl border-surface-border/50 overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-accent/5 pointer-events-none" />
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground">Progresso Global do Sistema</span>
+            <span className="text-xs font-mono font-black text-primary bg-primary/10 px-3 py-1 rounded-full border border-primary/20 shadow-glow-violet/20">
+              {totalDone}/{activities.length} FINALIZADAS
+            </span>
           </div>
-          <div className="h-4 bg-background border-2 border-border p-0.5">
-            <div 
-              className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-1000 shadow-[0_0_15px_rgba(235,255,0,0.3)]"
-              style={{ width: `${progress}%` }}
-            />
+          <div className="h-2.5 bg-surface border border-surface-border rounded-full p-0.5 overflow-hidden">
+            <motion.div 
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 1.5, ease: "easeOut" }}
+              className="h-full bg-gradient-primary rounded-full shadow-glow-violet relative"
+            >
+              <div className="absolute inset-0 bg-white/20 animate-pulse" />
+            </motion.div>
           </div>
         </div>
       )}
