@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import {
   CheckCircle2, Calendar, TrendingUp, Heart, ArrowUpRight,
-  Activity, Zap, Sparkles, Bell, Search, Plus,
+  Activity, Zap, Sparkles, Bell, Search, Plus, ShieldAlert, ZapOff
 } from "lucide-react";
 import { getSession } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
