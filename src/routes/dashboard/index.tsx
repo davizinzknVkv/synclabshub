@@ -6,6 +6,7 @@ import {
   Activity, Zap, Sparkles, Bell, Search, Plus,
 } from "lucide-react";
 import { getSession } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
 import { fetchDashboardStats } from "@/lib/api";
 import type { DashboardStats } from "@/lib/api";
 import iconTarefa from "@/assets/icons/tarefa-sp.png";
