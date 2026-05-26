@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { createClient } from "@supabase/supabase-js";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -23,23 +23,8 @@ export const Route = createFileRoute("/api/status/$endpoint")({
             message?: string;
           };
 
-          const SUPABASE_URL = process.env.SUPABASE_URL;
-          const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY;
-
-          if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
-            console.error("Missing Supabase env vars for status logging");
-            return Response.json(
-              { ok: true, warning: "DB not configured" },
-              { status: 200, headers: corsHeaders },
-            );
-          }
-
-          const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-            auth: { persistSession: false, autoRefreshToken: false },
-          });
-
           if (params.endpoint === "task-status" && body.ra) {
-            const { error } = await supabase.from("task_status_logs").insert({
+            const { error } = await supabaseAdmin.from("task_status_logs").insert({
               ra: body.ra,
               task_count: body.taskCount ?? 0,
               task_type: body.taskType ?? "unknown",
