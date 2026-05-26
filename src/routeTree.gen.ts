@@ -30,6 +30,7 @@ import { Route as ApiCupiditysSplatRouteImport } from './routes/api/cupiditys.$'
 import { Route as ApiCatalystCompleteRouteImport } from './routes/api/catalyst.complete'
 import { Route as ApiAiGenerateRouteImport } from './routes/api/ai.generate'
 import { Route as ApiAdminVerifyRouteImport } from './routes/api/admin.verify'
+import { Route as ApiAdminLogsRouteImport } from './routes/api/admin.logs'
 import { Route as ApiCatalystJobJobIdRouteImport } from './routes/api/catalyst.job.$jobId'
 
 const DashboardRoute = DashboardRouteImport.update({
@@ -138,6 +139,11 @@ const ApiAdminVerifyRoute = ApiAdminVerifyRouteImport.update({
   path: '/api/admin/verify',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminLogsRoute = ApiAdminLogsRouteImport.update({
+  id: '/api/admin/logs',
+  path: '/api/admin/logs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiCatalystJobJobIdRoute = ApiCatalystJobJobIdRouteImport.update({
   id: '/api/catalyst/job/$jobId',
   path: '/api/catalyst/job/$jobId',
@@ -158,6 +164,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/status': typeof DashboardStatusRoute
   '/dashboard/tarefas': typeof DashboardTarefasRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/api/admin/logs': typeof ApiAdminLogsRoute
   '/api/admin/verify': typeof ApiAdminVerifyRoute
   '/api/ai/generate': typeof ApiAiGenerateRoute
   '/api/catalyst/complete': typeof ApiCatalystCompleteRoute
@@ -181,6 +188,7 @@ export interface FileRoutesByTo {
   '/dashboard/status': typeof DashboardStatusRoute
   '/dashboard/tarefas': typeof DashboardTarefasRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/api/admin/logs': typeof ApiAdminLogsRoute
   '/api/admin/verify': typeof ApiAdminVerifyRoute
   '/api/ai/generate': typeof ApiAiGenerateRoute
   '/api/catalyst/complete': typeof ApiCatalystCompleteRoute
@@ -206,6 +214,7 @@ export interface FileRoutesById {
   '/dashboard/status': typeof DashboardStatusRoute
   '/dashboard/tarefas': typeof DashboardTarefasRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/api/admin/logs': typeof ApiAdminLogsRoute
   '/api/admin/verify': typeof ApiAdminVerifyRoute
   '/api/ai/generate': typeof ApiAiGenerateRoute
   '/api/catalyst/complete': typeof ApiCatalystCompleteRoute
@@ -232,6 +241,7 @@ export interface FileRouteTypes {
     | '/dashboard/status'
     | '/dashboard/tarefas'
     | '/dashboard/'
+    | '/api/admin/logs'
     | '/api/admin/verify'
     | '/api/ai/generate'
     | '/api/catalyst/complete'
@@ -255,6 +265,7 @@ export interface FileRouteTypes {
     | '/dashboard/status'
     | '/dashboard/tarefas'
     | '/dashboard'
+    | '/api/admin/logs'
     | '/api/admin/verify'
     | '/api/ai/generate'
     | '/api/catalyst/complete'
@@ -279,6 +290,7 @@ export interface FileRouteTypes {
     | '/dashboard/status'
     | '/dashboard/tarefas'
     | '/dashboard/'
+    | '/api/admin/logs'
     | '/api/admin/verify'
     | '/api/ai/generate'
     | '/api/catalyst/complete'
@@ -294,6 +306,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRouteWithChildren
   ApiPdfProxyRoute: typeof ApiPdfProxyRoute
+  ApiAdminLogsRoute: typeof ApiAdminLogsRoute
   ApiAdminVerifyRoute: typeof ApiAdminVerifyRoute
   ApiAiGenerateRoute: typeof ApiAiGenerateRoute
   ApiCatalystCompleteRoute: typeof ApiCatalystCompleteRoute
@@ -454,6 +467,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminVerifyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/logs': {
+      id: '/api/admin/logs'
+      path: '/api/admin/logs'
+      fullPath: '/api/admin/logs'
+      preLoaderRoute: typeof ApiAdminLogsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/catalyst/job/$jobId': {
       id: '/api/catalyst/job/$jobId'
       path: '/api/catalyst/job/$jobId'
@@ -498,6 +518,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRouteWithChildren,
   ApiPdfProxyRoute: ApiPdfProxyRoute,
+  ApiAdminLogsRoute: ApiAdminLogsRoute,
   ApiAdminVerifyRoute: ApiAdminVerifyRoute,
   ApiAiGenerateRoute: ApiAiGenerateRoute,
   ApiCatalystCompleteRoute: ApiCatalystCompleteRoute,
