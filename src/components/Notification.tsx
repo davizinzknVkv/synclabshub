@@ -29,23 +29,25 @@ export function NotificationContainer() {
   }, [addNotification]);
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-80">
+    <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3 max-w-sm">
       <AnimatePresence>
         {notifications.map((n) => (
           <motion.div
             key={n.id}
-            initial={{ x: 320, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: 320, opacity: 0 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="bg-card border border-border rounded-lg p-3 shadow-lg"
+            initial={{ x: 380, opacity: 0, scale: 0.9 }}
+            animate={{ x: 0, opacity: 1, scale: 1 }}
+            exit={{ x: 380, opacity: 0, scale: 0.9 }}
+            transition={{ type: "spring", damping: 20, stiffness: 200 }}
+            className="glass-strong border-surface-border p-4 shadow-elevated rounded-2xl relative overflow-hidden"
           >
-            <p className="text-sm font-medium text-card-foreground">{n.message}</p>
-            <div className="mt-2 h-1 rounded-full overflow-hidden bg-muted">
+            <div className="flex items-center gap-3">
+              <div className="w-1.5 h-1.5 rounded-full bg-primary shadow-glow-violet animate-pulse shrink-0" />
+              <p className="text-[11px] font-black uppercase tracking-widest text-white leading-tight">{n.message}</p>
+            </div>
+            <div className="mt-3 h-1 rounded-full overflow-hidden bg-surface/50 border border-surface-border/20">
               <div
-                className="h-full rounded-full"
+                className="h-full rounded-full bg-gradient-primary"
                 style={{
-                  background: "linear-gradient(90deg, var(--primary), oklch(0.65 0.25 15))",
                   animation: "progress-shrink 5s linear forwards",
                 }}
               />
