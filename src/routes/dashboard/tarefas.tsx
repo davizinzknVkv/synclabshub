@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useCallback, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { CheckSquare, Filter } from "lucide-react";
+import { CheckSquare, Filter, Loader2, ChevronRight } from "lucide-react";
 import { getSession } from "@/lib/auth";
 import { fetchTasksWithToken, sendTasksToCatalyst } from "@/lib/api";
 import type { TaskItem } from "@/lib/api";
