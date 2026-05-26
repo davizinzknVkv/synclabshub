@@ -80,12 +80,15 @@ function StatusDashboard() {
     }
   };
 
-  const updateSetting = async (field: keyof SiteSettings, value: boolean) => {
+  const updateSetting = async (field: 'maintenance_mode' | 'scripts_enabled', value: boolean) => {
     if (!settings || updating) return;
     setUpdating(true);
+    const updatePayload: Record<string, boolean> = {};
+    updatePayload[field] = value;
+    
     const { error } = await supabase
       .from("site_settings")
-      .update({ [field]: value })
+      .update(updatePayload as any)
       .eq("id", settings.id);
 
     if (!error) {
