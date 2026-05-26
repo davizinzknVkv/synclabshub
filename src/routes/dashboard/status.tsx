@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { Activity, RefreshCw, CheckCircle, XCircle, Clock, Lock, ShieldAlert, ZapOff, Zap } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { notify, NotificationContainer } from "@/components/Notification";
 
 export const Route = createFileRoute("/dashboard/status")({
@@ -11,8 +10,7 @@ export const Route = createFileRoute("/dashboard/status")({
   }),
 });
 
-const ADMIN_STORAGE_KEY = "sync_labs_admin_auth";
-const ADMIN_PASSWORD = "SyncLab#Status2026!";
+const ADMIN_TOKEN_KEY = "sync_labs_admin_token";
 
 interface StatusLog {
   id: string;
@@ -31,7 +29,9 @@ interface SiteSettings {
 }
 
 function StatusDashboard() {
-  const [authenticated, setAuthenticated] = useState(false);
+  const [token, setToken] = useState<string | null>(() =>
+    typeof window !== "undefined" ? sessionStorage.getItem(ADMIN_TOKEN_KEY) : null,
+  );
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [logs, setLogs] = useState<StatusLog[]>([]);
@@ -39,65 +39,84 @@ function StatusDashboard() {
   const [settings, setSettings] = useState<SiteSettings | null>(null);
   const [updating, setUpdating] = useState(false);
 
-  useEffect(() => {
-    const saved = sessionStorage.getItem(ADMIN_STORAGE_KEY);
-    if (saved === "true") setAuthenticated(true);
-  }, []);
+  const authenticated = !!token;
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      setAuthenticated(true);
-      sessionStorage.setItem(ADMIN_STORAGE_KEY, "true");
-      setError("");
-    } else {
-      setError("Senha incorreta");
+    setError("");
+    try {
+      const res = await fetch("/api/admin/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+      const data = (await res.json()) as { token?: string; error?: string };
+      if (!res.ok || !data.token) {
+        setError(data.error || "Senha incorreta");
+        return;
+      }
+      sessionStorage.setItem(ADMIN_TOKEN_KEY, data.token);
+      setToken(data.token);
+      setPassword("");
+    } catch {
+      setError("Erro de conexão");
     }
+  };
+
+  const authHeader = (): HeadersInit =>
+    token ? { Authorization: `Bearer ${token}` } : {};
+
+  const handleUnauthorized = () => {
+    sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+    setToken(null);
   };
 
   const fetchLogs = async () => {
+    if (!token) return;
     setLoading(true);
-    const { data, error } = await supabase
-      .from("task_status_logs")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(100);
-
-    if (!error && data) {
-      setLogs(data as StatusLog[]);
+    try {
+      const res = await fetch("/api/admin/logs", { headers: authHeader() });
+      if (res.status === 401) return handleUnauthorized();
+      const data = (await res.json()) as { logs?: StatusLog[] };
+      setLogs(data.logs ?? []);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const fetchSettings = async () => {
-    const { data, error } = await supabase
-      .from("site_settings")
-      .select("*")
-      .single();
-
-    if (!error && data) {
-      setSettings(data as SiteSettings);
-    }
+    const res = await fetch("/api/admin/settings");
+    const data = (await res.json()) as { settings?: SiteSettings };
+    if (data.settings) setSettings(data.settings);
   };
 
-  const updateSetting = async (field: 'maintenance_mode' | 'scripts_enabled', value: boolean) => {
-    if (!settings || updating) return;
+  const updateSetting = async (
+    field: "maintenance_mode" | "scripts_enabled",
+    value: boolean,
+  ) => {
+    if (!settings || updating || !token) return;
     setUpdating(true);
-    const updatePayload: Record<string, boolean> = {};
-    updatePayload[field] = value;
-    
-    const { error } = await supabase
-      .from("site_settings")
-      .update(updatePayload as any)
-      .eq("id", settings.id);
-
-    if (!error) {
-      setSettings({ ...settings, [field]: value });
-      notify(`${field.replace('_', ' ').toUpperCase()} ATUALIZADO`);
-    } else {
-      notify("ERRO AO ATUALIZAR CONFIGURAÇÃO");
+    try {
+      const res = await fetch("/api/admin/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", ...authHeader() },
+        body: JSON.stringify({ [field]: value }),
+      });
+      if (res.status === 401) {
+        handleUnauthorized();
+        notify("SESSÃO EXPIRADA");
+        return;
+      }
+      const data = (await res.json()) as { settings?: SiteSettings; error?: string };
+      if (!res.ok || !data.settings) {
+        notify("ERRO AO ATUALIZAR CONFIGURAÇÃO");
+        return;
+      }
+      setSettings(data.settings);
+      notify(`${field.replace("_", " ").toUpperCase()} ATUALIZADO`);
+    } finally {
+      setUpdating(false);
     }
-    setUpdating(false);
   };
 
   useEffect(() => {
@@ -105,6 +124,7 @@ function StatusDashboard() {
       fetchLogs();
       fetchSettings();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authenticated]);
 
   if (!authenticated) {

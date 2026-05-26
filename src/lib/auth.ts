@@ -44,22 +44,46 @@ export function clearSession() {
   localStorage.removeItem(STORAGE_KEY);
 }
 
-// Save/load login credentials (RA + password)
+// Save/load login identifier fields ONLY (never the password).
+// Storing plaintext passwords in localStorage exposes them to XSS / browser
+// extensions / compromised dependencies, so the password is intentionally
+// omitted from persisted credentials.
 export interface SavedCreds {
   raNumero: string;
   raDigito: string;
   raUf: string;
-  pwd: string;
 }
 
 export function saveCreds(creds: SavedCreds) {
-  localStorage.setItem(CREDS_KEY, JSON.stringify(creds));
+  const safe: SavedCreds = {
+    raNumero: creds.raNumero,
+    raDigito: creds.raDigito,
+    raUf: creds.raUf,
+  };
+  localStorage.setItem(CREDS_KEY, JSON.stringify(safe));
 }
 
 export function loadCreds(): SavedCreds | null {
   try {
     const raw = localStorage.getItem(CREDS_KEY);
-    if (raw) return JSON.parse(raw);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<SavedCreds> & { pwd?: string };
+    // Migration: strip any password that an older client may have stored.
+    if (parsed && "pwd" in parsed) {
+      const cleaned: SavedCreds = {
+        raNumero: parsed.raNumero ?? "",
+        raDigito: parsed.raDigito ?? "",
+        raUf: parsed.raUf ?? "SP",
+      };
+      localStorage.setItem(CREDS_KEY, JSON.stringify(cleaned));
+      return cleaned;
+    }
+    if (!parsed?.raNumero) return null;
+    return {
+      raNumero: parsed.raNumero,
+      raDigito: parsed.raDigito ?? "",
+      raUf: parsed.raUf ?? "SP",
+    };
   } catch {}
   return null;
 }
