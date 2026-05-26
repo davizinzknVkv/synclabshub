@@ -9,6 +9,8 @@ import { getSession } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchDashboardStats } from "@/lib/api";
 import type { DashboardStats } from "@/lib/api";
+import { PendenciasModal } from "@/components/PendenciasModal";
+import { WelcomePopup } from "@/components/WelcomePopup";
 import iconTarefa from "@/assets/icons/tarefa-sp.png";
 import iconRedacao from "@/assets/icons/redacao.png";
 import iconLeiaSp from "@/assets/icons/leia-sp.png";
