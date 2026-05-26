@@ -277,39 +277,41 @@ function ReworkPage() {
   }, [tasks, search, sortBy, sortOrder]);
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-8 relative min-h-[80vh]">
-      <div className="fixed inset-0 bg-obsidian-grid pointer-events-none opacity-40" />
+    <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-8 relative min-h-screen bg-aurora overflow-hidden">
+      <div className="fixed inset-0 bg-grid-dots pointer-events-none opacity-40" />
       <NotificationContainer />
 
-      <header className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
+      <header className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 relative z-10">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 bg-accent flex items-center justify-center border-4 border-foreground shadow-[4px_4px_0_0_var(--foreground)] rotate-[3deg]">
-            <RefreshCcw size={28} className="text-white" />
+          <div className="w-16 h-16 rounded-2xl bg-gradient-hero p-0.5 shadow-glow-violet rotate-[4deg]">
+            <div className="w-full h-full rounded-2xl bg-background flex items-center justify-center">
+              <RefreshCcw size={32} className="text-primary" />
+            </div>
           </div>
           <div>
-            <h1 className="text-3xl font-black text-white tracking-tighter uppercase italic leading-none">
+            <h1 className="text-4xl font-black text-white tracking-tighter uppercase italic leading-none">
               REWORK_HUB
             </h1>
-            <p className="text-xs text-accent font-mono font-bold tracking-[0.2em] uppercase mt-1">
-              {loading ? "FETCHING_DATA..." : `${filteredAndSortedTasks.length} TAREFAS PENDENTES`}
+            <p className="text-xs text-primary font-mono font-bold tracking-[0.2em] uppercase mt-2 opacity-80">
+              {loading ? "Sincronizando banco de dados..." : `${filteredAndSortedTasks.length} TAREFAS AGUARDANDO AJUSTE`}
             </p>
           </div>
         </div>
 
-        <div className="relative w-full md:w-80 group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" size={18} />
+        <div className="relative w-full md:w-96 group">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" size={20} />
           <input 
             type="text"
-            placeholder="BUSCAR TAREFA OU NOME..."
+            placeholder="BUSCAR POR TÍTULO OU NOME..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="input-obsidian w-full pl-12 pr-4 py-3 text-sm focus:ring-0 placeholder:text-muted-foreground/40"
+            className="input-premium w-full pl-12 pr-4 py-3.5 text-sm placeholder:text-muted-foreground/40"
           />
         </div>
       </header>
 
-      <div className="flex flex-wrap items-center gap-3 relative z-10 bg-surface/50 p-2 border-2 border-border backdrop-blur-sm">
-        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-2">ORDENAR POR:</span>
+      <div className="flex flex-wrap items-center gap-3 relative z-10 glass p-3 rounded-2xl border-surface-border/50">
+        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground px-3">ORDENAR_FILTRAR</span>
         {[
           { id: "dueDate", label: "DATA", icon: Calendar },
           { id: "priority", label: "PRIORIDADE", icon: AlertCircle },
@@ -318,15 +320,15 @@ function ReworkPage() {
           <button
             key={btn.id}
             onClick={() => toggleSort(btn.id as any)}
-            className={`px-3 py-1.5 text-[10px] font-bold uppercase flex items-center gap-2 transition-all border-2 ${
+            className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all rounded-xl border ${
               sortBy === btn.id 
-              ? "bg-primary/20 text-primary border-primary shadow-[2px_2px_0_0_var(--primary)]" 
-              : "text-muted-foreground hover:text-white border-transparent"
+              ? "bg-primary/20 text-primary border-primary shadow-glow-violet/30" 
+              : "text-muted-foreground hover:text-white border-transparent hover:bg-white/5"
             }`}
           >
             <btn.icon size={12} />
             {btn.label}
-            {sortBy === btn.id && <ArrowUpDown size={10} className={sortOrder === "desc" ? "rotate-180" : ""} />}
+            {sortBy === btn.id && <ArrowUpDown size={12} className={`transition-transform duration-300 ${sortOrder === "desc" ? "rotate-180" : ""}`} />}
           </button>
         ))}
       </div>
