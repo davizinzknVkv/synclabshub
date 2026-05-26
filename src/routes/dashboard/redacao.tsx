@@ -149,13 +149,18 @@ function RedacaoPage() {
       {/* Processing overlay */}
       {processing && (
         <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-card border border-primary/30 rounded-xl p-6 flex flex-col items-center gap-3"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="glass-strong rounded-3xl p-10 flex flex-col items-center justify-center gap-6 border-primary/30"
         >
-          <Loader2 size={32} className="animate-spin text-primary" />
-          <p className="text-foreground font-semibold">{processMsg}</p>
-          <p className="text-sm text-muted-foreground">Não feche esta página</p>
+          <div className="relative">
+            <Loader2 size={48} className="animate-spin text-primary" />
+            <div className="absolute inset-0 blur-xl bg-primary/20 animate-pulse" />
+          </div>
+          <div className="text-center space-y-2">
+            <p className="text-xl font-black text-white uppercase tracking-tighter">{processMsg}</p>
+            <p className="text-xs text-muted-foreground font-mono tracking-widest uppercase opacity-60">A inteligência artificial está redigindo seu texto</p>
+          </div>
         </motion.div>
       )}
 
