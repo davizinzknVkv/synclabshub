@@ -28,7 +28,7 @@ function Index() {
   const [raNumero, setRaNumero] = useState(saved?.raNumero || "");
   const [raDigito, setRaDigito] = useState(saved?.raDigito || "");
   const [raUf, setRaUf] = useState(saved?.raUf || "SP");
-  const [pwd, setPwd] = useState(saved?.pwd || "");
+  const [pwd, setPwd] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [loading, setLoading] = useState(false);
 
