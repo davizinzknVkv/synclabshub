@@ -134,28 +134,30 @@ function RevisaoLinguagensPage() {
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-8 relative min-h-screen">
-      <div className="fixed inset-0 bg-obsidian-grid pointer-events-none opacity-40" />
+    <div className="p-6 md:p-10 max-w-5xl mx-auto space-y-10 min-h-screen bg-aurora relative overflow-hidden">
+      <div className="fixed inset-0 bg-grid-dots pointer-events-none opacity-20" />
       <NotificationContainer />
 
-      <header className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 bg-primary flex items-center justify-center border-4 border-foreground shadow-[4px_4px_0_0_var(--foreground)] rotate-[-3deg]">
-            <BookOpen size={28} className="text-primary-foreground" />
+      <header className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 relative z-10">
+        <div className="flex items-center gap-5">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-hero p-0.5 shadow-glow-violet rotate-[-3deg]">
+            <div className="w-full h-full rounded-2xl bg-background flex items-center justify-center">
+              <BookOpen size={32} className="text-primary" />
+            </div>
           </div>
           <div>
-            <h1 className="text-3xl font-black text-white tracking-tighter uppercase italic leading-none">
-              REVISÃO_LINGUAGENS
+            <h1 className="text-4xl font-black text-white tracking-tighter uppercase italic leading-none">
+              REVISÃO_HUB
             </h1>
-            <p className="text-xs text-primary font-mono font-bold tracking-[0.2em] uppercase mt-1">
-              9º ANO — PROVA PAULISTA
+            <p className="text-xs text-primary font-mono font-bold tracking-[0.3em] uppercase mt-2 opacity-80">
+              9º ANO — LINGUAGENS • PROVA PAULISTA
             </p>
           </div>
         </div>
         {!isSubmitted && (
-          <div className="flex items-center gap-3 bg-surface p-3 border-2 border-border shadow-[4px_4px_0_0_var(--border)]">
-            <Clock size={16} className="text-primary" />
-            <span className="text-xs font-mono font-bold text-white uppercase">Em andamento</span>
+          <div className="flex items-center gap-3 glass px-5 py-3 rounded-2xl border-surface-border/50">
+            <Clock size={16} className="text-primary animate-pulse" />
+            <span className="text-[10px] font-black font-mono text-white uppercase tracking-widest">Avaliação em Curso</span>
           </div>
         )}
       </header>
