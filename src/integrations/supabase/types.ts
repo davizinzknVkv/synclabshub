@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      site_settings: {
+        Row: {
+          id: string
+          maintenance_mode: boolean
+          scripts_enabled: boolean
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          maintenance_mode?: boolean
+          scripts_enabled?: boolean
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          maintenance_mode?: boolean
+          scripts_enabled?: boolean
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       task_status_logs: {
         Row: {
           created_at: string
