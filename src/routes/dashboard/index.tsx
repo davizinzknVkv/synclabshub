@@ -169,9 +169,12 @@ function DashboardHome() {
           {/* Stats grid */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {statCards.map((stat, i) => {
-              const Wrapper: any = stat.isLink ? "a" : "div";
+              const isPend = stat.label === "Pendências";
+              const Wrapper: any = stat.isLink ? "a" : isPend ? "button" : "div";
               const wrapperProps = stat.isLink
                 ? { href: stat.isLink, target: "_blank", rel: "noopener noreferrer" }
+                : isPend
+                ? { onClick: () => setPendOpen(true), type: "button" }
                 : {};
               return (
                 <motion.div
@@ -180,7 +183,8 @@ function DashboardHome() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
                 >
-                  <Wrapper {...wrapperProps} className="card-premium block p-4 sm:p-5 cursor-pointer">
+                  <Wrapper {...wrapperProps} className="card-premium block p-4 sm:p-5 cursor-pointer text-left w-full">
+
                     <div className={`absolute inset-0 bg-gradient-to-br ${stat.tint} opacity-60 pointer-events-none`} />
                     <div className="relative">
                       <div className="flex items-start justify-between mb-4">
