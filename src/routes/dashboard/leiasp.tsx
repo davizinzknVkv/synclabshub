@@ -209,37 +209,43 @@ function LeiaSPPage() {
   );
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
-      <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-widest">
-        Home / <span className="text-foreground">Leia SP</span>
-      </p>
+    <div className="p-6 md:p-10 max-w-6xl mx-auto space-y-10 min-h-screen bg-aurora">
+      <nav className="flex items-center gap-2 text-[10px] text-muted-foreground font-mono uppercase tracking-[0.2em]">
+        <span className="opacity-50">Home</span>
+        <span className="opacity-30">/</span>
+        <span className="text-primary font-bold">Leia SP</span>
+      </nav>
 
-      <div className="flex items-center gap-3">
-        <div className="w-8 h-8 bg-blood-muted border border-primary/20 rounded-sm flex items-center justify-center">
-          <BookOpen size={16} className="text-primary" />
+      <div className="flex items-center gap-4">
+        <div className="w-16 h-16 rounded-2xl bg-gradient-hero p-0.5 shadow-glow-violet rotate-[2deg]">
+          <div className="w-full h-full rounded-2xl bg-background flex items-center justify-center">
+            <BookOpen size={32} className="text-primary" />
+          </div>
         </div>
         <div>
-          <h1 className="text-sm font-bold text-white font-mono uppercase tracking-[0.15em]">
-            Leia SP — Elefante
-          </h1>
-          <p className="text-[9px] text-muted-foreground font-mono">Leitura automática em background</p>
+          <h1 className="text-3xl font-black text-white tracking-tighter uppercase italic">Leia SP</h1>
+          <p className="text-xs text-muted-foreground font-mono tracking-widest uppercase opacity-80">Plataforma Elefante • Leitura Automatizada</p>
         </div>
       </div>
 
       {/* Actions */}
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-4 p-4 glass rounded-2xl border-surface-border">
         <button
           onClick={handleFetch}
           disabled={loading || processing}
-          className="px-3 py-2 rounded-sm text-[10px] font-mono font-medium uppercase tracking-wider border border-primary bg-blood-muted text-primary hover:bg-primary/15 transition-colors"
+          className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all border ${
+            fetched 
+              ? "border-surface-border bg-surface text-white" 
+              : "border-primary bg-primary/20 text-primary shadow-glow-violet"
+          }`}
         >
           {loading ? (
             <span className="flex items-center gap-2">
-              <Loader2 size={12} className="animate-spin" />
-              Conectando...
+              <Loader2 size={14} className="animate-spin" />
+              Sincronizando...
             </span>
           ) : (
-            "Buscar Livros"
+            "Conectar Elefante"
           )}
         </button>
 
@@ -247,26 +253,26 @@ function LeiaSPPage() {
           <>
             <button
               onClick={selectAll}
-              className="px-3 py-2 rounded-sm text-[10px] font-mono font-medium uppercase tracking-wider border border-glass-border bg-card text-muted-foreground hover:text-foreground transition-colors"
+              className="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all border border-surface-border bg-surface text-muted-foreground hover:text-white"
             >
               {selected.size === books.filter((b) => b.reading_percent < 100).length
-                ? "Desmarcar"
-                : "Selecionar Incompletos"}
+                ? "Limpar Seleção"
+                : "Selecionar Pendentes"}
             </button>
             <button
               onClick={handleStartReading}
               disabled={processing || selected.size === 0}
-              className="ml-auto px-3 py-2 rounded-sm text-[10px] font-mono font-semibold uppercase tracking-wider border border-primary bg-primary/20 text-primary hover:bg-primary/30 transition-colors flex items-center gap-2 disabled:opacity-50"
+              className="ml-auto btn-premium px-8 py-2.5 text-xs flex items-center gap-2 disabled:opacity-50"
             >
               {processing ? (
                 <span className="flex items-center gap-2">
-                  <Loader2 size={12} className="animate-spin" />
+                  <Loader2 size={14} className="animate-spin" />
                   Processando...
                 </span>
               ) : (
                 <>
-                  <Play size={12} />
-                  Ler ({selected.size})
+                  <Play size={16} />
+                  Iniciar Leitura ({selected.size})
                 </>
               )}
             </button>
