@@ -71,7 +71,7 @@ function Index() {
       });
       const roomData = roomRes.ok ? await roomRes.json() : { rooms: [] };
 
-      saveCreds({ raNumero, raDigito, raUf, pwd });
+      saveCreds({ raNumero, raDigito, raUf });
 
       setSession({
         ra: fullRa,
