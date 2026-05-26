@@ -24,12 +24,20 @@ interface StatusLog {
   created_at: string;
 }
 
+interface SiteSettings {
+  id: string;
+  maintenance_mode: boolean;
+  scripts_enabled: boolean;
+}
+
 function StatusDashboard() {
   const [authenticated, setAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [logs, setLogs] = useState<StatusLog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [settings, setSettings] = useState<SiteSettings | null>(null);
+  const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
     const saved = sessionStorage.getItem(ADMIN_STORAGE_KEY);
