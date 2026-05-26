@@ -253,17 +253,19 @@ function RedacaoPage() {
 
       {/* Redações list */}
       {!fetched ? (
-        <div className="text-center py-20 text-muted-foreground">
-          <PenTool size={48} className="mx-auto mb-4 opacity-30" />
-          <p className="text-lg">Clique em "Buscar Redações" para encontrar suas redações</p>
+        <div className="flex flex-col items-center justify-center py-32 space-y-6 glass rounded-3xl border-dashed border-surface-border/30">
+          <div className="w-20 h-20 rounded-2xl bg-surface border border-surface-border flex items-center justify-center text-muted-foreground/30">
+            <PenTool size={48} />
+          </div>
+          <p className="text-xs font-mono uppercase tracking-[0.4em] text-muted-foreground">Listar propostas pendentes para começar</p>
         </div>
       ) : redacoes.length === 0 ? (
-        <div className="text-center py-20 text-muted-foreground">
-          <CheckCircle size={48} className="mx-auto mb-4 opacity-30" />
-          <p className="text-lg">Nenhuma redação encontrada</p>
+        <div className="flex flex-col items-center justify-center py-32 space-y-4 glass rounded-3xl border-dashed border-surface-border/30">
+          <CheckCircle size={48} className="text-emerald-500/30 mb-2" />
+          <p className="text-xs font-mono uppercase tracking-[0.3em] text-muted-foreground">Todas as redações foram concluídas</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {redacoes
             .sort((a, b) => (a.status === "pending" && b.status === "draft" ? -1 : a.status === "draft" && b.status === "pending" ? 1 : 0))
             .map((redacao, i) => (
@@ -273,52 +275,58 @@ function RedacaoPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.04 }}
                 onClick={() => !processing && !preview && setSelectedId(redacao.id)}
-                className={`bg-card border rounded-xl p-4 cursor-pointer transition-all flex items-center gap-4 ${
+                className={`card-premium group cursor-pointer transition-all duration-300 ${
                   selectedId === redacao.id
-                    ? "border-primary bg-primary/5"
-                    : "border-border hover:border-primary/30"
+                    ? "border-primary bg-primary/5 shadow-glow-violet/20"
+                    : "border-surface-border/50"
                 }`}
               >
-                <div
-                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
-                    selectedId === redacao.id
-                      ? "border-primary bg-primary"
-                      : "border-muted-foreground"
-                  }`}
-                >
-                  {selectedId === redacao.id && (
-                    <div className="w-2 h-2 rounded-full bg-background" />
-                  )}
+                <div className="p-5 flex items-center gap-4">
+                  <div
+                    className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center shrink-0 transition-all ${
+                      selectedId === redacao.id
+                        ? "border-primary bg-primary shadow-glow-violet"
+                        : "border-surface-border bg-surface"
+                    }`}
+                  >
+                    {selectedId === redacao.id && (
+                      <div className="w-2 h-2 rounded-full bg-white" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-white group-hover:text-primary transition-colors truncate">
+                      {redacao.title}
+                    </p>
+                    <p className="text-[10px] font-black font-mono text-muted-foreground uppercase tracking-widest mt-1 opacity-60">
+                      {redacao.room_name_for_apply || "TEMA GERAL"}
+                    </p>
+                  </div>
+                  <span
+                    className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-lg border ${
+                      redacao.status === "pending"
+                        ? "bg-primary/10 text-primary border-primary/20"
+                        : "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
+                    }`}
+                  >
+                    {redacao.status === "pending" ? "Pendente" : "Rascunho"}
+                  </span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-foreground truncate">
-                    {redacao.title}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {redacao.room_name_for_apply || "—"}
-                  </p>
-                </div>
-                <span
-                  className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded whitespace-nowrap ${
-                    redacao.status === "pending"
-                      ? "bg-primary/20 text-primary"
-                      : "bg-yellow-500/20 text-yellow-400"
-                  }`}
-                >
-                  {redacao.status === "pending" ? "Pendente" : "Rascunho"}
-                </span>
               </motion.div>
             ))}
 
           {/* Action button */}
           {selectedId && !processing && !preview && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }} 
+              animate={{ opacity: 1, y: 0 }}
+              className="md:col-span-2 pt-4"
+            >
               <button
                 onClick={handleGenerate}
-                className="w-full py-3 rounded-xl text-sm font-bold border border-primary bg-primary/10 text-primary hover:bg-primary/20 transition-colors flex items-center justify-center gap-2"
+                className="w-full btn-premium py-4 text-sm flex items-center justify-center gap-3"
               >
-                <PenTool size={16} />
-                Fazer Redação Selecionada
+                <PenTool size={18} />
+                INICIAR REDAÇÃO SELECIONADA
               </button>
             </motion.div>
           )}
