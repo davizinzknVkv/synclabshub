@@ -286,6 +286,9 @@ function DashboardHome() {
           </div>
         </div>
       </div>
+
+      <PendenciasModal open={pendOpen} onClose={() => setPendOpen(false)} counts={{ tarefas: stats?.pendencias ?? 0 }} />
+      <WelcomePopup />
     </div>
   );
 }
