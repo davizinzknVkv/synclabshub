@@ -169,87 +169,90 @@ function RevisaoLinguagensPage() {
           className="relative z-10 space-y-8"
         >
           {/* Dashboard de Resultados */}
-          <div className="card-brutal bg-surface p-8 text-center space-y-6">
-            <div className="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mx-auto border-4 border-primary">
-              <Award size={40} className="text-primary" />
+          <div className="glass-strong p-10 md:p-16 text-center space-y-8 rounded-3xl border-surface-border/50 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-primary/10 to-transparent pointer-events-none" />
+            <div className="w-24 h-24 bg-surface border-2 border-primary rounded-3xl flex items-center justify-center mx-auto shadow-glow-violet rotate-[-6deg]">
+              <Award size={48} className="text-primary" />
             </div>
-            <div>
-              <h2 className="text-4xl font-black text-white uppercase italic">Sua Pontuação: {percent}%</h2>
-              <p className="text-muted-foreground font-mono mt-2">Você acertou {score} de {LANGUAGES_9TH_GRADE_QUESTIONS.length} questões.</p>
+            <div className="space-y-2">
+              <h2 className="text-5xl font-black text-white uppercase italic tracking-tighter">Score: {percent}%</h2>
+              <p className="text-sm text-muted-foreground font-mono uppercase tracking-[0.2em] opacity-70">Desempenho Validado no Sistema</p>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="p-4 bg-background border-2 border-border">
-                <BarChart3 size={20} className="text-primary mx-auto mb-2" />
-                <div className="text-xl font-bold text-white">{score}</div>
-                <div className="text-[10px] text-muted-foreground uppercase font-black">Acertos</div>
-              </div>
-              <div className="p-4 bg-background border-2 border-border">
-                <XCircle size={20} className="text-destructive mx-auto mb-2" />
-                <div className="text-xl font-bold text-white">{LANGUAGES_9TH_GRADE_QUESTIONS.length - score}</div>
-                <div className="text-[10px] text-muted-foreground uppercase font-black">Erros</div>
-              </div>
-              <div className="p-4 bg-background border-2 border-border">
-                <Clock size={20} className="text-accent mx-auto mb-2" />
-                <div className="text-xl font-bold text-white">{Math.round((Date.now() - startTime) / 60000)} min</div>
-                <div className="text-[10px] text-muted-foreground uppercase font-black">Tempo</div>
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
+              {[
+                { icon: BarChart3, label: "Acertos", value: score, color: "text-emerald-400" },
+                { icon: XCircle, label: "Erros", value: LANGUAGES_9TH_GRADE_QUESTIONS.length - score, color: "text-red-400" },
+                { icon: Clock, label: "Tempo", value: `${Math.round((Date.now() - startTime) / 60000)} min`, color: "text-accent" },
+              ].map((item, i) => (
+                <div key={i} className="glass p-6 rounded-2xl border-surface-border/40 space-y-2">
+                  <item.icon size={20} className={`${item.color} mx-auto mb-1`} />
+                  <div className="text-2xl font-black text-white">{item.value}</div>
+                  <div className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">{item.label}</div>
+                </div>
+              ))}
             </div>
 
             <button 
               onClick={resetQuiz}
-              className="btn-blood px-8 py-3 w-full sm:w-auto"
+              className="btn-premium px-12 py-4 w-full sm:w-auto text-xs"
             >
-              TENTAR NOVAMENTE
+              REINICIAR AVALIAÇÃO
             </button>
           </div>
 
           {/* Revisão Detalhada */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-black text-white uppercase tracking-widest italic flex items-center gap-3">
+          <div className="space-y-6">
+            <div className="flex items-center gap-4 px-2">
               <RotateCcw size={20} className="text-primary" />
-              Revisão de Respostas
-            </h3>
-            {LANGUAGES_9TH_GRADE_QUESTIONS.map((q, idx) => {
-              const userAnswer = answers[q.id];
-              const isCorrect = userAnswer === q.correctAnswer;
-              return (
-                <div key={q.id} className={`card-brutal bg-surface p-6 border-l-8 ${isCorrect ? 'border-l-primary' : 'border-l-destructive'}`}>
-                  <div className="flex justify-between items-start mb-4">
-                    <span className="text-[10px] font-black text-primary font-mono uppercase">Questão {idx + 1}</span>
-                    {isCorrect ? (
-                      <span className="flex items-center gap-1.5 text-primary text-[10px] font-black uppercase">
-                        <CheckCircle2 size={12} /> Correto
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-1.5 text-destructive text-[10px] font-black uppercase">
-                        <XCircle size={12} /> Incorreto
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-white text-sm font-bold mb-4">{q.text}</p>
-                  
-                  <div className="space-y-2 mb-4">
-                    <div className={`p-3 text-xs rounded-sm border-2 ${isCorrect ? 'bg-primary/10 border-primary/20 text-white' : 'bg-destructive/10 border-destructive/20 text-white'}`}>
-                      Sua resposta: <span className="font-bold italic">{q.options[userAnswer]}</span>
+              <h3 className="text-xl font-black text-white uppercase tracking-tighter italic">Revisão Analítica de Questões</h3>
+            </div>
+            <div className="grid gap-6">
+              {LANGUAGES_9TH_GRADE_QUESTIONS.map((q, idx) => {
+                const userAnswer = answers[q.id];
+                const isCorrect = userAnswer === q.correctAnswer;
+                return (
+                  <div key={q.id} className={`card-premium p-8 border-l-4 ${isCorrect ? 'border-l-emerald-500/50' : 'border-l-red-500/50'}`}>
+                    <div className="flex justify-between items-start mb-6">
+                      <span className="text-[10px] font-black text-primary font-mono uppercase tracking-[0.3em]">Questão #{idx + 1}</span>
+                      {isCorrect ? (
+                        <span className="flex items-center gap-2 text-emerald-400 text-[10px] font-black uppercase tracking-widest bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+                          <CheckCircle2 size={12} /> Sucesso
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-2 text-red-400 text-[10px] font-black uppercase tracking-widest bg-red-500/10 px-3 py-1 rounded-full border border-red-500/20">
+                          <XCircle size={12} /> Falha
+                        </span>
+                      )}
                     </div>
-                    {!isCorrect && (
-                      <div className="p-3 text-xs rounded-sm border-2 bg-primary/10 border-primary/20 text-white">
-                        Resposta correta: <span className="font-bold italic">{q.options[q.correctAnswer]}</span>
+                    <p className="text-white text-base font-bold mb-6 leading-relaxed">{q.text}</p>
+                    
+                    <div className="grid sm:grid-cols-2 gap-4 mb-8">
+                      <div className={`p-4 rounded-2xl border-2 ${isCorrect ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-400' : 'bg-red-500/5 border-red-500/20 text-red-400'}`}>
+                        <p className="text-[9px] font-black uppercase tracking-widest mb-1 opacity-70">Sua resposta</p>
+                        <p className="text-sm font-bold">{q.options[userAnswer]}</p>
                       </div>
-                    )}
-                  </div>
+                      {!isCorrect && (
+                        <div className="p-4 rounded-2xl border-2 bg-emerald-500/5 border-emerald-500/20 text-emerald-400">
+                          <p className="text-[9px] font-black uppercase tracking-widest mb-1 opacity-70">Gabarito Oficial</p>
+                          <p className="text-sm font-bold">{q.options[q.correctAnswer]}</p>
+                        </div>
+                      )}
+                    </div>
 
-                  <div className="bg-muted/10 p-4 border-2 border-border flex gap-3">
-                    <HelpCircle size={16} className="text-primary shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-[10px] font-black uppercase text-primary mb-1">Explicação Técnica:</p>
-                      <p className="text-[11px] text-muted-foreground italic font-mono">{q.explanation}</p>
+                    <div className="glass p-6 rounded-2xl border-primary/20 flex gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                        <HelpCircle size={20} className="text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-black uppercase text-primary mb-1 tracking-widest">Base de Conhecimento:</p>
+                        <p className="text-xs text-muted-foreground leading-relaxed italic">{q.explanation}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </motion.div>
       ) : (
