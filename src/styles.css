@@ -330,7 +330,17 @@ div[style*="Edit with Lovable"],
 /* Legacy class aliases — keep older pages rendering until they're refactored */
 .bg-blood-glow { background: radial-gradient(ellipse at center, oklch(0.66 0.24 280 / 0.25), transparent 60%); }
 .bg-obsidian-grid { background-image: radial-gradient(circle, oklch(0.65 0.2 280 / 0.1) 1px, transparent 1.5px); background-size: 24px 24px; }
-.btn-blood { @apply btn-premium; padding: 0.75rem 1rem; }
-.input-obsidian { @apply input-premium; padding: 0.65rem 0.75rem; }
-.text-acid { @apply text-gradient; }
-.card-brutal { @apply card-premium; }
+.btn-blood {
+  composes: btn-premium;
+  padding: 0.75rem 1rem;
+}
+.input-obsidian {
+  composes: input-premium;
+  padding: 0.65rem 0.75rem;
+}
+.text-acid {
+  composes: text-gradient;
+}
+.card-brutal {
+  composes: card-premium;
+}
