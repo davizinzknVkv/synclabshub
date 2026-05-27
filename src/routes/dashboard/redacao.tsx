@@ -225,13 +225,13 @@ function RedacaoPage() {
               </p>
 
               {/* Actions */}
-              <div className="flex items-center gap-3 pt-2">
+              <div className="flex flex-wrap items-center gap-3 pt-2">
                 <button
-                  onClick={handleSubmit}
-                  disabled={submitting || !editBody.trim()}
-                  className="flex-1 py-3 rounded-xl text-sm font-bold border border-green-500/50 bg-green-500/10 text-green-400 hover:bg-green-500/20 transition-colors flex items-center justify-center gap-2 disabled:opacity-40"
+                  onClick={() => handleSubmit("submitted")}
+                  disabled={!!submitting || !editBody.trim()}
+                  className="flex-1 min-w-[180px] py-3 rounded-xl text-sm font-bold border border-green-500/50 bg-green-500/10 text-green-400 hover:bg-green-500/20 transition-colors flex items-center justify-center gap-2 disabled:opacity-40"
                 >
-                  {submitting ? (
+                  {submitting === "submitted" ? (
                     <>
                       <Loader2 size={16} className="animate-spin" />
                       Enviando...
@@ -244,8 +244,25 @@ function RedacaoPage() {
                   )}
                 </button>
                 <button
+                  onClick={() => handleSubmit("draft")}
+                  disabled={!!submitting || !editBody.trim()}
+                  className="py-3 px-5 rounded-xl text-sm font-bold border border-yellow-500/50 bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500/20 transition-colors flex items-center gap-2 disabled:opacity-40"
+                >
+                  {submitting === "draft" ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" />
+                      Salvando...
+                    </>
+                  ) : (
+                    <>
+                      <FileText size={16} />
+                      Salvar Rascunho
+                    </>
+                  )}
+                </button>
+                <button
                   onClick={handleGenerate}
-                  disabled={submitting}
+                  disabled={!!submitting}
                   className="py-3 px-5 rounded-xl text-sm font-bold border border-border bg-card text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors flex items-center gap-2"
                 >
                   <RefreshCw size={16} />
