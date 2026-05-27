@@ -359,26 +359,16 @@ export async function submitRedacao(
 
   onNotify("ENVIANDO REDAÇÃO...");
   const roomParam = `room_name=${encodeURIComponent(redacao.room_name_for_apply)}`;
-
-  const answerIdParam = redacao.answer_id
-    ? `answer_id=${encodeURIComponent(redacao.answer_id)}&`
-    : "";
-  const submitUrls = [
-    `${API_BASE_URL}/tms/task/${redacao.id}/answer?${roomParam}`,
-    ...(redacao.answer_id
-      ? [`${API_BASE_URL}/tms/task/${redacao.id}/answer?${answerIdParam}${roomParam}`]
-      : []),
-  ];
+  const submitUrl = `${API_BASE_URL}/tms/task/${redacao.id}/answer?${roomParam}`;
 
   const requestBody = {
-    ...(redacao.answer_id ? { id: Number(redacao.answer_id) } : {}),
     status: "draft",
     accessed_on: "room",
     executed_on: redacao.room_name_for_apply,
     duration: Math.floor(Math.random() * (40 * 60 * 1000 - 30 * 60 * 1000 + 1)) + 30 * 60 * 1000,
     answers: {
       [questionId]: {
-        question_id: questionId,
+        question_id: isNaN(Number(questionId)) ? questionId : Number(questionId),
         question_type: questionType,
         answer: {
           title: finalTitle,
@@ -391,32 +381,11 @@ export async function submitRedacao(
   const submitHeaders = {
     accept: "application/json",
     "content-type": "application/json",
-    referer: "https://saladofuturo.educacao.sp.gov.br/",
     "x-api-key": authToken,
     "x-api-platform": "webclient",
     "x-api-realm": "edusp",
   };
 
-  // The API returns 404 for /answer/{answer_id}; keep the stable /answer path and vary method/query.
-  const methods = ["POST", "PUT", "PATCH"];
-  let lastError: Error | null = null;
-
-  for (const submitUrl of submitUrls) {
-    for (const method of methods) {
-      try {
-        onNotify(`ENVIANDO REDAÇÃO (${method})...`);
-        await makeRequest(submitUrl, method, submitHeaders, requestBody);
-        onNotify("REDAÇÃO CONCLUÍDA E ENVIADA!");
-        return;
-      } catch (err) {
-        lastError = err instanceof Error ? err : new Error(String(err));
-        if (isRetryableSubmitError(lastError)) {
-          continue;
-        }
-        throw lastError;
-      }
-    }
-  }
-
-  throw lastError ?? new Error("Todos os métodos HTTP falharam");
+  await makeRequest(submitUrl, "POST", submitHeaders, requestBody);
+  onNotify("REDAÇÃO CONCLUÍDA E ENVIADA!");
 }
