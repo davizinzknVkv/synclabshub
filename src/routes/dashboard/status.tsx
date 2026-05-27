@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { Activity, RefreshCw, CheckCircle, XCircle, Clock, Lock, ShieldAlert, ZapOff, Zap } from "lucide-react";
+import { Activity, RefreshCw, CheckCircle, XCircle, Clock, Lock, ShieldAlert, ZapOff, Zap, GraduationCap } from "lucide-react";
 import { notify, NotificationContainer } from "@/components/Notification";
 
 export const Route = createFileRoute("/dashboard/status")({
@@ -26,6 +26,7 @@ interface SiteSettings {
   id: string;
   maintenance_mode: boolean;
   scripts_enabled: boolean;
+  preparasp_enabled: boolean;
 }
 
 function StatusDashboard() {
@@ -91,7 +92,7 @@ function StatusDashboard() {
   };
 
   const updateSetting = async (
-    field: "maintenance_mode" | "scripts_enabled",
+    field: "maintenance_mode" | "scripts_enabled" | "preparasp_enabled",
     value: boolean,
   ) => {
     if (!settings || updating || !token) return;
@@ -215,6 +216,19 @@ function StatusDashboard() {
               >
                 {settings.scripts_enabled ? <Zap size={14} /> : <ZapOff size={14} />}
                 Scripts: {settings.scripts_enabled ? "Ativos" : "Desligados"}
+              </button>
+              <div className="w-px h-4 bg-surface-border mx-1" />
+              <button
+                onClick={() => updateSetting('preparasp_enabled', !settings.preparasp_enabled)}
+                disabled={updating}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
+                  !settings.preparasp_enabled
+                    ? "bg-amber-500/20 text-amber-400 border border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.2)]"
+                    : "bg-emerald-500/10 text-emerald-400"
+                }`}
+              >
+                <GraduationCap size={14} />
+                Prepara SP: {settings.preparasp_enabled ? "ON" : "OFF"}
               </button>
             </div>
           )}

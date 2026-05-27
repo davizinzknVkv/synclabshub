@@ -36,12 +36,15 @@ export const Route = createFileRoute("/api/admin/settings")({
         const body = (await request.json()) as {
           maintenance_mode?: boolean;
           scripts_enabled?: boolean;
+          preparasp_enabled?: boolean;
         };
-        const update: { maintenance_mode?: boolean; scripts_enabled?: boolean } = {};
+        const update: { maintenance_mode?: boolean; scripts_enabled?: boolean; preparasp_enabled?: boolean } = {};
         if (typeof body.maintenance_mode === "boolean")
           update.maintenance_mode = body.maintenance_mode;
         if (typeof body.scripts_enabled === "boolean")
           update.scripts_enabled = body.scripts_enabled;
+        if (typeof body.preparasp_enabled === "boolean")
+          update.preparasp_enabled = body.preparasp_enabled;
         if (Object.keys(update).length === 0) {
           return Response.json(
             { error: "Nada para atualizar" },

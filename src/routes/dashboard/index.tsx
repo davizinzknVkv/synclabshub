@@ -87,7 +87,7 @@ function DashboardHome() {
   const displayName = session?.nick || session?.ra || "Aluno";
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [settings, setSettings] = useState<{ maintenance_mode: boolean; scripts_enabled: boolean } | null>(null);
+  const [settings, setSettings] = useState<{ maintenance_mode: boolean; scripts_enabled: boolean; preparasp_enabled: boolean } | null>(null);
   const [pendOpen, setPendOpen] = useState(false);
 
   useEffect(() => {
@@ -240,7 +240,8 @@ function DashboardHome() {
 
               <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 transition-all duration-500 ${settings?.maintenance_mode ? 'blur-md grayscale opacity-40 pointer-events-none' : ''}`}>
                 {SCRIPTS.map((script, i) => {
-                  const isDisabled = settings?.scripts_enabled === false;
+                  const isPreparaOff = script.url === "/dashboard/preparasp" && settings?.preparasp_enabled === false;
+                  const isDisabled = settings?.scripts_enabled === false || isPreparaOff;
                   
                   return (
                     <motion.div
