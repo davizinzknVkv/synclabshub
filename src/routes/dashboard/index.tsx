@@ -87,7 +87,7 @@ function DashboardHome() {
   const displayName = session?.nick || session?.ra || "Aluno";
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [settings, setSettings] = useState<{ maintenance_mode: boolean; scripts_enabled: boolean } | null>(null);
+  const [settings, setSettings] = useState<{ maintenance_mode: boolean; scripts_enabled: boolean; preparasp_enabled: boolean } | null>(null);
   const [pendOpen, setPendOpen] = useState(false);
 
   useEffect(() => {
