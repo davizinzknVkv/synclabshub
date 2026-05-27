@@ -2,7 +2,7 @@ import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   Home, CheckSquare, PenTool, MessageCircle, Heart,
   ChevronLeft, ChevronRight, LogOut, Menu, X,
-  RefreshCcw, GraduationCap, BookOpen, Zap,
+  GraduationCap, Zap,
 } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,8 +13,6 @@ const NAV_ITEMS = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
   { title: "Tarefa SP", url: "/dashboard/tarefas", icon: CheckSquare },
   { title: "Prepara SP", url: "/dashboard/preparasp", icon: GraduationCap },
-  { title: "Revisão", url: "/dashboard/revisao-linguagens", icon: BookOpen },
-  { title: "Retrabalho", url: "/dashboard/rework", icon: RefreshCcw },
   { title: "Redação", url: "/dashboard/redacao", icon: PenTool },
 ];
 
