@@ -55,9 +55,6 @@ function isRedacao(task: { tags?: string[]; title?: string }) {
   );
 }
 
-function isRetryableSubmitError(error: Error) {
-  return ["HTTP 404:", "HTTP 405:", "HTTP 500:"].some((status) => error.message.includes(status));
-}
 
 export async function fetchRedacoes(
   authToken: string,
