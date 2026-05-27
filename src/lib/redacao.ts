@@ -201,31 +201,49 @@ function parseRedactionSections(rawHtml: string) {
 // ---- Lovable AI ----
 
 const promptsGeracao = [
-  `Olá! Poderia me ajudar a criar uma redação escolar baseada nas informações a seguir?
-Por favor, inclua:
-1. Um título para a redação
-2. O texto completo da redação
-3. Não adicione ** ou negrito no TÍTULO ou no TEXTO
-4. Não adicione nenhum emoji nem símbolos no texto
-5. Não use simbolos no texto! como "–" ou "—" ou qualquer outro e tambem não use 3 pontinhos "..."
-Formate assim:
-TITULO: [Título da redação]
-TEXTO: [Texto da redação]
-Informações: {dadosRedacao}
-Lembre-se: devolva APENAS o texto reescrito, sem quaisquer comentários ou explicações adicionais.`,
+  `Você é um professor de Língua Portuguesa especialista em redação do ENEM e do SARESP, com domínio absoluto da norma culta do português brasileiro. Sua tarefa é escrever uma redação dissertativo-argumentativa NOTA MÁXIMA (1000), perfeita em ortografia, sintaxe, semântica, coesão e coerência.
+
+INFORMAÇÕES DA PROPOSTA:
+{dadosRedacao}
+
+REGRAS ABSOLUTAS DE QUALIDADE (zero tolerância a erros):
+1. ORTOGRAFIA: siga rigorosamente o Acordo Ortográfico vigente. Revise acentuação (crase, agudo, circunflexo), hífen, ç, s/ss/x/ch, g/j. Não invente palavras.
+2. SINTAXE: respeite concordância verbal e nominal, regência verbal e nominal, colocação pronominal e paralelismo sintático. Frases bem pontuadas, sem períodos truncados nem orações soltas.
+3. SEMÂNTICA: use cada palavra no sentido correto. Não troque parônimos (ex: ratificar/retificar, tráfego/tráfico, eminente/iminente). Evite ambiguidades, redundâncias, pleonasmos viciosos e contradições.
+4. COESÃO: use conectivos variados e adequados (portanto, contudo, ademais, outrossim, por conseguinte, nesse sentido, dessa forma) sem repetir o mesmo conector.
+5. COERÊNCIA: argumentos encadeados logicamente, sem fugir ao tema nem contradizer dados.
+6. REPERTÓRIO: traga ao menos uma referência sociocultural legítima e pertinente (filósofo, lei, dado, obra, fato histórico) integrada ao argumento — nunca decorativa nem inventada.
+7. ESTRUTURA OBRIGATÓRIA (4 a 5 parágrafos):
+   - Introdução: contextualização + tese clara.
+   - 2 parágrafos de desenvolvimento: cada um com tópico frasal, argumentação e repertório.
+   - Conclusão: proposta de intervenção detalhada (agente, ação, meio, finalidade, detalhamento).
+8. EXTENSÃO: entre 25 e 30 linhas (aprox. 280 a 350 palavras). Nunca menos que 250 palavras.
+9. LINGUAGEM: norma culta, impessoal (3ª pessoa). Proibido: gírias, abreviações, 1ª pessoa, clichês ("desde os primórdios", "nos dias de hoje"), perguntas retóricas, exclamações.
+10. FORMATAÇÃO PROIBIDA: nada de **, negrito, itálico, emojis, hashtags, marcadores, listas, travessões "–" "—", reticências "...", aspas inglesas " ", parênteses explicativos longos. Use apenas vírgula, ponto, ponto e vírgula, dois-pontos e aspas simples se necessário.
+
+ANTES DE RESPONDER, revise mentalmente o texto completo procurando: erros de acentuação, concordância, regência, palavras trocadas, repetições, frases ambíguas. Corrija TUDO antes de entregar.
+
+FORMATO DE SAÍDA (exatamente assim, sem nenhum texto extra):
+TITULO: [título curto, nominal, sem ponto final, sem aspas]
+TEXTO: [redação completa em parágrafos separados por uma linha em branco]`,
 ];
 
 const promptsHumanizacao = [
-  `Olá! Reescreva o seguinte texto acadêmico de maneira mais natural, como se fosse escrito por um estudante.
-Regras:
-1. Mantenha o conteúdo e argumentos principais
-2. Adicione imperfeições naturais
-3. Use linguagem acessível
-4. Preserve a estrutura
-5. Use vocabulário simples de estudante
-6. Não use simbolos como "–" ou "—" ou "..."
-Texto: {textoRedacao}
-Lembre-se: devolva APENAS o texto reescrito, sem quaisquer comentários ou explicações adicionais.`,
+  `Você é um estudante brasileiro de ensino médio bem preparado, reescrevendo a própria redação para soar mais natural — SEM introduzir nenhum erro.
+
+REGRAS ABSOLUTAS:
+1. Mantenha 100% dos argumentos, tese, repertório e proposta de intervenção.
+2. Mantenha a estrutura em parágrafos e a extensão (não encurte).
+3. Continue em norma culta e 3ª pessoa. NÃO use 1ª pessoa, gírias nem coloquialismos.
+4. NÃO introduza erros: a ortografia, a acentuação, a concordância, a regência e a pontuação devem permanecer impecáveis.
+5. Apenas suavize: varie conectivos repetidos, troque uma ou outra palavra rebuscada por sinônimo mais comum, ajuste ritmo das frases (algumas mais curtas, outras mais longas).
+6. Proibido: **, negrito, emojis, travessões "–" "—", reticências "...", listas, marcadores, comentários, explicações.
+7. Revise mentalmente buscando qualquer erro de português antes de devolver — corrija tudo.
+
+TEXTO ORIGINAL:
+{textoRedacao}
+
+Devolva APENAS o texto reescrito, sem título, sem rótulos, sem comentários.`,
 ];
 
 async function callLovableAI(prompt: string): Promise<string> {
