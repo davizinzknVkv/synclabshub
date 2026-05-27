@@ -349,17 +349,18 @@ export async function submitRedacao(
   onNotify: (msg: string) => void,
   editedTitle?: string,
   editedBody?: string,
+  status: "draft" | "submitted" = "submitted",
 ): Promise<void> {
   const { redacao, questionId, questionType } = generated;
   const finalTitle = editedTitle ?? generated.title;
   const finalBody = editedBody ?? generated.body;
 
-  onNotify("ENVIANDO REDAÇÃO...");
+  onNotify(status === "draft" ? "SALVANDO RASCUNHO..." : "ENVIANDO REDAÇÃO...");
   const roomParam = `room_name=${encodeURIComponent(redacao.room_name_for_apply)}`;
   const submitUrl = `${API_BASE_URL}/tms/task/${redacao.id}/answer?${roomParam}`;
 
   const requestBody = {
-    status: "draft",
+    status,
     accessed_on: "room",
     executed_on: redacao.room_name_for_apply,
     duration: Math.floor(Math.random() * (40 * 60 * 1000 - 30 * 60 * 1000 + 1)) + 30 * 60 * 1000,
@@ -384,5 +385,5 @@ export async function submitRedacao(
   };
 
   await makeRequest(submitUrl, "POST", submitHeaders, requestBody);
-  onNotify("REDAÇÃO CONCLUÍDA E ENVIADA!");
+  onNotify(status === "draft" ? "RASCUNHO SALVO!" : "REDAÇÃO CONCLUÍDA E ENVIADA!");
 }
