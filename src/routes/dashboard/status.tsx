@@ -92,7 +92,7 @@ function StatusDashboard() {
   };
 
   const updateSetting = async (
-    field: "maintenance_mode" | "scripts_enabled",
+    field: "maintenance_mode" | "scripts_enabled" | "preparasp_enabled",
     value: boolean,
   ) => {
     if (!settings || updating || !token) return;
