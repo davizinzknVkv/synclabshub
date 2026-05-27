@@ -68,16 +68,20 @@ function RedacaoPage() {
     }
   }, [session, selectedId, processing, redacoes]);
 
-  const handleSubmit = useCallback(async () => {
+  const handleSubmit = useCallback(async (mode: SubmitMode = "submitted") => {
     if (!session || !preview || submitting) return;
-    setSubmitting(true);
+    setSubmitting(mode);
     try {
       await submitRedacao(preview, session.authToken, (msg: string) => {
         notify(msg);
-      }, editTitle, editBody);
-      setRedacoes((prev) => prev.filter((r) => r.id !== preview.redacao.id));
-      setSelectedId(null);
-      setPreview(null);
+      }, editTitle, editBody, mode);
+      if (mode === "submitted") {
+        setRedacoes((prev) => prev.filter((r) => r.id !== preview.redacao.id));
+        setSelectedId(null);
+        setPreview(null);
+      } else {
+        setRedacoes((prev) => prev.map((r) => r.id === preview.redacao.id ? { ...r, status: "draft" } : r));
+      }
     } catch (err: unknown) {
       notify(err instanceof Error ? err.message : "ERRO AO ENVIAR REDAÇÃO");
     } finally {
