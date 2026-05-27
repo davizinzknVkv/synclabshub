@@ -240,7 +240,8 @@ function DashboardHome() {
 
               <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 transition-all duration-500 ${settings?.maintenance_mode ? 'blur-md grayscale opacity-40 pointer-events-none' : ''}`}>
                 {SCRIPTS.map((script, i) => {
-                  const isDisabled = settings?.scripts_enabled === false;
+                  const isPreparaOff = script.url === "/dashboard/preparasp" && settings?.preparasp_enabled === false;
+                  const isDisabled = settings?.scripts_enabled === false || isPreparaOff;
                   
                   return (
                     <motion.div
