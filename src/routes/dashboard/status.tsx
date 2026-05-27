@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { Activity, RefreshCw, CheckCircle, XCircle, Clock, Lock, ShieldAlert, ZapOff, Zap } from "lucide-react";
+import { Activity, RefreshCw, CheckCircle, XCircle, Clock, Lock, ShieldAlert, ZapOff, Zap, GraduationCap } from "lucide-react";
 import { notify, NotificationContainer } from "@/components/Notification";
 
 export const Route = createFileRoute("/dashboard/status")({
