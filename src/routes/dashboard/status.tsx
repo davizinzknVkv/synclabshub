@@ -26,6 +26,7 @@ interface SiteSettings {
   id: string;
   maintenance_mode: boolean;
   scripts_enabled: boolean;
+  preparasp_enabled: boolean;
 }
 
 function StatusDashboard() {
