@@ -14,6 +14,8 @@ export const Route = createFileRoute("/dashboard/redacao")({
   }),
 });
 
+type SubmitMode = "submitted" | "draft";
+
 function RedacaoPage() {
   const session = getSession();
   const [loading, setLoading] = useState(false);
