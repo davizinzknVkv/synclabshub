@@ -357,9 +357,12 @@ export async function submitRedacao(
 
   onNotify(status === "draft" ? "SALVANDO RASCUNHO..." : "ENVIANDO REDAÇÃO...");
   const roomParam = `room_name=${encodeURIComponent(redacao.room_name_for_apply)}`;
-  const submitUrl = `${API_BASE_URL}/tms/task/${redacao.id}/answer?${roomParam}`;
+  const hasExistingAnswer = Boolean(redacao.answer_id);
+  const method = hasExistingAnswer ? "PUT" : "POST";
+  const answerParam = hasExistingAnswer ? `&answer_id=${redacao.answer_id}` : "";
+  const submitUrl = `${API_BASE_URL}/tms/task/${redacao.id}/answer?${roomParam}${answerParam}`;
 
-  const requestBody = {
+  const requestBody: Record<string, unknown> = {
     status,
     accessed_on: "room",
     executed_on: redacao.room_name_for_apply,
@@ -375,6 +378,9 @@ export async function submitRedacao(
       },
     },
   };
+  if (hasExistingAnswer) {
+    requestBody.id = redacao.answer_id;
+  }
 
   const submitHeaders = {
     accept: "application/json",
@@ -384,6 +390,6 @@ export async function submitRedacao(
     "x-api-realm": "edusp",
   };
 
-  await makeRequest(submitUrl, "POST", submitHeaders, requestBody);
+  await makeRequest(submitUrl, method, submitHeaders, requestBody);
   onNotify(status === "draft" ? "RASCUNHO SALVO!" : "REDAÇÃO CONCLUÍDA E ENVIADA!");
 }
