@@ -29,7 +29,7 @@ function RedacaoPage() {
   const [preview, setPreview] = useState<GeneratedRedacao | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editBody, setEditBody] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+  const [submitting, setSubmitting] = useState<false | SubmitMode>(false);
 
   const handleFetch = useCallback(async () => {
     if (!session || loading) return;
