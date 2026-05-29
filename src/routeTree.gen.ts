@@ -18,6 +18,7 @@ import { Route as DashboardRedacaoRouteImport } from './routes/dashboard/redacao
 import { Route as DashboardPreparaspRouteImport } from './routes/dashboard/preparasp'
 import { Route as DashboardLeiaspRouteImport } from './routes/dashboard/leiasp'
 import { Route as DashboardKhanRouteImport } from './routes/dashboard/khan'
+import { Route as DashboardBoletimRouteImport } from './routes/dashboard/boletim'
 import { Route as DashboardApostilasRouteImport } from './routes/dashboard/apostilas'
 import { Route as ApiPdfProxyRouteImport } from './routes/api/pdf-proxy'
 import { Route as ApiStatusEndpointRouteImport } from './routes/api/status.$endpoint'
@@ -76,6 +77,11 @@ const DashboardLeiaspRoute = DashboardLeiaspRouteImport.update({
 const DashboardKhanRoute = DashboardKhanRouteImport.update({
   id: '/khan',
   path: '/khan',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardBoletimRoute = DashboardBoletimRouteImport.update({
+  id: '/boletim',
+  path: '/boletim',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardApostilasRoute = DashboardApostilasRouteImport.update({
@@ -154,6 +160,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRouteWithChildren
   '/api/pdf-proxy': typeof ApiPdfProxyRoute
   '/dashboard/apostilas': typeof DashboardApostilasRoute
+  '/dashboard/boletim': typeof DashboardBoletimRoute
   '/dashboard/khan': typeof DashboardKhanRoute
   '/dashboard/leiasp': typeof DashboardLeiaspRoute
   '/dashboard/preparasp': typeof DashboardPreparaspRoute
@@ -178,6 +185,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/pdf-proxy': typeof ApiPdfProxyRoute
   '/dashboard/apostilas': typeof DashboardApostilasRoute
+  '/dashboard/boletim': typeof DashboardBoletimRoute
   '/dashboard/khan': typeof DashboardKhanRoute
   '/dashboard/leiasp': typeof DashboardLeiaspRoute
   '/dashboard/preparasp': typeof DashboardPreparaspRoute
@@ -204,6 +212,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRouteWithChildren
   '/api/pdf-proxy': typeof ApiPdfProxyRoute
   '/dashboard/apostilas': typeof DashboardApostilasRoute
+  '/dashboard/boletim': typeof DashboardBoletimRoute
   '/dashboard/khan': typeof DashboardKhanRoute
   '/dashboard/leiasp': typeof DashboardLeiaspRoute
   '/dashboard/preparasp': typeof DashboardPreparaspRoute
@@ -231,6 +240,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/api/pdf-proxy'
     | '/dashboard/apostilas'
+    | '/dashboard/boletim'
     | '/dashboard/khan'
     | '/dashboard/leiasp'
     | '/dashboard/preparasp'
@@ -255,6 +265,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api/pdf-proxy'
     | '/dashboard/apostilas'
+    | '/dashboard/boletim'
     | '/dashboard/khan'
     | '/dashboard/leiasp'
     | '/dashboard/preparasp'
@@ -280,6 +291,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/api/pdf-proxy'
     | '/dashboard/apostilas'
+    | '/dashboard/boletim'
     | '/dashboard/khan'
     | '/dashboard/leiasp'
     | '/dashboard/preparasp'
@@ -382,6 +394,13 @@ declare module '@tanstack/react-router' {
       path: '/khan'
       fullPath: '/dashboard/khan'
       preLoaderRoute: typeof DashboardKhanRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/boletim': {
+      id: '/dashboard/boletim'
+      path: '/boletim'
+      fullPath: '/dashboard/boletim'
+      preLoaderRoute: typeof DashboardBoletimRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/dashboard/apostilas': {
@@ -487,6 +506,7 @@ declare module '@tanstack/react-router' {
 
 interface DashboardRouteChildren {
   DashboardApostilasRoute: typeof DashboardApostilasRoute
+  DashboardBoletimRoute: typeof DashboardBoletimRoute
   DashboardKhanRoute: typeof DashboardKhanRoute
   DashboardLeiaspRoute: typeof DashboardLeiaspRoute
   DashboardPreparaspRoute: typeof DashboardPreparaspRoute
@@ -498,6 +518,7 @@ interface DashboardRouteChildren {
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardApostilasRoute: DashboardApostilasRoute,
+  DashboardBoletimRoute: DashboardBoletimRoute,
   DashboardKhanRoute: DashboardKhanRoute,
   DashboardLeiaspRoute: DashboardLeiaspRoute,
   DashboardPreparaspRoute: DashboardPreparaspRoute,
@@ -531,3 +552,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
