@@ -8,13 +8,19 @@ import {
 import {
   Home, CheckSquare, PenTool, MessageCircle, Heart,
   ChevronLeft, ChevronRight, LogOut, Menu, X,
-  GraduationCap, Zap, FileText, Lock
+  GraduationCap, Zap, FileText, Lock, LayoutGrid, Sparkles, Gamepad2
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { clearSession, getSession } from "@/lib/auth";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
+import { 
+  DonationModal, 
+  DiscordModal, 
+  PartnerModal, 
+  RoadmapModal 
+} from "./ExtraModals";
 
 const NAV_ITEMS = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
