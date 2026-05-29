@@ -273,7 +273,7 @@ function BoletimPage() {
             Resposta bruta da API
           </summary>
           <pre className="mt-3 overflow-auto text-violet-200/80">
-            {JSON.stringify(raw, null, 2)}
+            {JSON.stringify(raw, null, 2) as string}
           </pre>
         </details>
       )}
