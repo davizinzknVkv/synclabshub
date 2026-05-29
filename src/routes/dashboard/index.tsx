@@ -7,11 +7,18 @@ import {
   MessageCircle, ExternalLink
 } from "lucide-react";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { getSession } from "@/lib/auth";
+import { getSession, clearSession } from "@/lib/auth";
+import { useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchDashboardStats } from "@/lib/api";
 import type { DashboardStats } from "@/lib/api";
