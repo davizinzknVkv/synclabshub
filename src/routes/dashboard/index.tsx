@@ -37,12 +37,12 @@ export const Route = createFileRoute("/dashboard/")({
 });
 
 const SCRIPTS = [
-  { name: "Tarefa SP", desc: "Lições e pendências", icon: iconTarefa, url: "/dashboard/tarefas", badge: null },
-  { name: "Prepara SP", desc: "Caderno do aluno", icon: iconPreparaSp, url: "/dashboard/preparasp", badge: "HOT" },
-  { name: "Redação", desc: "IA generativa", icon: iconRedacao, url: "/dashboard/redacao", badge: "AI" },
-  { name: "Leia SP", desc: "Leitura assistida", icon: iconLeiaSp, url: "/dashboard/leiasp", badge: null },
-  { name: "Khan Academy", desc: "Resoluções", icon: iconKhan, url: "/dashboard/khan", badge: null },
-  { name: "Apostilas", desc: "Banco de provas", icon: iconApostilas, url: "/dashboard/apostilas", badge: null },
+  { name: "Tarefa SP", desc: "Lições e pendências", icon: iconTarefa, url: "/dashboard/tarefas", badge: null, key: "scripts_enabled" },
+  { name: "Prepara SP", desc: "Caderno do aluno", icon: iconPreparaSp, url: "/dashboard/preparasp", badge: "HOT", key: "preparasp_enabled" },
+  { name: "Redação", desc: "IA generativa", icon: iconRedacao, url: "/dashboard/redacao", badge: "AI", key: "scripts_enabled" },
+  { name: "Leia SP", desc: "Leitura assistida", icon: iconLeiaSp, url: "/dashboard/leiasp", badge: null, key: "scripts_enabled" },
+  { name: "Khan Academy", desc: "Resoluções", icon: iconKhan, url: "/dashboard/khan", badge: null, key: "scripts_enabled" },
+  { name: "Apostilas", desc: "Banco de provas", icon: iconApostilas, url: "/dashboard/apostilas", badge: null, key: "scripts_enabled" },
 ];
 
 // Animated counter
