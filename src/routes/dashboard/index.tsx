@@ -224,23 +224,23 @@ function DashboardHome() {
   const statCards = useMemo(() => [
     {
       icon: CheckCircle2, label: "Pendências", value: stats?.pendencias ?? 0, suffix: "",
-      tint: "from-violet-500/20 to-violet-500/5", iconColor: "text-primary",
+      tint: "from-primary/20 to-primary/5", iconColor: "text-primary",
       trend: stats?.pendencias === 0 ? "Tudo em dia" : "ação necessária",
     },
     {
       icon: Calendar, label: "Faltas", value: stats?.faltas ?? 0, suffix: "",
-      tint: "from-cyan-500/20 to-cyan-500/5", iconColor: "text-accent",
+      tint: "from-accent/20 to-accent/5", iconColor: "text-accent",
       trend: (stats?.faltas ?? 0) < 5 ? "controle" : "atenção",
     },
     {
       icon: TrendingUp, label: "Frequência", value: stats?.frequencia ?? 100, suffix: "%",
-      tint: "from-emerald-500/20 to-emerald-500/5", iconColor: "text-emerald-400",
+      tint: "from-accent/20 to-accent/5", iconColor: "text-accent",
       trend: (stats?.frequencia ?? 100) >= 75 ? "presença ok" : "abaixo do mínimo",
     },
     {
       icon: Heart, label: "Apoiar", value: 0, suffix: "",
       isLink: "https://livepix.gg/davizinzkn",
-      tint: "from-pink-500/20 to-pink-500/5", iconColor: "text-pink-400",
+      tint: "from-primary/20 to-primary/5", iconColor: "text-primary",
       trend: "doe ao projeto",
     },
   ], [stats]);
