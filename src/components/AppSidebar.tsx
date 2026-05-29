@@ -291,17 +291,39 @@ export function AppSidebar() {
         </div>
       </nav>
 
-      <div className="mt-auto p-4 border-t border-white/5 space-y-4">
+      <div className=\"mt-auto p-4 border-t border-white/5 space-y-6\">
         {!collapsed && (
-          <div className="text-center w-full">
-            <p className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-mono">
-              Desenvolvido por Davizinkn & Zennos
-            </p>
+          <div className=\"flex flex-col items-center gap-3\">
+            <span className=\"text-[10px] uppercase tracking-widest text-muted-foreground/60 font-mono font-bold\">
+              Desenvolvido por
+            </span>
+            <div className=\"flex items-center gap-6\">
+              <div className=\"flex flex-col items-center gap-2\">
+                <div className=\"w-12 h-12 rounded-full border-2 border-primary/20 p-0.5 bg-background/50 overflow-hidden shadow-glow-violet/20\">
+                  <img 
+                    src=\"https://media.discordapp.net/attachments/1480656042932043893/1510033137273536674/05f009cbb393af6592c7efcabbbf3d49.png?ex=6a1b5772&is=6a1a05f2&hm=625f4b1013e4fd4bd68116d81c6ee7aa16c7c9fb091f42bae39462c0369f780b&=&format=webp&quality=lossless\" 
+                    alt=\"Davizinkn\" 
+                    className=\"w-full h-full object-cover rounded-full transition-transform hover:scale-110 duration-500\"
+                  />
+                </div>
+                <span className=\"text-[10px] font-mono text-muted-foreground/80 lowercase\">davizinkn</span>
+              </div>
+              <div className=\"flex flex-col items-center gap-2\">
+                <div className=\"w-12 h-12 rounded-full border-2 border-cyan-400/20 p-0.5 bg-background/50 overflow-hidden shadow-glow-cyan/20\">
+                  <img 
+                    src=\"https://media.discordapp.net/attachments/1480656042932043893/1510033458586718238/image.png?ex=6a1b57bf&is=6a1a063f&hm=ab70e034a391dd3b53cb3aa707d20a864f7e7039cb4353224696c437248735d6&=&format=webp&quality=lossless\" 
+                    alt=\"Zennos\" 
+                    className=\"w-full h-full object-cover rounded-full transition-transform hover:scale-110 duration-500\"
+                  />
+                </div>
+                <span className=\"text-[10px] font-mono text-muted-foreground/80 lowercase\">zennos</span>
+              </div>
+            </div>
           </div>
         )}
-        <div className={`flex items-center gap-3 font-mono ${collapsed ? "justify-center" : "px-1"}`}>
-          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-          {!collapsed && <span className="text-[10px] uppercase tracking-widest text-muted-foreground/40">Sync v2.0</span>}
+        <div className={`flex items-center gap-3 font-mono ${collapsed ? \"justify-center\" : \"px-1\"}`}>
+          <div className=\"w-2 h-2 rounded-full bg-primary animate-pulse\" />
+          {!collapsed && <span className=\"text-[10px] uppercase tracking-widest text-muted-foreground/40\">Sync v2.0</span>}
         </div>
       </div>
 
