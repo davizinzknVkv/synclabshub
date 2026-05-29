@@ -47,11 +47,18 @@ function SyncMark({ size = 32 }: { size?: number }) {
 export function AppSidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [settings, setSettings] = useState<Record<string, boolean>>({});
   const currentPath = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const session = getSession();
   const displayName = session?.nick || session?.ra || "Aluno";
+
+  useEffect(() => {
+    supabase.from("site_settings").select("*").single().then(({ data }) => {
+      if (data) setSettings(data as any);
+    });
+  }, []);
 
   const handleLogout = () => {
     clearSession();
@@ -65,19 +72,30 @@ export function AppSidebar() {
 
   const NavItem = ({ item, onClick }: { item: typeof NAV_ITEMS[number]; onClick?: () => void }) => {
     const active = isActive(item.url);
+    const isBlocked = item.key && settings[item.key] === false;
+
     return (
       <Link
-        to={item.url}
-        onClick={onClick}
+        to={isBlocked ? "#" : item.url}
+        onClick={(e) => {
+          if (isBlocked) {
+            e.preventDefault();
+            return;
+          }
+          onClick?.();
+        }}
         className={`relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group ${
           active
             ? "nav-active text-white"
+            : isBlocked
+            ? "opacity-40 cursor-not-allowed"
             : "text-muted-foreground hover:text-white hover:bg-white/[0.04]"
         }`}
       >
         <item.icon size={17} className={active ? "text-primary" : "group-hover:text-accent transition-colors"} />
         {!collapsed && <span className="tracking-tight">{item.title}</span>}
-        {active && !collapsed && (
+        {isBlocked && !collapsed && <Lock size={12} className="ml-auto text-muted-foreground" />}
+        {active && !collapsed && !isBlocked && (
           <motion.div
             layoutId="nav-dot"
             className="ml-auto w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_12px_currentColor]"
