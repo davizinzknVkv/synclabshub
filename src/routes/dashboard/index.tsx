@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import {
   CheckCircle2, Calendar, TrendingUp, Heart, ArrowUpRight,
   Activity, Zap, Sparkles, Bell, Search, Plus, ShieldAlert, ZapOff,
-  MessageCircle, ExternalLink, LogOut
+  MessageCircle, ExternalLink, LogOut, Lightbulb
 } from "lucide-react";
 import {
   DropdownMenu,
