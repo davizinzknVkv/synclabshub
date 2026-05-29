@@ -721,9 +721,9 @@ function KhanPage() {
                                     <span className="flex-1 truncate text-white/80">{t.title}</span>
                                     <span className="text-[8px] uppercase text-red-500">teste</span>
                                     <button
-                                      onClick={() => completeUnitTestItem(t)}
+                                      onClick={(e) => { e.stopPropagation(); completeUnitTestItem(t); }}
                                       disabled={done || busy}
-                                      className="text-[9px] uppercase text-red-500 hover:text-white disabled:opacity-30 px-2 py-0.5 border border-red-500/30 rounded-sm"
+                                      className="text-[9px] uppercase text-red-500 hover:text-white disabled:opacity-30 px-2 py-0.5 border border-red-500/30 rounded-sm z-20"
                                     >
                                       {busy ? (
                                         <Loader2 size={9} className="animate-spin" />
