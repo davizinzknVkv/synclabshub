@@ -56,6 +56,8 @@ async function consultarBoletim(
   const res = await fetch(`/api/boletim/ncaapi/api/Boletim/ConsultaBoletim?${qs}`, {
     headers: {
       Authorization: `Bearer ${bearer}`,
+      "Ocp-Apim-Subscription-Key": "d701a2043aa24d7ebb37e9adf60d043b",
+      "X-Product-Name": "SalaDoFuturo",
       Accept: "application/json, text/plain, */*",
     },
   });
