@@ -308,7 +308,8 @@ function DashboardHome() {
                 { name: "Khan Academy", url: "/dashboard/khan", icon: iconKhan, key: "scripts_enabled" },
                 { name: "Educação Profissional", url: "#", logoText: "Edu.", logoBg: "bg-white", logoColor: "text-[#1e3a5f]" },
                 { name: "Alura", url: "#", aluraLogo: true },
-                { name: "CMSP Bots", url: "#", lucide: Lightbulb, lucideColor: "text-yellow-300" },
+                { name: "Astro G", url: "#", lucide: Lightbulb, lucideColor: "text-yellow-300" },
+                { name: "Matific", url: "#", lucide: Lightbulb, lucideColor: "text-yellow-300" },
               ].map((s: any, i) => {
                 const isOff = s.key && settings && (settings as any)[s.key] === false;
                 const isDisabled = settings?.maintenance_mode || isOff;
@@ -353,24 +354,24 @@ function DashboardHome() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {[
                 {
-                  name: "Eclipse Lunar",
-                  subtitle: "Servidor Oficial",
+                  name: "Sync Labs",
+                  subtitle: "Servidor Oficial Da Sync",
                   gradient: "from-red-900 via-red-950 to-black",
                   accent: "bg-red-500",
-                  emoji: "🌑",
-                  url: "https://discord.gg/y5tNWGVPSU",
+                  emoji: "🤖",
+                  url: "https://discord.gg/F6JKWpeUSF",
                 },
                 {
-                  name: "CMSP Bots",
-                  subtitle: "CMSP Bots",
+                  name: "ASTRO G ",
+                  subtitle: "Astro G",
                   gradient: "from-yellow-900/40 via-amber-950 to-black",
                   accent: "bg-yellow-400",
                   lucide: Lightbulb,
                   url: "#",
                 },
                 {
-                  name: "Ilusion",
-                  subtitle: "Ilusion",
+                  name: "Havaii",
+                  subtitle: "Havaii Roleplay",
                   gradient: "from-slate-800 via-slate-900 to-black",
                   accent: "bg-cyan-400",
                   emoji: "✦",
@@ -459,7 +460,7 @@ function DashboardHome() {
                         <a href={`https://github.com/${dev.github}`} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-white transition-colors">
                           <ExternalLink size={14} />
                         </a>
-                        <a href="https://discord.gg/y5tNWGVPSU" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-white transition-colors">
+                        <a href="https://discord.gg/F6JKWpeUSF" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-white transition-colors">
                           <MessageCircle size={14} />
                         </a>
                       </div>
