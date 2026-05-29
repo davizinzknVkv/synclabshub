@@ -162,26 +162,15 @@ export function AppSidebar() {
                   ))}
                 </nav>
 
-                <div className="p-3 border-t border-white/5">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button className="flex items-center gap-3 px-3 py-2 rounded-lg bg-white/[0.03] hover:bg-white/[0.06] transition-all w-full text-left">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-xs font-bold text-white">
-                          {displayName[0]?.toUpperCase()}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-xs font-semibold text-white truncate">{displayName}</div>
-                          <div className="text-[10px] text-muted-foreground opacity-50">Clique para opções</div>
-                        </div>
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56 glass-strong border-white/10">
-                      <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer">
-                        <LogOut size={14} className="mr-2" />
-                        Sair
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                <div className="p-3 border-t border-white/5 opacity-40 grayscale pointer-events-none">
+                  <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-white/[0.03] w-full text-left">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-xs font-bold text-white">
+                      {displayName[0]?.toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-semibold text-white truncate">{displayName}</div>
+                    </div>
+                  </div>
                 </div>
               </motion.aside>
             </motion.div>
