@@ -692,11 +692,11 @@ function KhanPage() {
                                     <RefreshCw size={10} className="text-yellow-500 shrink-0" />
                                     <span className="flex-1 truncate text-white/80">{q.title}</span>
                                     <span className="text-[8px] uppercase text-yellow-500">quiz</span>
-                                    <button
-                                      onClick={() => completeQuizItem(q)}
-                                      disabled={done || busy}
-                                      className="text-[9px] uppercase text-yellow-500 hover:text-white disabled:opacity-30 px-2 py-0.5 border border-yellow-500/30 rounded-sm"
-                                    >
+                                      <button
+                                        onClick={(e) => { e.stopPropagation(); completeQuizItem(q); }}
+                                        disabled={done || busy}
+                                        className="text-[9px] uppercase text-yellow-500 hover:text-white disabled:opacity-30 px-2 py-0.5 border border-yellow-500/30 rounded-sm z-20"
+                                      >
                                       {busy ? (
                                         <Loader2 size={9} className="animate-spin" />
                                       ) : done ? (
