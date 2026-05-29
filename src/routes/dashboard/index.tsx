@@ -292,8 +292,8 @@ function DashboardHome() {
 
               <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 transition-all duration-500 ${settings?.maintenance_mode ? 'blur-md grayscale opacity-40 pointer-events-none' : ''}`}>
                 {SCRIPTS.map((script, i) => {
-                  const isPreparaOff = script.url === "/dashboard/preparasp" && settings?.preparasp_enabled === false;
-                  const isDisabled = settings?.scripts_enabled === false || isPreparaOff;
+                  const isOff = script.key && settings && (settings as any)[script.key] === false;
+                  const isDisabled = settings?.maintenance_mode || isOff;
                   
                   return (
                     <motion.div
@@ -305,12 +305,15 @@ function DashboardHome() {
                       <Link
                         to={isDisabled ? "#" : script.url}
                         onClick={(e) => isDisabled && e.preventDefault()}
-                        className={`card-premium group block p-5 ${isDisabled ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
+                        className={`card-premium group block p-5 relative overflow-hidden transition-all duration-300 ${isDisabled ? 'opacity-50 grayscale cursor-not-allowed' : 'hover:scale-[1.02] hover:shadow-glow-violet'}`}
                       >
+                        {/* ZKN Design Gradient Background */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        
                         <div className="relative flex items-start gap-4">
                           <div className="relative">
                             <div className="absolute inset-0 rounded-xl blur-xl opacity-60 group-hover:opacity-100 transition-opacity"
-                              style={{ background: isDisabled ? "oklch(0.62 0.03 270)" : "linear-gradient(135deg, oklch(0.6 0.3 280), oklch(0.7 0.2 200))" }} />
+                              style={{ background: isOff ? "oklch(0.62 0.03 270)" : "linear-gradient(135deg, var(--primary), var(--accent))" }} />
                             <div className="relative w-12 h-12 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center">
                               <img src={script.icon} alt="" className={`w-7 h-7 object-contain ${isDisabled ? 'grayscale' : ''}`} loading="lazy" width={28} height={28} />
                             </div>
@@ -320,15 +323,25 @@ function DashboardHome() {
                               <h3 className="text-sm font-bold text-white tracking-tight">{script.name}</h3>
                               {script.badge && (
                                 <span className="text-[9px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded text-white"
-                                  style={{ background: script.badge === "AI" ? "linear-gradient(135deg, oklch(0.6 0.3 280), oklch(0.7 0.2 200))" : "oklch(0.6 0.3 280)" }}>
+                                  style={{ background: script.badge === "AI" ? "linear-gradient(135deg, var(--primary), var(--accent))" : "var(--primary)" }}>
                                   {script.badge}
                                 </span>
                               )}
                             </div>
-                            <p className="text-xs text-muted-foreground">{isDisabled ? "Script temporariamente desligado" : script.desc}</p>
+                            <p className="text-xs text-muted-foreground">{isOff ? "Status: Offline" : script.desc}</p>
                           </div>
-                          {!isDisabled && <ArrowUpRight size={15} className="text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />}
-                          {isDisabled && <ZapOff size={14} className="text-muted-foreground" />}
+                          <div className="flex flex-col items-end gap-2">
+                            {isOff ? (
+                              <div className="px-2 py-0.5 rounded bg-red-500/10 border border-red-500/20 text-[8px] font-bold text-red-400 uppercase tracking-widest flex items-center gap-1">
+                                <ZapOff size={8} /> OFF
+                              </div>
+                            ) : (
+                              <div className="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-[8px] font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-1">
+                                <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" /> ON
+                              </div>
+                            )}
+                            {!isDisabled && <ArrowUpRight size={14} className="text-muted-foreground group-hover:text-primary transition-all" />}
+                          </div>
                         </div>
                       </Link>
                     </motion.div>
