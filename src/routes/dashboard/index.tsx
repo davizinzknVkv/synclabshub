@@ -139,6 +139,36 @@ function Topbar({ name }: { name: string }) {
     </div>
   );
 }
+function SectionPanel({
+  title,
+  action,
+  children,
+}: {
+  title: string;
+  action?: { label: string; href: string };
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-2xl bg-[#0e0e16]/80 border border-white/[0.05] p-4 sm:p-5">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="flex items-center gap-2.5 text-base sm:text-lg font-bold text-white tracking-tight">
+          <span className="w-[3px] h-5 rounded-full bg-red-500" />
+          {title}
+        </h2>
+        {action && (
+          <a
+            href={action.href}
+            className="text-xs font-semibold text-red-400 hover:text-red-300 transition-colors flex items-center gap-1"
+          >
+            {action.label} <span aria-hidden>→</span>
+          </a>
+        )}
+      </div>
+      {children}
+    </div>
+  );
+}
+
 
 function DashboardHome() {
   const session = getSession();
