@@ -153,23 +153,22 @@ export function AppSidebar() {
                   {NAV_ITEMS.map((item) => <NavItem key={item.url} item={item} onClick={() => setMobileOpen(false)} />)}
 
                   <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground px-3 pt-5 pb-2 font-mono">Comunidade</p>
-                  {COMMUNITY_ITEMS.map((item) => (
-                    <a key={item.url} href={item.url} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/[0.04] transition-all">
-                      <item.icon size={17} />
-                      <span>{item.title}</span>
-                    </a>
-                  ))}
+                  <div className="flex flex-col gap-1 px-1">
+                    {COMMUNITY_ITEMS.map((item) => (
+                      <a key={item.url} href={item.url} target="_blank" rel="noopener noreferrer"
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/[0.04] transition-all">
+                        <item.icon size={17} />
+                        <span>{item.title}</span>
+                      </a>
+                    ))}
+                  </div>
                 </nav>
 
-                <div className="p-3 border-t border-white/5 opacity-40 grayscale pointer-events-none">
-                  <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-white/[0.03] w-full text-left">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-xs font-bold text-white">
-                      {displayName[0]?.toUpperCase()}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-xs font-semibold text-white truncate">{displayName}</div>
-                    </div>
+                <div className="mt-auto p-4 border-t border-white/5 space-y-4">
+                  <div className="text-center w-full">
+                    <span className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-mono">
+                      Desenvolvido por Davizinkn & Zennos
+                    </span>
                   </div>
                 </div>
               </motion.aside>
