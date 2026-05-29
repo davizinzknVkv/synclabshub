@@ -72,72 +72,75 @@ function Topbar({ name }: { name: string }) {
   };
 
   return (
-    <div className="hidden md:flex items-center gap-3 px-6 py-3 border-b border-white/5 glass-strong">
-      <div className="relative flex-1 max-w-md">
-        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-        <input
-          placeholder="Buscar scripts, automações..."
-          className="input-premium w-full pl-9 pr-3 py-2 text-sm"
-        />
-        <kbd className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-mono text-muted-foreground bg-white/5 border border-white/10 rounded px-1.5 py-0.5">⌘K</kbd>
+    <div className="hidden md:flex items-center justify-between px-6 py-3 border-b border-white/5 glass-strong">
+      <div className="flex items-center gap-4">
+        {/* Placeholder for breadcrumbs or other left-aligned items */}
       </div>
-      <div className="flex items-center gap-2 ml-auto">
-        <Popover>
-          <PopoverTrigger asChild>
-            <button className="relative w-9 h-9 rounded-lg bg-white/[0.03] border border-white/5 flex items-center justify-center text-muted-foreground hover:text-white hover:border-primary/40 transition-all">
-              <Bell size={15} />
-              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-destructive shadow-[0_0_8px_currentColor]" />
-            </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-80 glass-strong border-white/10 p-4">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between border-b border-white/5 pb-2">
-                <h4 className="text-sm font-bold text-white">Notificações</h4>
-                <span className="text-[10px] font-mono text-muted-foreground uppercase">Sistema Sync</span>
-              </div>
-              <div className="py-4 space-y-2">
-                <div className="flex gap-3 p-2 rounded-lg bg-primary/5 border border-primary/10">
-                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary shrink-0">
-                    <Sparkles size={14} />
-                  </div>
-                  <div className="space-y-0.5">
-                    <p className="text-xs font-bold text-white">Bem-vindo ao Sync Labs v2</p>
-                    <p className="text-[10px] text-muted-foreground leading-tight">Sua central de automação está pronta para uso.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
-        <div className="flex items-center gap-2 pl-2 ml-1 border-l border-white/5">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-3 pl-2 py-1 rounded-xl hover:bg-white/[0.03] transition-all group">
-                <div className="text-right hidden sm:block">
-                  <p className="text-xs font-bold text-white leading-none">{name}</p>
-                  <p className="text-[9px] text-muted-foreground mt-1 font-mono uppercase tracking-widest opacity-60">Aluno Conectado</p>
-                </div>
-                <div className="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold text-white shadow-glow-violet transition-transform group-hover:scale-105"
-                     style={{ background: "var(--gradient-primary)" }}>
-                  {name[0]?.toUpperCase()}
-                </div>
+
+      <div className="flex items-center gap-6">
+        <div className="relative w-64 group">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
+          <input
+            placeholder="Buscar..."
+            className="input-premium w-full pl-9 pr-3 py-1.5 text-xs bg-white/[0.02] border-white/5 focus:border-primary/30 transition-all"
+          />
+          <kbd className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-mono text-muted-foreground/40 bg-white/5 border border-white/10 rounded px-1.5 py-0.5">⌘K</kbd>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="relative w-8 h-8 rounded-lg bg-white/[0.03] border border-white/5 flex items-center justify-center text-muted-foreground hover:text-white transition-all">
+                <Bell size={14} />
+                <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-destructive shadow-[0_0_8px_currentColor]" />
               </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 glass-strong border-white/10 mt-1">
-              <div className="p-3 border-b border-white/5 mb-1">
-                <p className="text-xs font-bold text-white">{name}</p>
-                <p className="text-[10px] text-muted-foreground truncate">Sync Labs Account</p>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 glass-strong border-white/10 p-4">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                  <h4 className="text-sm font-bold text-white">Notificações</h4>
+                  <span className="text-[10px] font-mono text-muted-foreground uppercase">Sistema Sync</span>
+                </div>
+                <div className="py-4 space-y-2 text-center">
+                  <p className="text-xs text-muted-foreground">Nenhuma nova notificação</p>
+                </div>
               </div>
-              <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer">
-                <LogOut size={14} className="mr-2" />
-                Sair
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            </PopoverContent>
+          </Popover>
+
+          <div className="flex items-center gap-3 pl-3 border-l border-white/5">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-3 pl-2 py-1 rounded-xl hover:bg-white/[0.03] transition-all group">
+                  <div className="text-right hidden sm:block">
+                    <div className="flex items-center gap-2 justify-end">
+                      <p className="text-xs font-bold text-white leading-none">{name}</p>
+                      <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-primary/10 text-primary border border-primary/20 uppercase tracking-tighter">Free Plan</span>
+                    </div>
+                    <p className="text-[9px] text-muted-foreground mt-1 font-mono uppercase tracking-widest opacity-60">Aluno Conectado</p>
+                  </div>
+                  <div className="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold text-white shadow-glow-violet transition-transform group-hover:scale-105"
+                       style={{ background: "var(--gradient-primary)" }}>
+                    {name[0]?.toUpperCase()}
+                  </div>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 glass-strong border-white/10 mt-1">
+                <div className="p-3 border-b border-white/5 mb-1">
+                  <p className="text-xs font-bold text-white">{name}</p>
+                  <p className="text-[10px] text-muted-foreground truncate">Sync Labs Account</p>
+                </div>
+                <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer">
+                  <LogOut size={14} className="mr-2" />
+                  Sair
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </div>
     </div>
-  );
+    );
 }
 function SectionPanel({
   title,
