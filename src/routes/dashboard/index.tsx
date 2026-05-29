@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import {
   CheckCircle2, Calendar, TrendingUp, Heart, ArrowUpRight,
   Activity, Zap, Sparkles, Bell, Search, Plus, ShieldAlert, ZapOff,
-  MessageCircle, Github
+  MessageCircle, ExternalLink
 } from "lucide-react";
 import {
   Popover,
