@@ -60,6 +60,11 @@ export function AppSidebar() {
   const session = getSession();
   const displayName = session?.nick || session?.ra || "Aluno";
 
+  const [donationOpen, setDonationOpen] = useState(false);
+  const [discordOpen, setDiscordOpen] = useState(false);
+  const [partnerOpen, setPartnerOpen] = useState(false);
+  const [roadmapOpen, setRoadmapOpen] = useState(false);
+
   useEffect(() => {
     supabase.from("site_settings").select("*").single().then(({ data }) => {
       if (data) setSettings(data as any);
