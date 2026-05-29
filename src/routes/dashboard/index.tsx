@@ -90,20 +90,46 @@ function Topbar({ name }: { name: string }) {
         <div className="flex items-center gap-2">
           <Popover>
             <PopoverTrigger asChild>
-              <button className="relative w-8 h-8 rounded-lg bg-white/[0.03] border border-white/5 flex items-center justify-center text-muted-foreground hover:text-white transition-all">
+              <button className="relative w-8 h-8 rounded-lg bg-white/[0.03] border border-white/5 flex items-center justify-center text-muted-foreground hover:text-white hover:border-primary/50 transition-all">
                 <Bell size={14} />
-                <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-destructive shadow-[0_0_8px_currentColor]" />
+                <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_var(--primary)] animate-pulse" />
               </button>
             </PopoverTrigger>
-            <PopoverContent className="w-80 glass-strong border-white/10 p-4">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between border-b border-white/5 pb-2">
+            <PopoverContent className="w-80 glass-strong border-white/10 p-0 overflow-hidden mt-2">
+              <div className="p-4 border-b border-white/5 bg-white/[0.02]">
+                <div className="flex items-center justify-between">
                   <h4 className="text-sm font-bold text-white">Notificações</h4>
-                  <span className="text-[10px] font-mono text-muted-foreground uppercase">Sistema Sync</span>
+                  <span className="text-[10px] font-mono text-primary font-bold uppercase tracking-widest">Sistema Sync</span>
                 </div>
-                <div className="py-4 space-y-2 text-center">
-                  <p className="text-xs text-muted-foreground">Nenhuma nova notificação</p>
+              </div>
+              <div className="max-h-[300px] overflow-y-auto">
+                <div className="p-4 border-b border-white/5 hover:bg-white/[0.02] transition-colors cursor-pointer group">
+                  <div className="flex gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex-shrink-0 flex items-center justify-center text-primary">
+                      <Sparkles size={14} />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-white group-hover:text-primary transition-colors">Novo Script Adicionado</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">O script "Astro G" já está disponível no catálogo.</p>
+                      <p className="text-[9px] text-muted-foreground/40 mt-2 font-mono uppercase">Há 2 horas</p>
+                    </div>
+                  </div>
                 </div>
+                <div className="p-4 border-b border-white/5 hover:bg-white/[0.02] transition-colors cursor-pointer group">
+                  <div className="flex gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-accent/10 flex-shrink-0 flex items-center justify-center text-accent">
+                      <Zap size={14} />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-white group-hover:text-accent transition-colors">Atualização no Sistema</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">Melhorias na performance do dashboard v2.0.</p>
+                      <p className="text-[9px] text-muted-foreground/40 mt-2 font-mono uppercase">Ontem</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="p-2 text-center bg-white/[0.01]">
+                <button className="text-[10px] font-bold text-muted-foreground/60 hover:text-white transition-colors uppercase tracking-widest py-1">Limpar tudo</button>
               </div>
             </PopoverContent>
           </Popover>
@@ -142,6 +168,7 @@ function Topbar({ name }: { name: string }) {
     </div>
     );
 }
+
 function SectionPanel({
   title,
   action,
@@ -152,18 +179,19 @@ function SectionPanel({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl bg-[#0e0e16]/80 border border-white/[0.05] p-4 sm:p-5">
-      <div className="flex items-center justify-between mb-4">
+    <div className="rounded-2xl bg-[#0e0e16]/80 border border-white/[0.05] p-4 sm:p-5 relative overflow-hidden group/panel">
+      <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/20 to-transparent opacity-0 group-hover/panel:opacity-100 transition-opacity" />
+      <div className="flex items-center justify-between mb-6">
         <h2 className="flex items-center gap-2.5 text-base sm:text-lg font-bold text-white tracking-tight">
-          <span className="w-[3px] h-5 rounded-full bg-red-500" />
+          <span className="w-1 h-5 rounded-full bg-gradient-to-b from-primary to-accent shadow-[0_0_8px_var(--primary)]" />
           {title}
         </h2>
         {action && (
           <a
             href={action.href}
-            className="text-xs font-semibold text-red-400 hover:text-red-300 transition-colors flex items-center gap-1"
+            className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-all flex items-center gap-1.5 bg-white/[0.03] px-3 py-1.5 rounded-lg border border-white/5 hover:border-primary/30"
           >
-            {action.label} <span aria-hidden>→</span>
+            {action.label} <ArrowUpRight size={12} />
           </a>
         )}
       </div>
@@ -171,7 +199,6 @@ function SectionPanel({
     </div>
   );
 }
-
 
 function DashboardHome() {
   const session = getSession();
@@ -197,23 +224,23 @@ function DashboardHome() {
   const statCards = useMemo(() => [
     {
       icon: CheckCircle2, label: "Pendências", value: stats?.pendencias ?? 0, suffix: "",
-      tint: "from-violet-500/20 to-violet-500/5", iconColor: "text-primary",
+      tint: "from-primary/20 to-primary/5", iconColor: "text-primary",
       trend: stats?.pendencias === 0 ? "Tudo em dia" : "ação necessária",
     },
     {
       icon: Calendar, label: "Faltas", value: stats?.faltas ?? 0, suffix: "",
-      tint: "from-cyan-500/20 to-cyan-500/5", iconColor: "text-accent",
+      tint: "from-accent/20 to-accent/5", iconColor: "text-accent",
       trend: (stats?.faltas ?? 0) < 5 ? "controle" : "atenção",
     },
     {
       icon: TrendingUp, label: "Frequência", value: stats?.frequencia ?? 100, suffix: "%",
-      tint: "from-emerald-500/20 to-emerald-500/5", iconColor: "text-emerald-400",
+      tint: "from-accent/20 to-accent/5", iconColor: "text-accent",
       trend: (stats?.frequencia ?? 100) >= 75 ? "presença ok" : "abaixo do mínimo",
     },
     {
       icon: Heart, label: "Apoiar", value: 0, suffix: "",
       isLink: "https://livepix.gg/davizinzkn",
-      tint: "from-pink-500/20 to-pink-500/5", iconColor: "text-pink-400",
+      tint: "from-primary/20 to-primary/5", iconColor: "text-primary",
       trend: "doe ao projeto",
     },
   ], [stats]);
@@ -323,9 +350,9 @@ function DashboardHome() {
                     <Link
                       to={isDisabled ? "#" : s.url}
                       onClick={(e) => (isDisabled || s.url === "#") && e.preventDefault()}
-                      className={`relative group flex flex-col items-center gap-2 p-3 rounded-xl bg-[#13131c] border border-white/[0.06] hover:border-red-500/40 transition-all ${isDisabled ? "opacity-50 grayscale cursor-not-allowed" : ""}`}
+                      className={`relative group flex flex-col items-center gap-2 p-3 rounded-xl bg-[#13131c] border border-white/[0.06] hover:border-primary/40 transition-all aspect-square justify-center ${isDisabled ? "opacity-50 grayscale cursor-not-allowed" : ""}`}
                     >
-                      <span className="absolute left-2 top-2 bottom-2 w-[2px] rounded-full bg-red-500/80 opacity-80 group-hover:opacity-100" />
+                      <span className="absolute left-2 top-2 bottom-2 w-[2px] rounded-full bg-primary/80 opacity-0 group-hover:opacity-100 transition-opacity shadow-[0_0_8px_var(--primary)]" />
                       <div className="w-12 h-12 rounded-lg bg-black/40 border border-white/5 flex items-center justify-center overflow-hidden">
                         {s.icon ? (
                           <img src={s.icon} alt="" className="w-8 h-8 object-contain" />
@@ -351,129 +378,55 @@ function DashboardHome() {
 
           {/* Comunidade */}
           <SectionPanel title="Comunidade">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
                 {
                   name: "Sync Labs",
                   subtitle: "Servidor Oficial Da Sync",
-                  gradient: "from-red-900 via-red-950 to-black",
-                  accent: "bg-red-500",
+                  image: "https://media.discordapp.net/attachments/1415012145971855400/1493336103699222588/download_23.jfif?ex=6a1b3e1f&is=6a19ec9f&hm=8ae05d514a65755f12abf67298dec444edc901f06a6afe905395f210c8c65620&=&format=webp&width=674&height=676",
+                  accent: "bg-primary",
                   emoji: "🤖",
                   url: "https://discord.gg/F6JKWpeUSF",
                 },
                 {
-                  name: "ASTRO G ",
-                  subtitle: "Astro G",
-                  gradient: "from-yellow-900/40 via-amber-950 to-black",
-                  accent: "bg-yellow-400",
-                  lucide: Lightbulb,
+                  name: "Equipe de Scripts",
+                  subtitle: "Comunidade de Desenvolvedores",
+                  image: "https://media.discordapp.net/attachments/1415012145971855400/1510038905670340759/Gemini_Generated_Image_s4j2i8s4j2i8s4j2.png?ex=6a1b5cd2&is=6a1a0b52&hm=6ab42bd9abf0c3f16e16135a6040c33f909fe8101fffd246062e3d068eb84f64&=&format=webp&quality=lossless&width=780&height=780",
+                  accent: "bg-accent",
+                  emoji: "🚀",
                   url: "#",
                 },
-                {
-                  name: "Havaii",
-                  subtitle: "Havaii Roleplay",
-                  gradient: "from-slate-800 via-slate-900 to-black",
-                  accent: "bg-cyan-400",
-                  emoji: "✦",
-                  url: "#",
-                },
-              ].map((c, i) => (
-                <motion.a
+              ].map((c) => (
+                <a
                   key={c.name}
                   href={c.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.05 * i }}
-                  className="group relative overflow-hidden rounded-2xl border border-white/[0.06] hover:border-white/20 transition-all"
+                  className="group relative h-52 rounded-2xl overflow-hidden border border-white/5 hover:border-primary/30 transition-all flex flex-col justify-end p-6"
                 >
-                  <div className={`relative aspect-[16/9] bg-gradient-to-br ${c.gradient} flex items-center justify-center`}>
-                    <div className="absolute inset-0 bg-grid-lines opacity-30" />
-                    {c.lucide ? (
-                      <c.lucide size={56} className="text-yellow-300 drop-shadow-[0_0_24px_rgba(250,204,21,0.6)]" />
-                    ) : (
-                      <span className="text-5xl drop-shadow-2xl">{c.emoji}</span>
-                    )}
-                    <div className={`absolute bottom-0 left-0 right-0 h-1 ${c.accent}`} />
-                  </div>
-                  <div className="p-3 bg-[#0e0e16] border-t border-white/5">
-                    <div className="flex items-center gap-2">
-                      <span className="w-[2px] h-8 rounded-full bg-red-500" />
-                      <div>
-                        <h3 className="text-sm font-bold text-white leading-tight">{c.name}</h3>
-                        <p className="text-[10px] text-muted-foreground">{c.subtitle}</p>
+                  <img src={c.image} alt="" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0e0e16] via-[#0e0e16]/40 to-transparent opacity-90 group-hover:opacity-100 transition-opacity" />
+                  
+                  <div className="relative z-10">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className={`w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-xl backdrop-blur-sm`}>
+                        {c.emoji}
                       </div>
+                      <div className={`h-[1px] flex-1 ${c.accent} opacity-30`} />
                     </div>
+                    <h3 className="text-lg font-bold text-white tracking-tight group-hover:text-primary transition-colors">{c.name}</h3>
+                    <p className="text-xs text-white/50 font-medium tracking-wide uppercase">{c.subtitle}</p>
                   </div>
-                </motion.a>
+
+                  <div className={`absolute bottom-0 left-0 h-[3px] w-0 ${c.accent} group-hover:w-full transition-all duration-500 shadow-[0_0_12px_currentColor]`} />
+                </a>
               ))}
             </div>
           </SectionPanel>
-
-          {/* Developers Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="pt-8 border-t border-white/5"
-          >
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-lg font-bold text-white font-display flex items-center gap-2">
-                  <Heart size={16} className="text-pink-400" /> Equipe Sync Labs
-                </h2>
-                <p className="text-xs text-muted-foreground mt-0.5">As mentes por trás da plataforma</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {[
-                { 
-                  name: "Davizinkn", 
-                  role: "Founder & Lead Dev", 
-                  github: "davizinkn",
-                  avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Davizinkn",
-                  gradient: "from-violet-600/20 to-cyan-600/20"
-                },
-                { 
-                  name: "Zennos", 
-                  role: "Co-Founder & UI/UX", 
-                  github: "zennos",
-                  avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Zennos",
-                  gradient: "from-cyan-600/20 to-emerald-600/20"
-                }
-              ].map((dev, i) => (
-                <div key={dev.name} className="card-premium p-4 group">
-                  <div className={`absolute inset-0 bg-gradient-to-br ${dev.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-                  <div className="relative flex items-center gap-4">
-                    <div className="relative">
-                      <div className="absolute inset-0 bg-primary/20 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                      <div className="relative w-14 h-14 rounded-2xl overflow-hidden border border-white/10 bg-white/5 p-1">
-                        <img src={dev.avatar} alt={dev.name} className="w-full h-full object-cover rounded-xl" />
-                      </div>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-bold text-white mb-0.5">{dev.name}</h3>
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-mono">{dev.role}</p>
-                      <div className="flex items-center gap-3 mt-2">
-                        <a href={`https://github.com/${dev.github}`} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-white transition-colors">
-                          <ExternalLink size={14} />
-                        </a>
-                        <a href="https://discord.gg/F6JKWpeUSF" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-white transition-colors">
-                          <MessageCircle size={14} />
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
         </div>
       </div>
 
-      <PendenciasModal open={pendOpen} onClose={() => setPendOpen(false)} counts={{ tarefas: stats?.pendencias ?? 0 }} />
+      <PendenciasModal open={pendOpen} onClose={() => setPendOpen(false)} />
       <WelcomePopup />
     </div>
   );
