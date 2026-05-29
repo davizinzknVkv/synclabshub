@@ -267,7 +267,7 @@ function BoletimPage() {
         ) : null}
       </div>
 
-      {raw && disciplinas.length === 0 && !loading && (
+      {raw !== null && disciplinas.length === 0 && !loading && (
         <details className="rounded-2xl border border-violet-500/20 bg-violet-950/20 p-4 text-xs">
           <summary className="cursor-pointer text-cyan-300 font-semibold uppercase tracking-wider">
             Resposta bruta da API
