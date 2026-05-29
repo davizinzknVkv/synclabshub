@@ -660,9 +660,9 @@ function KhanPage() {
                                                 {item.type || ""}
                                               </span>
                                               <button
-                                                onClick={() => completeContent(item, lesson.id)}
+                                                onClick={(e) => { e.stopPropagation(); completeContent(item, lesson.id); }}
                                                 disabled={done || busy}
-                                                className="text-[9px] uppercase text-primary hover:text-white disabled:opacity-30 px-2 py-0.5 border border-primary/20 rounded-sm"
+                                                className="text-[9px] uppercase text-primary hover:text-white disabled:opacity-30 px-2 py-0.5 border border-primary/20 rounded-sm z-20"
                                               >
                                                 {busy ? (
                                                   <Loader2 size={9} className="animate-spin" />
