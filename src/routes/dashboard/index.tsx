@@ -65,6 +65,12 @@ function Counter({ value, suffix = "" }: { value: number; suffix?: string }) {
 }
 
 function Topbar({ name }: { name: string }) {
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    clearSession();
+    navigate({ to: "/" });
+  };
+
   return (
     <div className="hidden md:flex items-center gap-3 px-6 py-3 border-b border-white/5 glass-strong">
       <div className="relative flex-1 max-w-md">
@@ -89,20 +95,45 @@ function Topbar({ name }: { name: string }) {
                 <h4 className="text-sm font-bold text-white">Notificações</h4>
                 <span className="text-[10px] font-mono text-muted-foreground uppercase">Sistema Sync</span>
               </div>
-              <div className="py-8 text-center space-y-2">
-                <div className="w-10 h-10 rounded-full bg-white/[0.03] flex items-center justify-center mx-auto text-muted-foreground/30">
-                  <Bell size={20} />
+              <div className="py-4 space-y-2">
+                <div className="flex gap-3 p-2 rounded-lg bg-primary/5 border border-primary/10">
+                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary shrink-0">
+                    <Sparkles size={14} />
+                  </div>
+                  <div className="space-y-0.5">
+                    <p className="text-xs font-bold text-white">Bem-vindo ao Sync Labs v2</p>
+                    <p className="text-[10px] text-muted-foreground leading-tight">Sua central de automação está pronta para uso.</p>
+                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground">Você não tem novas notificações no momento.</p>
               </div>
             </div>
           </PopoverContent>
         </Popover>
         <div className="flex items-center gap-2 pl-2 ml-1 border-l border-white/5">
-          <div className="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold text-white"
-               style={{ background: "var(--gradient-primary)" }}>
-            {name[0]?.toUpperCase()}
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-3 pl-2 py-1 rounded-xl hover:bg-white/[0.03] transition-all group">
+                <div className="text-right hidden sm:block">
+                  <p className="text-xs font-bold text-white leading-none">{name}</p>
+                  <p className="text-[9px] text-muted-foreground mt-1 font-mono uppercase tracking-widest opacity-60">Aluno Conectado</p>
+                </div>
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold text-white shadow-glow-violet transition-transform group-hover:scale-105"
+                     style={{ background: "var(--gradient-primary)" }}>
+                  {name[0]?.toUpperCase()}
+                </div>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56 glass-strong border-white/10 mt-1">
+              <div className="p-3 border-b border-white/5 mb-1">
+                <p className="text-xs font-bold text-white">{name}</p>
+                <p className="text-[10px] text-muted-foreground truncate">Sync Labs Account</p>
+              </div>
+              <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer">
+                <LogOut size={14} className="mr-2" />
+                Sair
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </div>
