@@ -110,7 +110,7 @@ function Topbar({ name }: { name: string }) {
                     </div>
                     <div>
                       <p className="text-xs font-bold text-white group-hover:text-primary transition-colors">Novo Script Adicionado</p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">O script \"Astro G\" já está disponível no catálogo.</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">O script "Astro G" já está disponível no catálogo.</p>
                       <p className="text-[9px] text-muted-foreground/40 mt-2 font-mono uppercase">Há 2 horas</p>
                     </div>
                   </div>
@@ -209,7 +209,7 @@ function DashboardHome() {
   const [pendOpen, setPendOpen] = useState(false);
 
   useEffect(() => {
-    supabase.from(\"site_settings\").select(\"*\").single().then(({ data }) => {
+    supabase.from("site_settings").select("*").single().then(({ data }) => {
       if (data) setSettings(data as any);
     });
 
@@ -223,25 +223,25 @@ function DashboardHome() {
 
   const statCards = useMemo(() => [
     {
-      icon: CheckCircle2, label: \"Pendências\", value: stats?.pendencias ?? 0, suffix: \"\",
-      tint: \"from-violet-500/20 to-violet-500/5\", iconColor: \"text-primary\",
-      trend: stats?.pendencias === 0 ? \"Tudo em dia\" : \"ação necessária\",
+      icon: CheckCircle2, label: "Pendências", value: stats?.pendencias ?? 0, suffix: "",
+      tint: "from-violet-500/20 to-violet-500/5", iconColor: "text-primary",
+      trend: stats?.pendencias === 0 ? "Tudo em dia" : "ação necessária",
     },
     {
-      icon: Calendar, label: \"Faltas\", value: stats?.faltas ?? 0, suffix: \"\",
-      tint: \"from-cyan-500/20 to-cyan-500/5\", iconColor: \"text-accent\",
-      trend: (stats?.faltas ?? 0) < 5 ? \"controle\" : \"atenção\",
+      icon: Calendar, label: "Faltas", value: stats?.faltas ?? 0, suffix: "",
+      tint: "from-cyan-500/20 to-cyan-500/5", iconColor: "text-accent",
+      trend: (stats?.faltas ?? 0) < 5 ? "controle" : "atenção",
     },
     {
-      icon: TrendingUp, label: \"Frequência\", value: stats?.frequencia ?? 100, suffix: \"%\",
-      tint: \"from-emerald-500/20 to-emerald-500/5\", iconColor: \"text-emerald-400\",
-      trend: (stats?.frequencia ?? 100) >= 75 ? \"presença ok\" : \"abaixo do mínimo\",
+      icon: TrendingUp, label: "Frequência", value: stats?.frequencia ?? 100, suffix: "%",
+      tint: "from-emerald-500/20 to-emerald-500/5", iconColor: "text-emerald-400",
+      trend: (stats?.frequencia ?? 100) >= 75 ? "presença ok" : "abaixo do mínimo",
     },
     {
-      icon: Heart, label: \"Apoiar\", value: 0, suffix: \"\",
-      isLink: \"https://livepix.gg/davizinzkn\",
-      tint: \"from-pink-500/20 to-pink-500/5\", iconColor: \"text-pink-400\",
-      trend: \"doe ao projeto\",
+      icon: Heart, label: "Apoiar", value: 0, suffix: "",
+      isLink: "https://livepix.gg/davizinzkn",
+      tint: "from-pink-500/20 to-pink-500/5", iconColor: "text-pink-400",
+      trend: "doe ao projeto",
     },
   ], [stats]);
 
@@ -263,10 +263,10 @@ function DashboardHome() {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <span className="px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wider bg-primary/10 text-primary border border-primary/20">
-                  {stats?.turma || \"Sync Labs Hub\"}
+                  {stats?.turma || "Sync Labs Hub"}
                 </span>
                 <span className="px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wider bg-emerald-400/10 text-emerald-400 border border-emerald-400/20 flex items-center gap-1">
-                  <span className=\"status-online w-1 h-1 rounded-full bg-emerald-400\" /> Online
+                  <span className="status-online w-1 h-1 rounded-full bg-emerald-400" /> Online
                 </span>
               </div>
               <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white font-display">
@@ -281,12 +281,12 @@ function DashboardHome() {
           {/* Stats grid */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {statCards.map((stat, i) => {
-              const isPend = stat.label === \"Pendências\";
-              const Wrapper: any = stat.isLink ? \"a\" : isPend ? \"button\" : \"div\";
+              const isPend = stat.label === "Pendências";
+              const Wrapper: any = stat.isLink ? "a" : isPend ? "button" : "div";
               const wrapperProps = stat.isLink
-                ? { href: stat.isLink, target: \"_blank\", rel: \"noopener noreferrer\" }
+                ? { href: stat.isLink, target: "_blank", rel: "noopener noreferrer" }
                 : isPend
-                ? { onClick: () => setPendOpen(true), type: \"button\" }
+                ? { onClick: () => setPendOpen(true), type: "button" }
                 : {};
               return (
                 <motion.div
@@ -378,7 +378,7 @@ function DashboardHome() {
 
           {/* Comunidade */}
           <SectionPanel title="Comunidade">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
                 {
                   name: "Sync Labs",
