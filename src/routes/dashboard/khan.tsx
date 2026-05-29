@@ -612,9 +612,9 @@ function KhanPage() {
                                         </span>
                                       </button>
                                       <button
-                                        onClick={() => completeLessonAll(lesson, u.id)}
+                                        onClick={(e) => { e.stopPropagation(); completeLessonAll(lesson, u.id); }}
                                         disabled={running[`lall-${lesson.id}`]}
-                                        className="text-[9px] uppercase font-mono text-primary hover:text-white border border-primary/20 rounded-sm px-2 py-0.5 flex items-center gap-1"
+                                        className="text-[9px] uppercase font-mono text-primary hover:text-white border border-primary/20 rounded-sm px-2 py-0.5 flex items-center gap-1 z-20"
                                       >
                                         <Play size={8} /> Completar
                                       </button>
