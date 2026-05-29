@@ -118,6 +118,8 @@ export function AppSidebar() {
 
   // ---------- Mobile ----------
   if (isMobile) {
+    const [extraOpen, setExtraOpen] = useState(false);
+
     return (
       <>
         {/* Top bar mobile */}
