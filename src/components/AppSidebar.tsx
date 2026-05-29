@@ -165,15 +165,28 @@ export function AppSidebar() {
                   <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground px-3 pt-2 pb-2 font-mono">Plataforma</p>
                   {NAV_ITEMS.map((item) => <NavItem key={item.url} item={item} onClick={() => setMobileOpen(false)} />)}
 
-                  <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground px-3 pt-5 pb-2 font-mono">Comunidade</p>
+                  <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground px-3 pt-5 pb-1 font-mono">Extras</p>
+                  <div className="flex flex-col gap-1 px-1 mb-2">
+                    <button onClick={() => { setRoadmapOpen(true); setMobileOpen(false); }} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/[0.04] transition-all">
+                      <LayoutGrid size={17} />
+                      <span>Roadmap</span>
+                    </button>
+                    <button onClick={() => { setPartnerOpen(true); setMobileOpen(false); }} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/[0.04] transition-all">
+                      <Gamepad2 size={17} />
+                      <span>Parceiro</span>
+                    </button>
+                  </div>
+
+                  <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground px-3 pt-2 pb-2 font-mono">Comunidade</p>
                   <div className="flex flex-col gap-1 px-1">
-                    {COMMUNITY_ITEMS.map((item) => (
-                      <a key={item.url} href={item.url} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/[0.04] transition-all">
-                        <item.icon size={17} />
-                        <span>{item.title}</span>
-                      </a>
-                    ))}
+                    <button onClick={() => { setDiscordOpen(true); setMobileOpen(false); }} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/[0.04] transition-all text-left">
+                      <MessageCircle size={17} />
+                      <span>Discord</span>
+                    </button>
+                    <button onClick={() => { setDonationOpen(true); setMobileOpen(false); }} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/[0.04] transition-all text-left">
+                      <Heart size={17} />
+                      <span>Apoiar</span>
+                    </button>
                   </div>
                 </nav>
 
@@ -188,6 +201,11 @@ export function AppSidebar() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        <DonationModal open={donationOpen} onOpenChange={setDonationOpen} />
+        <DiscordModal open={discordOpen} onOpenChange={setDiscordOpen} />
+        <PartnerModal open={partnerOpen} onOpenChange={setPartnerOpen} />
+        <RoadmapModal open={roadmapOpen} onOpenChange={setRoadmapOpen} />
       </>
     );
   }
