@@ -218,19 +218,28 @@ export function AppSidebar() {
         {!collapsed ? (
           <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground px-3 pt-5 pb-2 font-mono">Comunidade</p>
         ) : <div className="h-4" />}
-        {COMMUNITY_ITEMS.map((item) => (
-          <a key={item.url} href={item.url} target="_blank" rel="noopener noreferrer"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/[0.04] transition-all">
-            <item.icon size={17} />
-            {!collapsed && <span>{item.title}</span>}
-          </a>
-        ))}
+        <div className={`flex flex-col gap-1 ${collapsed ? "px-0" : "px-1"}`}>
+          {COMMUNITY_ITEMS.map((item) => (
+            <a key={item.url} href={item.url} target="_blank" rel="noopener noreferrer"
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/[0.04] transition-all ${collapsed ? "justify-center" : ""}`}>
+              <item.icon size={17} />
+              {!collapsed && <span>{item.title}</span>}
+            </a>
+          ))}
+        </div>
       </nav>
 
-      <div className="p-4 border-t border-white/5 opacity-50 grayscale">
-        <div className="flex items-center gap-3 px-1 font-mono">
+      <div className="mt-auto p-4 border-t border-white/5 space-y-4">
+        {!collapsed && (
+          <div className="text-center w-full">
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-mono">
+              Desenvolvido por Davizinkn & Zennos
+            </p>
+          </div>
+        )}
+        <div className={`flex items-center gap-3 font-mono ${collapsed ? "justify-center" : "px-1"}`}>
           <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-          {!collapsed && <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Sync v2.0</span>}
+          {!collapsed && <span className="text-[10px] uppercase tracking-widest text-muted-foreground/40">Sync v2.0</span>}
         </div>
       </div>
     </aside>
