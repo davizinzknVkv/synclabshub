@@ -5,6 +5,11 @@ import {
   CheckCircle2, Calendar, TrendingUp, Heart, ArrowUpRight,
   Activity, Zap, Sparkles, Bell, Search, Plus, ShieldAlert, ZapOff
 } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { getSession } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchDashboardStats } from "@/lib/api";
@@ -63,14 +68,28 @@ function Topbar({ name }: { name: string }) {
         <kbd className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-mono text-muted-foreground bg-white/5 border border-white/10 rounded px-1.5 py-0.5">⌘K</kbd>
       </div>
       <div className="flex items-center gap-2 ml-auto">
-        <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/5">
-          <Sparkles size={13} className="text-accent" />
-          <span className="text-xs font-mono text-muted-foreground">Créditos: <span className="text-white font-bold">∞</span></span>
-        </div>
-        <button className="relative w-9 h-9 rounded-lg bg-white/[0.03] border border-white/5 flex items-center justify-center text-muted-foreground hover:text-white hover:border-primary/40 transition-all">
-          <Bell size={15} />
-          <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-destructive shadow-[0_0_8px_currentColor]" />
-        </button>
+        <Popover>
+          <PopoverTrigger asChild>
+            <button className="relative w-9 h-9 rounded-lg bg-white/[0.03] border border-white/5 flex items-center justify-center text-muted-foreground hover:text-white hover:border-primary/40 transition-all">
+              <Bell size={15} />
+              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-destructive shadow-[0_0_8px_currentColor]" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80 glass-strong border-white/10 p-4">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                <h4 className="text-sm font-bold text-white">Notificações</h4>
+                <span className="text-[10px] font-mono text-muted-foreground uppercase">Sistema Sync</span>
+              </div>
+              <div className="py-8 text-center space-y-2">
+                <div className="w-10 h-10 rounded-full bg-white/[0.03] flex items-center justify-center mx-auto text-muted-foreground/30">
+                  <Bell size={20} />
+                </div>
+                <p className="text-xs text-muted-foreground">Você não tem novas notificações no momento.</p>
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
         <div className="flex items-center gap-2 pl-2 ml-1 border-l border-white/5">
           <div className="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold text-white"
                style={{ background: "var(--gradient-primary)" }}>
@@ -148,7 +167,7 @@ function DashboardHome() {
                   {stats?.turma || "Sync Labs Hub"}
                 </span>
                 <span className="px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wider bg-emerald-400/10 text-emerald-400 border border-emerald-400/20 flex items-center gap-1">
-                  <span className="status-online w-1 h-1 rounded-full bg-emerald-400" /> sistemas ativos
+                  <span className="status-online w-1 h-1 rounded-full bg-emerald-400" /> @Bz181120
                 </span>
               </div>
               <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white font-display">
@@ -158,12 +177,6 @@ function DashboardHome() {
                 Sua central de automação inteligente. Tudo sob controle.
               </p>
             </div>
-            <Link
-              to="/dashboard/tarefas"
-              className="btn-premium inline-flex items-center gap-2 px-5 py-2.5 text-sm"
-            >
-              <Plus size={15} /> Nova automação
-            </Link>
           </motion.div>
 
           {/* Stats grid */}
@@ -216,7 +229,7 @@ function DashboardHome() {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="text-lg font-bold text-white font-display flex items-center gap-2">
-                  <Zap size={16} className="text-accent" /> Scripts disponíveis
+                  <Zap size={16} className="text-primary" /> Scripts disponíveis
                 </h2>
                 <p className="text-xs text-muted-foreground mt-0.5">Automações prontas para executar</p>
               </div>
@@ -258,7 +271,7 @@ function DashboardHome() {
                         <div className="relative flex items-start gap-4">
                           <div className="relative">
                             <div className="absolute inset-0 rounded-xl blur-xl opacity-60 group-hover:opacity-100 transition-opacity"
-                              style={{ background: isDisabled ? "oklch(0.62 0.03 270)" : "var(--gradient-primary)" }} />
+                              style={{ background: isDisabled ? "oklch(0.62 0.03 270)" : "linear-gradient(135deg, oklch(0.6 0.3 280), oklch(0.7 0.2 200))" }} />
                             <div className="relative w-12 h-12 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center">
                               <img src={script.icon} alt="" className={`w-7 h-7 object-contain ${isDisabled ? 'grayscale' : ''}`} loading="lazy" width={28} height={28} />
                             </div>
@@ -267,8 +280,8 @@ function DashboardHome() {
                             <div className="flex items-center gap-2 mb-1">
                               <h3 className="text-sm font-bold text-white tracking-tight">{script.name}</h3>
                               {script.badge && (
-                                <span className="text-[9px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded text-accent-foreground"
-                                  style={{ background: script.badge === "AI" ? "var(--gradient-primary)" : "oklch(0.66 0.26 22)" }}>
+                                <span className="text-[9px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded text-white"
+                                  style={{ background: script.badge === "AI" ? "linear-gradient(135deg, oklch(0.6 0.3 280), oklch(0.7 0.2 200))" : "oklch(0.6 0.3 280)" }}>
                                   {script.badge}
                                 </span>
                               )}

@@ -106,21 +106,47 @@ export function TaskModal({ open, tasks, onClose, onSubmit }: TaskModalProps) {
                 ))}
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Configuração de Tempo</label>
+                <div className="grid grid-cols-1 gap-2">
+                  <button
+                    onClick={() => { setMinTime(720); setMaxTime(1080); }}
+                    className={`flex flex-col items-start p-4 rounded-2xl border transition-all ${
+                      minTime === 720 && maxTime === 1080
+                        ? "border-primary bg-primary/10 text-white"
+                        : "border-surface-border bg-surface text-muted-foreground hover:text-white hover:border-surface-border/80"
+                    }`}
+                  >
+                    <span className="text-[11px] font-bold">Opção 1: Seguro</span>
+                    <span className="text-[9px] opacity-70">720-1080s/pág | ~510min total</span>
+                  </button>
+                  <button
+                    onClick={() => { setMinTime(510); setMaxTime(690); }}
+                    className={`flex flex-col items-start p-4 rounded-2xl border transition-all ${
+                      minTime === 510 && maxTime === 690
+                        ? "border-primary bg-primary/10 text-white"
+                        : "border-surface-border bg-surface text-muted-foreground hover:text-white hover:border-surface-border/80"
+                    }`}
+                  >
+                    <span className="text-[11px] font-bold">Opção 2: Recomendado</span>
+                    <span className="text-[9px] opacity-70">510-690s/pág | ~340min total</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 opacity-50 pointer-events-none">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Tempo Mín. (min)</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Mínimo (s)</label>
                   <input
-                    type="number" value={minTime} min={0} max={60}
-                    onChange={e => setMinTime(+e.target.value)}
-                    className="input-premium w-full text-center py-3 text-sm"
+                    type="number" value={minTime} readOnly
+                    className="input-premium w-full text-center py-3 text-sm bg-transparent"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Tempo Máx. (min)</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Máximo (s)</label>
                   <input
-                    type="number" value={maxTime} min={1} max={60}
-                    onChange={e => setMaxTime(+e.target.value)}
-                    className="input-premium w-full text-center py-3 text-sm"
+                    type="number" value={maxTime} readOnly
+                    className="input-premium w-full text-center py-3 text-sm bg-transparent"
                   />
                 </div>
               </div>
