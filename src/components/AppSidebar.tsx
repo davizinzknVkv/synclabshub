@@ -2,7 +2,7 @@ import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   Home, CheckSquare, PenTool, MessageCircle, Heart,
   ChevronLeft, ChevronRight, LogOut, Menu, X,
-  GraduationCap, Zap,
+  GraduationCap, Zap, FileText,
 } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -14,6 +14,7 @@ const NAV_ITEMS = [
   { title: "Tarefa SP", url: "/dashboard/tarefas", icon: CheckSquare },
   { title: "Prepara SP", url: "/dashboard/preparasp", icon: GraduationCap },
   { title: "Redação", url: "/dashboard/redacao", icon: PenTool },
+  { title: "Boletim Escolar", url: "/dashboard/boletim", icon: FileText },
 ];
 
 const COMMUNITY_ITEMS = [
@@ -143,7 +144,6 @@ export function AppSidebar() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-xs font-semibold text-white truncate">{displayName}</div>
-                      <div className="text-[10px] text-muted-foreground font-mono">Free Plan</div>
                     </div>
                   </div>
                   <button onClick={handleLogout}
@@ -217,15 +217,9 @@ export function AppSidebar() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-xs font-semibold text-white truncate">{displayName}</div>
-              <div className="text-[10px] text-muted-foreground font-mono">Free Plan</div>
             </div>
           </div>
         )}
-        <button onClick={handleLogout}
-          className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all w-full ${collapsed ? "justify-center" : ""}`}>
-          <LogOut size={16} />
-          {!collapsed && <span>Sair</span>}
-        </button>
       </div>
     </aside>
   );

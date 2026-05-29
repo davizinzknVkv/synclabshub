@@ -216,6 +216,9 @@ function Index() {
             className="flex items-center gap-2 text-xs text-muted-foreground hover:text-white transition-colors">
             <Heart size={12} className="text-pink-400" /> Apoiar projeto
           </a>
+          <div className="text-[10px] text-muted-foreground opacity-50 flex items-center gap-1">
+            Desenvolvedores do site: Davizinkn e Zennos
+          </div>
         </footer>
       </main>
 
