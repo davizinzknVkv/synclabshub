@@ -110,7 +110,7 @@ function Topbar({ name }: { name: string }) {
                     </div>
                     <div>
                       <p className="text-xs font-bold text-white group-hover:text-primary transition-colors">Novo Script Adicionado</p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">O script "Astro G" já está disponível no catálogo.</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">O script \"Astro G\" já está disponível no catálogo.</p>
                       <p className="text-[9px] text-muted-foreground/40 mt-2 font-mono uppercase">Há 2 horas</p>
                     </div>
                   </div>
@@ -168,6 +168,7 @@ function Topbar({ name }: { name: string }) {
     </div>
     );
 }
+
 function SectionPanel({
   title,
   action,
@@ -199,7 +200,6 @@ function SectionPanel({
   );
 }
 
-
 function DashboardHome() {
   const session = getSession();
   const displayName = session?.nick || session?.ra || "Aluno";
@@ -209,7 +209,7 @@ function DashboardHome() {
   const [pendOpen, setPendOpen] = useState(false);
 
   useEffect(() => {
-    supabase.from("site_settings").select("*").single().then(({ data }) => {
+    supabase.from(\"site_settings\").select(\"*\").single().then(({ data }) => {
       if (data) setSettings(data as any);
     });
 
@@ -223,25 +223,25 @@ function DashboardHome() {
 
   const statCards = useMemo(() => [
     {
-      icon: CheckCircle2, label: "Pendências", value: stats?.pendencias ?? 0, suffix: "",
-      tint: "from-violet-500/20 to-violet-500/5", iconColor: "text-primary",
-      trend: stats?.pendencias === 0 ? "Tudo em dia" : "ação necessária",
+      icon: CheckCircle2, label: \"Pendências\", value: stats?.pendencias ?? 0, suffix: \"\",
+      tint: \"from-violet-500/20 to-violet-500/5\", iconColor: \"text-primary\",
+      trend: stats?.pendencias === 0 ? \"Tudo em dia\" : \"ação necessária\",
     },
     {
-      icon: Calendar, label: "Faltas", value: stats?.faltas ?? 0, suffix: "",
-      tint: "from-cyan-500/20 to-cyan-500/5", iconColor: "text-accent",
-      trend: (stats?.faltas ?? 0) < 5 ? "controle" : "atenção",
+      icon: Calendar, label: \"Faltas\", value: stats?.faltas ?? 0, suffix: \"\",
+      tint: \"from-cyan-500/20 to-cyan-500/5\", iconColor: \"text-accent\",
+      trend: (stats?.faltas ?? 0) < 5 ? \"controle\" : \"atenção\",
     },
     {
-      icon: TrendingUp, label: "Frequência", value: stats?.frequencia ?? 100, suffix: "%",
-      tint: "from-emerald-500/20 to-emerald-500/5", iconColor: "text-emerald-400",
-      trend: (stats?.frequencia ?? 100) >= 75 ? "presença ok" : "abaixo do mínimo",
+      icon: TrendingUp, label: \"Frequência\", value: stats?.frequencia ?? 100, suffix: \"%\",
+      tint: \"from-emerald-500/20 to-emerald-500/5\", iconColor: \"text-emerald-400\",
+      trend: (stats?.frequencia ?? 100) >= 75 ? \"presença ok\" : \"abaixo do mínimo\",
     },
     {
-      icon: Heart, label: "Apoiar", value: 0, suffix: "",
-      isLink: "https://livepix.gg/davizinzkn",
-      tint: "from-pink-500/20 to-pink-500/5", iconColor: "text-pink-400",
-      trend: "doe ao projeto",
+      icon: Heart, label: \"Apoiar\", value: 0, suffix: \"\",
+      isLink: \"https://livepix.gg/davizinzkn\",
+      tint: \"from-pink-500/20 to-pink-500/5\", iconColor: \"text-pink-400\",
+      trend: \"doe ao projeto\",
     },
   ], [stats]);
 
@@ -263,10 +263,10 @@ function DashboardHome() {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <span className="px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wider bg-primary/10 text-primary border border-primary/20">
-                  {stats?.turma || "Sync Labs Hub"}
+                  {stats?.turma || \"Sync Labs Hub\"}
                 </span>
                 <span className="px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wider bg-emerald-400/10 text-emerald-400 border border-emerald-400/20 flex items-center gap-1">
-                  <span className="status-online w-1 h-1 rounded-full bg-emerald-400" /> Online
+                  <span className=\"status-online w-1 h-1 rounded-full bg-emerald-400\" /> Online
                 </span>
               </div>
               <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white font-display">
@@ -281,12 +281,12 @@ function DashboardHome() {
           {/* Stats grid */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {statCards.map((stat, i) => {
-              const isPend = stat.label === "Pendências";
-              const Wrapper: any = stat.isLink ? "a" : isPend ? "button" : "div";
+              const isPend = stat.label === \"Pendências\";
+              const Wrapper: any = stat.isLink ? \"a\" : isPend ? \"button\" : \"div\";
               const wrapperProps = stat.isLink
-                ? { href: stat.isLink, target: "_blank", rel: "noopener noreferrer" }
+                ? { href: stat.isLink, target: \"_blank\", rel: \"noopener noreferrer\" }
                 : isPend
-                ? { onClick: () => setPendOpen(true), type: "button" }
+                ? { onClick: () => setPendOpen(true), type: \"button\" }
                 : {};
               return (
                 <motion.div
@@ -378,129 +378,55 @@ function DashboardHome() {
 
           {/* Comunidade */}
           <SectionPanel title="Comunidade">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
               {[
                 {
                   name: "Sync Labs",
                   subtitle: "Servidor Oficial Da Sync",
-                  gradient: "from-red-900 via-red-950 to-black",
-                  accent: "bg-red-500",
+                  image: "https://media.discordapp.net/attachments/1415012145971855400/1493336103699222588/download_23.jfif?ex=6a1b3e1f&is=6a19ec9f&hm=8ae05d514a65755f12abf67298dec444edc901f06a6afe905395f210c8c65620&=&format=webp&width=674&height=676",
+                  accent: "bg-primary",
                   emoji: "🤖",
                   url: "https://discord.gg/F6JKWpeUSF",
                 },
                 {
-                  name: "ASTRO G ",
-                  subtitle: "Astro G",
-                  gradient: "from-yellow-900/40 via-amber-950 to-black",
-                  accent: "bg-yellow-400",
-                  lucide: Lightbulb,
+                  name: "Equipe de Scripts",
+                  subtitle: "Comunidade de Desenvolvedores",
+                  image: "https://media.discordapp.net/attachments/1415012145971855400/1510038905670340759/Gemini_Generated_Image_s4j2i8s4j2i8s4j2.png?ex=6a1b5cd2&is=6a1a0b52&hm=6ab42bd9abf0c3f16e16135a6040c33f909fe8101fffd246062e3d068eb84f64&=&format=webp&quality=lossless&width=780&height=780",
+                  accent: "bg-accent",
+                  emoji: "🚀",
                   url: "#",
                 },
-                {
-                  name: "Havaii",
-                  subtitle: "Havaii Roleplay",
-                  gradient: "from-slate-800 via-slate-900 to-black",
-                  accent: "bg-cyan-400",
-                  emoji: "✦",
-                  url: "#",
-                },
-              ].map((c, i) => (
-                <motion.a
+              ].map((c) => (
+                <a
                   key={c.name}
                   href={c.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.05 * i }}
-                  className="group relative overflow-hidden rounded-2xl border border-white/[0.06] hover:border-white/20 transition-all"
+                  className="group relative h-52 rounded-2xl overflow-hidden border border-white/5 hover:border-primary/30 transition-all flex flex-col justify-end p-6"
                 >
-                  <div className={`relative aspect-[16/9] bg-gradient-to-br ${c.gradient} flex items-center justify-center`}>
-                    <div className="absolute inset-0 bg-grid-lines opacity-30" />
-                    {c.lucide ? (
-                      <c.lucide size={56} className="text-yellow-300 drop-shadow-[0_0_24px_rgba(250,204,21,0.6)]" />
-                    ) : (
-                      <span className="text-5xl drop-shadow-2xl">{c.emoji}</span>
-                    )}
-                    <div className={`absolute bottom-0 left-0 right-0 h-1 ${c.accent}`} />
-                  </div>
-                  <div className="p-3 bg-[#0e0e16] border-t border-white/5">
-                    <div className="flex items-center gap-2">
-                      <span className="w-[2px] h-8 rounded-full bg-red-500" />
-                      <div>
-                        <h3 className="text-sm font-bold text-white leading-tight">{c.name}</h3>
-                        <p className="text-[10px] text-muted-foreground">{c.subtitle}</p>
+                  <img src={c.image} alt="" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0e0e16] via-[#0e0e16]/40 to-transparent opacity-90 group-hover:opacity-100 transition-opacity" />
+                  
+                  <div className="relative z-10">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className={`w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-xl backdrop-blur-sm`}>
+                        {c.emoji}
                       </div>
+                      <div className={`h-[1px] flex-1 ${c.accent} opacity-30`} />
                     </div>
+                    <h3 className="text-lg font-bold text-white tracking-tight group-hover:text-primary transition-colors">{c.name}</h3>
+                    <p className="text-xs text-white/50 font-medium tracking-wide uppercase">{c.subtitle}</p>
                   </div>
-                </motion.a>
+
+                  <div className={`absolute bottom-0 left-0 h-[3px] w-0 ${c.accent} group-hover:w-full transition-all duration-500 shadow-[0_0_12px_currentColor]`} />
+                </a>
               ))}
             </div>
           </SectionPanel>
-
-          {/* Developers Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="pt-8 border-t border-white/5"
-          >
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-lg font-bold text-white font-display flex items-center gap-2">
-                  <Heart size={16} className="text-pink-400" /> Equipe Sync Labs
-                </h2>
-                <p className="text-xs text-muted-foreground mt-0.5">As mentes por trás da plataforma</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {[
-                { 
-                  name: "Davizinkn", 
-                  role: "Founder & Lead Dev", 
-                  github: "davizinkn",
-                  avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Davizinkn",
-                  gradient: "from-violet-600/20 to-cyan-600/20"
-                },
-                { 
-                  name: "Zennos", 
-                  role: "Co-Founder & UI/UX", 
-                  github: "zennos",
-                  avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Zennos",
-                  gradient: "from-cyan-600/20 to-emerald-600/20"
-                }
-              ].map((dev, i) => (
-                <div key={dev.name} className="card-premium p-4 group">
-                  <div className={`absolute inset-0 bg-gradient-to-br ${dev.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-                  <div className="relative flex items-center gap-4">
-                    <div className="relative">
-                      <div className="absolute inset-0 bg-primary/20 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                      <div className="relative w-14 h-14 rounded-2xl overflow-hidden border border-white/10 bg-white/5 p-1">
-                        <img src={dev.avatar} alt={dev.name} className="w-full h-full object-cover rounded-xl" />
-                      </div>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-bold text-white mb-0.5">{dev.name}</h3>
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-mono">{dev.role}</p>
-                      <div className="flex items-center gap-3 mt-2">
-                        <a href={`https://github.com/${dev.github}`} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-white transition-colors">
-                          <ExternalLink size={14} />
-                        </a>
-                        <a href="https://discord.gg/F6JKWpeUSF" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-white transition-colors">
-                          <MessageCircle size={14} />
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
         </div>
       </div>
 
-      <PendenciasModal open={pendOpen} onClose={() => setPendOpen(false)} counts={{ tarefas: stats?.pendencias ?? 0 }} />
+      <PendenciasModal open={pendOpen} onOpenChange={setPendOpen} />
       <WelcomePopup />
     </div>
   );
