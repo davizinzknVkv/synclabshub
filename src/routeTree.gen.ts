@@ -26,6 +26,7 @@ import { Route as ApiPreparaspSplatRouteImport } from './routes/api/preparasp.$'
 import { Route as ApiLeiaspSplatRouteImport } from './routes/api/leiasp.$'
 import { Route as ApiCupiditysSplatRouteImport } from './routes/api/cupiditys.$'
 import { Route as ApiCatalystCompleteRouteImport } from './routes/api/catalyst.complete'
+import { Route as ApiBoletimSplatRouteImport } from './routes/api/boletim.$'
 import { Route as ApiAiGenerateRouteImport } from './routes/api/ai.generate'
 import { Route as ApiAdminVerifyRouteImport } from './routes/api/admin.verify'
 import { Route as ApiAdminSettingsRouteImport } from './routes/api/admin.settings'
@@ -117,6 +118,11 @@ const ApiCatalystCompleteRoute = ApiCatalystCompleteRouteImport.update({
   path: '/api/catalyst/complete',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiBoletimSplatRoute = ApiBoletimSplatRouteImport.update({
+  id: '/api/boletim/$',
+  path: '/api/boletim/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAiGenerateRoute = ApiAiGenerateRouteImport.update({
   id: '/api/ai/generate',
   path: '/api/ai/generate',
@@ -159,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/settings': typeof ApiAdminSettingsRoute
   '/api/admin/verify': typeof ApiAdminVerifyRoute
   '/api/ai/generate': typeof ApiAiGenerateRoute
+  '/api/boletim/$': typeof ApiBoletimSplatRoute
   '/api/catalyst/complete': typeof ApiCatalystCompleteRoute
   '/api/cupiditys/$': typeof ApiCupiditysSplatRoute
   '/api/leiasp/$': typeof ApiLeiaspSplatRoute
@@ -182,6 +189,7 @@ export interface FileRoutesByTo {
   '/api/admin/settings': typeof ApiAdminSettingsRoute
   '/api/admin/verify': typeof ApiAdminVerifyRoute
   '/api/ai/generate': typeof ApiAiGenerateRoute
+  '/api/boletim/$': typeof ApiBoletimSplatRoute
   '/api/catalyst/complete': typeof ApiCatalystCompleteRoute
   '/api/cupiditys/$': typeof ApiCupiditysSplatRoute
   '/api/leiasp/$': typeof ApiLeiaspSplatRoute
@@ -207,6 +215,7 @@ export interface FileRoutesById {
   '/api/admin/settings': typeof ApiAdminSettingsRoute
   '/api/admin/verify': typeof ApiAdminVerifyRoute
   '/api/ai/generate': typeof ApiAiGenerateRoute
+  '/api/boletim/$': typeof ApiBoletimSplatRoute
   '/api/catalyst/complete': typeof ApiCatalystCompleteRoute
   '/api/cupiditys/$': typeof ApiCupiditysSplatRoute
   '/api/leiasp/$': typeof ApiLeiaspSplatRoute
@@ -233,6 +242,7 @@ export interface FileRouteTypes {
     | '/api/admin/settings'
     | '/api/admin/verify'
     | '/api/ai/generate'
+    | '/api/boletim/$'
     | '/api/catalyst/complete'
     | '/api/cupiditys/$'
     | '/api/leiasp/$'
@@ -256,6 +266,7 @@ export interface FileRouteTypes {
     | '/api/admin/settings'
     | '/api/admin/verify'
     | '/api/ai/generate'
+    | '/api/boletim/$'
     | '/api/catalyst/complete'
     | '/api/cupiditys/$'
     | '/api/leiasp/$'
@@ -280,6 +291,7 @@ export interface FileRouteTypes {
     | '/api/admin/settings'
     | '/api/admin/verify'
     | '/api/ai/generate'
+    | '/api/boletim/$'
     | '/api/catalyst/complete'
     | '/api/cupiditys/$'
     | '/api/leiasp/$'
@@ -297,6 +309,7 @@ export interface RootRouteChildren {
   ApiAdminSettingsRoute: typeof ApiAdminSettingsRoute
   ApiAdminVerifyRoute: typeof ApiAdminVerifyRoute
   ApiAiGenerateRoute: typeof ApiAiGenerateRoute
+  ApiBoletimSplatRoute: typeof ApiBoletimSplatRoute
   ApiCatalystCompleteRoute: typeof ApiCatalystCompleteRoute
   ApiCupiditysSplatRoute: typeof ApiCupiditysSplatRoute
   ApiLeiaspSplatRoute: typeof ApiLeiaspSplatRoute
@@ -427,6 +440,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiCatalystCompleteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/boletim/$': {
+      id: '/api/boletim/$'
+      path: '/api/boletim/$'
+      fullPath: '/api/boletim/$'
+      preLoaderRoute: typeof ApiBoletimSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/ai/generate': {
       id: '/api/ai/generate'
       path: '/api/ai/generate'
@@ -499,6 +519,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminSettingsRoute: ApiAdminSettingsRoute,
   ApiAdminVerifyRoute: ApiAdminVerifyRoute,
   ApiAiGenerateRoute: ApiAiGenerateRoute,
+  ApiBoletimSplatRoute: ApiBoletimSplatRoute,
   ApiCatalystCompleteRoute: ApiCatalystCompleteRoute,
   ApiCupiditysSplatRoute: ApiCupiditysSplatRoute,
   ApiLeiaspSplatRoute: ApiLeiaspSplatRoute,
@@ -510,12 +531,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
