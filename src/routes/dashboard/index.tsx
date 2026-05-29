@@ -263,93 +263,120 @@ function DashboardHome() {
             })}
           </div>
 
-          {/* Scripts grid */}
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="text-lg font-bold text-white font-display flex items-center gap-2">
-                  <Zap size={16} className="text-primary" /> Scripts disponíveis
-                </h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Automações prontas para executar</p>
-              </div>
-              <span className="text-[10px] font-mono text-muted-foreground">
-                {SCRIPTS.length} ATIVOS
-              </span>
-            </div>
-
-            <div className="relative">
-              {settings?.maintenance_mode && (
-                <div className="absolute inset-0 z-20 flex items-center justify-center p-8 glass-strong rounded-3xl border border-red-500/30">
-                  <div className="text-center space-y-4 max-w-md">
-                    <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto text-red-500 animate-pulse">
-                      <ShieldAlert size={32} />
-                    </div>
-                    <h3 className="text-xl font-black text-white uppercase tracking-tighter italic">Sistema em Manutenção</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">Estamos otimizando nossos servidores para oferecer uma experiência superior. Voltaremos em instantes.</p>
-                  </div>
-                </div>
-              )}
-
-              <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 transition-all duration-500 ${settings?.maintenance_mode ? 'blur-md grayscale opacity-40 pointer-events-none' : ''}`}>
-                {SCRIPTS.map((script, i) => {
-                  const isOff = script.key && settings && (settings as any)[script.key] === false;
-                  const isDisabled = settings?.maintenance_mode || isOff;
-                  
-                  return (
-                    <motion.div
-                      key={script.name}
-                      initial={{ opacity: 0, y: 16 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.1 + i * 0.04 }}
+          {/* Nossos Scripts */}
+          <SectionPanel title="Nossos Scripts" action={{ label: "Ver todas", href: "#" }}>
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
+              {[
+                { name: "Tarefa SP", url: "/dashboard/tarefas", icon: iconTarefa, key: "scripts_enabled" },
+                { name: "Redação Paulista", url: "/dashboard/redacao", icon: iconRedacao, key: "scripts_enabled" },
+                { name: "speak", url: "#", logoText: "speak", logoBg: "bg-white", logoColor: "text-black" },
+                { name: "Open English", url: "#", logoText: "open english", logoBg: "bg-[#0a3d62]", logoColor: "text-white text-[8px]" },
+                { name: "Leia SP", url: "/dashboard/leiasp", icon: iconLeiaSp, key: "scripts_enabled" },
+                { name: "Khan Academy", url: "/dashboard/khan", icon: iconKhan, key: "scripts_enabled" },
+                { name: "Educação Profissional", url: "#", logoText: "Edu.", logoBg: "bg-white", logoColor: "text-[#1e3a5f]" },
+                { name: "Alura", url: "#", aluraLogo: true },
+                { name: "CMSP Bots", url: "#", lucide: Lightbulb, lucideColor: "text-yellow-300" },
+              ].map((s: any, i) => {
+                const isOff = s.key && settings && (settings as any)[s.key] === false;
+                const isDisabled = settings?.maintenance_mode || isOff;
+                return (
+                  <motion.div
+                    key={s.name}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.04 * i }}
+                  >
+                    <Link
+                      to={isDisabled ? "#" : s.url}
+                      onClick={(e) => (isDisabled || s.url === "#") && e.preventDefault()}
+                      className={`relative group flex flex-col items-center gap-2 p-3 rounded-xl bg-[#13131c] border border-white/[0.06] hover:border-red-500/40 transition-all ${isDisabled ? "opacity-50 grayscale cursor-not-allowed" : ""}`}
                     >
-                      <Link
-                        to={isDisabled ? "#" : script.url}
-                        onClick={(e) => isDisabled && e.preventDefault()}
-                        className={`card-premium group block p-5 relative overflow-hidden transition-all duration-300 ${isDisabled ? 'opacity-50 grayscale cursor-not-allowed' : 'hover:scale-[1.02] hover:shadow-glow-violet'}`}
-                      >
-                        {/* ZKN Design Gradient Background */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        
-                        <div className="relative flex items-start gap-4">
-                          <div className="relative">
-                            <div className="absolute inset-0 rounded-xl blur-xl opacity-60 group-hover:opacity-100 transition-opacity"
-                              style={{ background: isOff ? "oklch(0.62 0.03 270)" : "linear-gradient(135deg, var(--primary), var(--accent))" }} />
-                            <div className="relative w-12 h-12 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center">
-                              <img src={script.icon} alt="" className={`w-7 h-7 object-contain ${isDisabled ? 'grayscale' : ''}`} loading="lazy" width={28} height={28} />
-                            </div>
+                      <span className="absolute left-2 top-2 bottom-2 w-[2px] rounded-full bg-red-500/80 opacity-80 group-hover:opacity-100" />
+                      <div className="w-12 h-12 rounded-lg bg-black/40 border border-white/5 flex items-center justify-center overflow-hidden">
+                        {s.icon ? (
+                          <img src={s.icon} alt="" className="w-8 h-8 object-contain" />
+                        ) : s.lucide ? (
+                          <s.lucide size={22} className={s.lucideColor} />
+                        ) : s.aluraLogo ? (
+                          <span className="font-black text-2xl bg-gradient-to-br from-pink-500 via-orange-400 to-cyan-400 bg-clip-text text-transparent leading-none">a</span>
+                        ) : (
+                          <div className={`${s.logoBg} ${s.logoColor} w-full h-full flex items-center justify-center font-black text-[10px] uppercase leading-none px-1 text-center`}>
+                            {s.logoText}
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h3 className="text-sm font-bold text-white tracking-tight">{script.name}</h3>
-                              {script.badge && (
-                                <span className="text-[9px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded text-white"
-                                  style={{ background: script.badge === "AI" ? "linear-gradient(135deg, var(--primary), var(--accent))" : "var(--primary)" }}>
-                                  {script.badge}
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-xs text-muted-foreground">{isOff ? "Status: Offline" : script.desc}</p>
-                          </div>
-                          <div className="flex flex-col items-end gap-2">
-                            {isOff ? (
-                              <div className="px-2 py-0.5 rounded bg-red-500/10 border border-red-500/20 text-[8px] font-bold text-red-400 uppercase tracking-widest flex items-center gap-1">
-                                <ZapOff size={8} /> OFF
-                              </div>
-                            ) : (
-                              <div className="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-[8px] font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-1">
-                                <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" /> ON
-                              </div>
-                            )}
-                            {!isDisabled && <ArrowUpRight size={14} className="text-muted-foreground group-hover:text-primary transition-all" />}
-                          </div>
-                        </div>
-                      </Link>
-                    </motion.div>
-                  );
-                })}
-              </div>
+                        )}
+                      </div>
+                      <span className="text-[10px] font-semibold text-white text-center leading-tight">
+                        {s.name}
+                      </span>
+                    </Link>
+                  </motion.div>
+                );
+              })}
             </div>
-          </div>
+          </SectionPanel>
+
+          {/* Comunidade */}
+          <SectionPanel title="Comunidade">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[
+                {
+                  name: "Eclipse Lunar",
+                  subtitle: "Servidor Oficial",
+                  gradient: "from-red-900 via-red-950 to-black",
+                  accent: "bg-red-500",
+                  emoji: "🌑",
+                  url: "https://discord.gg/y5tNWGVPSU",
+                },
+                {
+                  name: "CMSP Bots",
+                  subtitle: "CMSP Bots",
+                  gradient: "from-yellow-900/40 via-amber-950 to-black",
+                  accent: "bg-yellow-400",
+                  lucide: Lightbulb,
+                  url: "#",
+                },
+                {
+                  name: "Ilusion",
+                  subtitle: "Ilusion",
+                  gradient: "from-slate-800 via-slate-900 to-black",
+                  accent: "bg-cyan-400",
+                  emoji: "✦",
+                  url: "#",
+                },
+              ].map((c, i) => (
+                <motion.a
+                  key={c.name}
+                  href={c.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.05 * i }}
+                  className="group relative overflow-hidden rounded-2xl border border-white/[0.06] hover:border-white/20 transition-all"
+                >
+                  <div className={`relative aspect-[16/9] bg-gradient-to-br ${c.gradient} flex items-center justify-center`}>
+                    <div className="absolute inset-0 bg-grid-lines opacity-30" />
+                    {c.lucide ? (
+                      <c.lucide size={56} className="text-yellow-300 drop-shadow-[0_0_24px_rgba(250,204,21,0.6)]" />
+                    ) : (
+                      <span className="text-5xl drop-shadow-2xl">{c.emoji}</span>
+                    )}
+                    <div className={`absolute bottom-0 left-0 right-0 h-1 ${c.accent}`} />
+                  </div>
+                  <div className="p-3 bg-[#0e0e16] border-t border-white/5">
+                    <div className="flex items-center gap-2">
+                      <span className="w-[2px] h-8 rounded-full bg-red-500" />
+                      <div>
+                        <h3 className="text-sm font-bold text-white leading-tight">{c.name}</h3>
+                        <p className="text-[10px] text-muted-foreground">{c.subtitle}</p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.a>
+              ))}
+            </div>
+          </SectionPanel>
+
           {/* Developers Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
