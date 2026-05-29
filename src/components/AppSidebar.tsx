@@ -8,18 +8,19 @@ import {
 import {
   Home, CheckSquare, PenTool, MessageCircle, Heart,
   ChevronLeft, ChevronRight, LogOut, Menu, X,
-  GraduationCap, Zap, FileText,
+  GraduationCap, Zap, FileText, Lock
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { clearSession, getSession } from "@/lib/auth";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { supabase } from "@/integrations/supabase/client";
 
 const NAV_ITEMS = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
-  { title: "Tarefa SP", url: "/dashboard/tarefas", icon: CheckSquare },
-  { title: "Prepara SP", url: "/dashboard/preparasp", icon: GraduationCap },
-  { title: "Redação", url: "/dashboard/redacao", icon: PenTool },
+  { title: "Tarefa SP", url: "/dashboard/tarefas", icon: CheckSquare, key: "scripts_enabled" },
+  { title: "Prepara SP", url: "/dashboard/preparasp", icon: GraduationCap, key: "preparasp_enabled" },
+  { title: "Redação", url: "/dashboard/redacao", icon: PenTool, key: "scripts_enabled" },
   { title: "Boletim Escolar", url: "/dashboard/boletim", icon: FileText },
 ];
 
