@@ -18,6 +18,7 @@ import { Route as DashboardRedacaoRouteImport } from './routes/dashboard/redacao
 import { Route as DashboardPreparaspRouteImport } from './routes/dashboard/preparasp'
 import { Route as DashboardLeiaspRouteImport } from './routes/dashboard/leiasp'
 import { Route as DashboardKhanRouteImport } from './routes/dashboard/khan'
+import { Route as DashboardBoletimRouteImport } from './routes/dashboard/boletim'
 import { Route as DashboardApostilasRouteImport } from './routes/dashboard/apostilas'
 import { Route as ApiPdfProxyRouteImport } from './routes/api/pdf-proxy'
 import { Route as ApiStatusEndpointRouteImport } from './routes/api/status.$endpoint'
@@ -26,6 +27,7 @@ import { Route as ApiPreparaspSplatRouteImport } from './routes/api/preparasp.$'
 import { Route as ApiLeiaspSplatRouteImport } from './routes/api/leiasp.$'
 import { Route as ApiCupiditysSplatRouteImport } from './routes/api/cupiditys.$'
 import { Route as ApiCatalystCompleteRouteImport } from './routes/api/catalyst.complete'
+import { Route as ApiBoletimSplatRouteImport } from './routes/api/boletim.$'
 import { Route as ApiAiGenerateRouteImport } from './routes/api/ai.generate'
 import { Route as ApiAdminVerifyRouteImport } from './routes/api/admin.verify'
 import { Route as ApiAdminSettingsRouteImport } from './routes/api/admin.settings'
@@ -77,6 +79,11 @@ const DashboardKhanRoute = DashboardKhanRouteImport.update({
   path: '/khan',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardBoletimRoute = DashboardBoletimRouteImport.update({
+  id: '/boletim',
+  path: '/boletim',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardApostilasRoute = DashboardApostilasRouteImport.update({
   id: '/apostilas',
   path: '/apostilas',
@@ -117,6 +124,11 @@ const ApiCatalystCompleteRoute = ApiCatalystCompleteRouteImport.update({
   path: '/api/catalyst/complete',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiBoletimSplatRoute = ApiBoletimSplatRouteImport.update({
+  id: '/api/boletim/$',
+  path: '/api/boletim/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAiGenerateRoute = ApiAiGenerateRouteImport.update({
   id: '/api/ai/generate',
   path: '/api/ai/generate',
@@ -148,6 +160,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRouteWithChildren
   '/api/pdf-proxy': typeof ApiPdfProxyRoute
   '/dashboard/apostilas': typeof DashboardApostilasRoute
+  '/dashboard/boletim': typeof DashboardBoletimRoute
   '/dashboard/khan': typeof DashboardKhanRoute
   '/dashboard/leiasp': typeof DashboardLeiaspRoute
   '/dashboard/preparasp': typeof DashboardPreparaspRoute
@@ -159,6 +172,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/settings': typeof ApiAdminSettingsRoute
   '/api/admin/verify': typeof ApiAdminVerifyRoute
   '/api/ai/generate': typeof ApiAiGenerateRoute
+  '/api/boletim/$': typeof ApiBoletimSplatRoute
   '/api/catalyst/complete': typeof ApiCatalystCompleteRoute
   '/api/cupiditys/$': typeof ApiCupiditysSplatRoute
   '/api/leiasp/$': typeof ApiLeiaspSplatRoute
@@ -171,6 +185,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/pdf-proxy': typeof ApiPdfProxyRoute
   '/dashboard/apostilas': typeof DashboardApostilasRoute
+  '/dashboard/boletim': typeof DashboardBoletimRoute
   '/dashboard/khan': typeof DashboardKhanRoute
   '/dashboard/leiasp': typeof DashboardLeiaspRoute
   '/dashboard/preparasp': typeof DashboardPreparaspRoute
@@ -182,6 +197,7 @@ export interface FileRoutesByTo {
   '/api/admin/settings': typeof ApiAdminSettingsRoute
   '/api/admin/verify': typeof ApiAdminVerifyRoute
   '/api/ai/generate': typeof ApiAiGenerateRoute
+  '/api/boletim/$': typeof ApiBoletimSplatRoute
   '/api/catalyst/complete': typeof ApiCatalystCompleteRoute
   '/api/cupiditys/$': typeof ApiCupiditysSplatRoute
   '/api/leiasp/$': typeof ApiLeiaspSplatRoute
@@ -196,6 +212,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRouteWithChildren
   '/api/pdf-proxy': typeof ApiPdfProxyRoute
   '/dashboard/apostilas': typeof DashboardApostilasRoute
+  '/dashboard/boletim': typeof DashboardBoletimRoute
   '/dashboard/khan': typeof DashboardKhanRoute
   '/dashboard/leiasp': typeof DashboardLeiaspRoute
   '/dashboard/preparasp': typeof DashboardPreparaspRoute
@@ -207,6 +224,7 @@ export interface FileRoutesById {
   '/api/admin/settings': typeof ApiAdminSettingsRoute
   '/api/admin/verify': typeof ApiAdminVerifyRoute
   '/api/ai/generate': typeof ApiAiGenerateRoute
+  '/api/boletim/$': typeof ApiBoletimSplatRoute
   '/api/catalyst/complete': typeof ApiCatalystCompleteRoute
   '/api/cupiditys/$': typeof ApiCupiditysSplatRoute
   '/api/leiasp/$': typeof ApiLeiaspSplatRoute
@@ -222,6 +240,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/api/pdf-proxy'
     | '/dashboard/apostilas'
+    | '/dashboard/boletim'
     | '/dashboard/khan'
     | '/dashboard/leiasp'
     | '/dashboard/preparasp'
@@ -233,6 +252,7 @@ export interface FileRouteTypes {
     | '/api/admin/settings'
     | '/api/admin/verify'
     | '/api/ai/generate'
+    | '/api/boletim/$'
     | '/api/catalyst/complete'
     | '/api/cupiditys/$'
     | '/api/leiasp/$'
@@ -245,6 +265,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api/pdf-proxy'
     | '/dashboard/apostilas'
+    | '/dashboard/boletim'
     | '/dashboard/khan'
     | '/dashboard/leiasp'
     | '/dashboard/preparasp'
@@ -256,6 +277,7 @@ export interface FileRouteTypes {
     | '/api/admin/settings'
     | '/api/admin/verify'
     | '/api/ai/generate'
+    | '/api/boletim/$'
     | '/api/catalyst/complete'
     | '/api/cupiditys/$'
     | '/api/leiasp/$'
@@ -269,6 +291,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/api/pdf-proxy'
     | '/dashboard/apostilas'
+    | '/dashboard/boletim'
     | '/dashboard/khan'
     | '/dashboard/leiasp'
     | '/dashboard/preparasp'
@@ -280,6 +303,7 @@ export interface FileRouteTypes {
     | '/api/admin/settings'
     | '/api/admin/verify'
     | '/api/ai/generate'
+    | '/api/boletim/$'
     | '/api/catalyst/complete'
     | '/api/cupiditys/$'
     | '/api/leiasp/$'
@@ -297,6 +321,7 @@ export interface RootRouteChildren {
   ApiAdminSettingsRoute: typeof ApiAdminSettingsRoute
   ApiAdminVerifyRoute: typeof ApiAdminVerifyRoute
   ApiAiGenerateRoute: typeof ApiAiGenerateRoute
+  ApiBoletimSplatRoute: typeof ApiBoletimSplatRoute
   ApiCatalystCompleteRoute: typeof ApiCatalystCompleteRoute
   ApiCupiditysSplatRoute: typeof ApiCupiditysSplatRoute
   ApiLeiaspSplatRoute: typeof ApiLeiaspSplatRoute
@@ -371,6 +396,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardKhanRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/boletim': {
+      id: '/dashboard/boletim'
+      path: '/boletim'
+      fullPath: '/dashboard/boletim'
+      preLoaderRoute: typeof DashboardBoletimRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/apostilas': {
       id: '/dashboard/apostilas'
       path: '/apostilas'
@@ -427,6 +459,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiCatalystCompleteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/boletim/$': {
+      id: '/api/boletim/$'
+      path: '/api/boletim/$'
+      fullPath: '/api/boletim/$'
+      preLoaderRoute: typeof ApiBoletimSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/ai/generate': {
       id: '/api/ai/generate'
       path: '/api/ai/generate'
@@ -467,6 +506,7 @@ declare module '@tanstack/react-router' {
 
 interface DashboardRouteChildren {
   DashboardApostilasRoute: typeof DashboardApostilasRoute
+  DashboardBoletimRoute: typeof DashboardBoletimRoute
   DashboardKhanRoute: typeof DashboardKhanRoute
   DashboardLeiaspRoute: typeof DashboardLeiaspRoute
   DashboardPreparaspRoute: typeof DashboardPreparaspRoute
@@ -478,6 +518,7 @@ interface DashboardRouteChildren {
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardApostilasRoute: DashboardApostilasRoute,
+  DashboardBoletimRoute: DashboardBoletimRoute,
   DashboardKhanRoute: DashboardKhanRoute,
   DashboardLeiaspRoute: DashboardLeiaspRoute,
   DashboardPreparaspRoute: DashboardPreparaspRoute,
@@ -499,6 +540,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminSettingsRoute: ApiAdminSettingsRoute,
   ApiAdminVerifyRoute: ApiAdminVerifyRoute,
   ApiAiGenerateRoute: ApiAiGenerateRoute,
+  ApiBoletimSplatRoute: ApiBoletimSplatRoute,
   ApiCatalystCompleteRoute: ApiCatalystCompleteRoute,
   ApiCupiditysSplatRoute: ApiCupiditysSplatRoute,
   ApiLeiaspSplatRoute: ApiLeiaspSplatRoute,
@@ -510,12 +552,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
