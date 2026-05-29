@@ -4,14 +4,21 @@ import { motion } from "framer-motion";
 import {
   CheckCircle2, Calendar, TrendingUp, Heart, ArrowUpRight,
   Activity, Zap, Sparkles, Bell, Search, Plus, ShieldAlert, ZapOff,
-  MessageCircle, ExternalLink
+  MessageCircle, ExternalLink, LogOut
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { getSession } from "@/lib/auth";
+import { getSession, clearSession } from "@/lib/auth";
+import { useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchDashboardStats } from "@/lib/api";
 import type { DashboardStats } from "@/lib/api";
@@ -30,12 +37,12 @@ export const Route = createFileRoute("/dashboard/")({
 });
 
 const SCRIPTS = [
-  { name: "Tarefa SP", desc: "Lições e pendências", icon: iconTarefa, url: "/dashboard/tarefas", badge: null },
-  { name: "Prepara SP", desc: "Caderno do aluno", icon: iconPreparaSp, url: "/dashboard/preparasp", badge: "HOT" },
-  { name: "Redação", desc: "IA generativa", icon: iconRedacao, url: "/dashboard/redacao", badge: "AI" },
-  { name: "Leia SP", desc: "Leitura assistida", icon: iconLeiaSp, url: "/dashboard/leiasp", badge: null },
-  { name: "Khan Academy", desc: "Resoluções", icon: iconKhan, url: "/dashboard/khan", badge: null },
-  { name: "Apostilas", desc: "Banco de provas", icon: iconApostilas, url: "/dashboard/apostilas", badge: null },
+  { name: "Tarefa SP", desc: "Lições e pendências", icon: iconTarefa, url: "/dashboard/tarefas", badge: null, key: "scripts_enabled" },
+  { name: "Prepara SP", desc: "Caderno do aluno", icon: iconPreparaSp, url: "/dashboard/preparasp", badge: "HOT", key: "preparasp_enabled" },
+  { name: "Redação", desc: "IA generativa", icon: iconRedacao, url: "/dashboard/redacao", badge: "AI", key: "scripts_enabled" },
+  { name: "Leia SP", desc: "Leitura assistida", icon: iconLeiaSp, url: "/dashboard/leiasp", badge: null, key: "scripts_enabled" },
+  { name: "Khan Academy", desc: "Resoluções", icon: iconKhan, url: "/dashboard/khan", badge: null, key: "scripts_enabled" },
+  { name: "Apostilas", desc: "Banco de provas", icon: iconApostilas, url: "/dashboard/apostilas", badge: null, key: "scripts_enabled" },
 ];
 
 // Animated counter
@@ -58,6 +65,12 @@ function Counter({ value, suffix = "" }: { value: number; suffix?: string }) {
 }
 
 function Topbar({ name }: { name: string }) {
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    clearSession();
+    navigate({ to: "/" });
+  };
+
   return (
     <div className="hidden md:flex items-center gap-3 px-6 py-3 border-b border-white/5 glass-strong">
       <div className="relative flex-1 max-w-md">
@@ -82,20 +95,45 @@ function Topbar({ name }: { name: string }) {
                 <h4 className="text-sm font-bold text-white">Notificações</h4>
                 <span className="text-[10px] font-mono text-muted-foreground uppercase">Sistema Sync</span>
               </div>
-              <div className="py-8 text-center space-y-2">
-                <div className="w-10 h-10 rounded-full bg-white/[0.03] flex items-center justify-center mx-auto text-muted-foreground/30">
-                  <Bell size={20} />
+              <div className="py-4 space-y-2">
+                <div className="flex gap-3 p-2 rounded-lg bg-primary/5 border border-primary/10">
+                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary shrink-0">
+                    <Sparkles size={14} />
+                  </div>
+                  <div className="space-y-0.5">
+                    <p className="text-xs font-bold text-white">Bem-vindo ao Sync Labs v2</p>
+                    <p className="text-[10px] text-muted-foreground leading-tight">Sua central de automação está pronta para uso.</p>
+                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground">Você não tem novas notificações no momento.</p>
               </div>
             </div>
           </PopoverContent>
         </Popover>
         <div className="flex items-center gap-2 pl-2 ml-1 border-l border-white/5">
-          <div className="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold text-white"
-               style={{ background: "var(--gradient-primary)" }}>
-            {name[0]?.toUpperCase()}
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-3 pl-2 py-1 rounded-xl hover:bg-white/[0.03] transition-all group">
+                <div className="text-right hidden sm:block">
+                  <p className="text-xs font-bold text-white leading-none">{name}</p>
+                  <p className="text-[9px] text-muted-foreground mt-1 font-mono uppercase tracking-widest opacity-60">Aluno Conectado</p>
+                </div>
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold text-white shadow-glow-violet transition-transform group-hover:scale-105"
+                     style={{ background: "var(--gradient-primary)" }}>
+                  {name[0]?.toUpperCase()}
+                </div>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56 glass-strong border-white/10 mt-1">
+              <div className="p-3 border-b border-white/5 mb-1">
+                <p className="text-xs font-bold text-white">{name}</p>
+                <p className="text-[10px] text-muted-foreground truncate">Sync Labs Account</p>
+              </div>
+              <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer">
+                <LogOut size={14} className="mr-2" />
+                Sair
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </div>
@@ -254,8 +292,8 @@ function DashboardHome() {
 
               <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 transition-all duration-500 ${settings?.maintenance_mode ? 'blur-md grayscale opacity-40 pointer-events-none' : ''}`}>
                 {SCRIPTS.map((script, i) => {
-                  const isPreparaOff = script.url === "/dashboard/preparasp" && settings?.preparasp_enabled === false;
-                  const isDisabled = settings?.scripts_enabled === false || isPreparaOff;
+                  const isOff = script.key && settings && (settings as any)[script.key] === false;
+                  const isDisabled = settings?.maintenance_mode || isOff;
                   
                   return (
                     <motion.div
@@ -267,12 +305,15 @@ function DashboardHome() {
                       <Link
                         to={isDisabled ? "#" : script.url}
                         onClick={(e) => isDisabled && e.preventDefault()}
-                        className={`card-premium group block p-5 ${isDisabled ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
+                        className={`card-premium group block p-5 relative overflow-hidden transition-all duration-300 ${isDisabled ? 'opacity-50 grayscale cursor-not-allowed' : 'hover:scale-[1.02] hover:shadow-glow-violet'}`}
                       >
+                        {/* ZKN Design Gradient Background */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        
                         <div className="relative flex items-start gap-4">
                           <div className="relative">
                             <div className="absolute inset-0 rounded-xl blur-xl opacity-60 group-hover:opacity-100 transition-opacity"
-                              style={{ background: isDisabled ? "oklch(0.62 0.03 270)" : "linear-gradient(135deg, oklch(0.6 0.3 280), oklch(0.7 0.2 200))" }} />
+                              style={{ background: isOff ? "oklch(0.62 0.03 270)" : "linear-gradient(135deg, var(--primary), var(--accent))" }} />
                             <div className="relative w-12 h-12 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center">
                               <img src={script.icon} alt="" className={`w-7 h-7 object-contain ${isDisabled ? 'grayscale' : ''}`} loading="lazy" width={28} height={28} />
                             </div>
@@ -282,15 +323,25 @@ function DashboardHome() {
                               <h3 className="text-sm font-bold text-white tracking-tight">{script.name}</h3>
                               {script.badge && (
                                 <span className="text-[9px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded text-white"
-                                  style={{ background: script.badge === "AI" ? "linear-gradient(135deg, oklch(0.6 0.3 280), oklch(0.7 0.2 200))" : "oklch(0.6 0.3 280)" }}>
+                                  style={{ background: script.badge === "AI" ? "linear-gradient(135deg, var(--primary), var(--accent))" : "var(--primary)" }}>
                                   {script.badge}
                                 </span>
                               )}
                             </div>
-                            <p className="text-xs text-muted-foreground">{isDisabled ? "Script temporariamente desligado" : script.desc}</p>
+                            <p className="text-xs text-muted-foreground">{isOff ? "Status: Offline" : script.desc}</p>
                           </div>
-                          {!isDisabled && <ArrowUpRight size={15} className="text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />}
-                          {isDisabled && <ZapOff size={14} className="text-muted-foreground" />}
+                          <div className="flex flex-col items-end gap-2">
+                            {isOff ? (
+                              <div className="px-2 py-0.5 rounded bg-red-500/10 border border-red-500/20 text-[8px] font-bold text-red-400 uppercase tracking-widest flex items-center gap-1">
+                                <ZapOff size={8} /> OFF
+                              </div>
+                            ) : (
+                              <div className="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-[8px] font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-1">
+                                <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" /> ON
+                              </div>
+                            )}
+                            {!isDisabled && <ArrowUpRight size={14} className="text-muted-foreground group-hover:text-primary transition-all" />}
+                          </div>
                         </div>
                       </Link>
                     </motion.div>

@@ -612,9 +612,9 @@ function KhanPage() {
                                         </span>
                                       </button>
                                       <button
-                                        onClick={() => completeLessonAll(lesson, u.id)}
+                                        onClick={(e) => { e.stopPropagation(); completeLessonAll(lesson, u.id); }}
                                         disabled={running[`lall-${lesson.id}`]}
-                                        className="text-[9px] uppercase font-mono text-primary hover:text-white border border-primary/20 rounded-sm px-2 py-0.5 flex items-center gap-1"
+                                        className="text-[9px] uppercase font-mono text-primary hover:text-white border border-primary/20 rounded-sm px-2 py-0.5 flex items-center gap-1 z-20"
                                       >
                                         <Play size={8} /> Completar
                                       </button>
@@ -660,9 +660,9 @@ function KhanPage() {
                                                 {item.type || ""}
                                               </span>
                                               <button
-                                                onClick={() => completeContent(item, lesson.id)}
+                                                onClick={(e) => { e.stopPropagation(); completeContent(item, lesson.id); }}
                                                 disabled={done || busy}
-                                                className="text-[9px] uppercase text-primary hover:text-white disabled:opacity-30 px-2 py-0.5 border border-primary/20 rounded-sm"
+                                                className="text-[9px] uppercase text-primary hover:text-white disabled:opacity-30 px-2 py-0.5 border border-primary/20 rounded-sm z-20"
                                               >
                                                 {busy ? (
                                                   <Loader2 size={9} className="animate-spin" />
@@ -692,11 +692,11 @@ function KhanPage() {
                                     <RefreshCw size={10} className="text-yellow-500 shrink-0" />
                                     <span className="flex-1 truncate text-white/80">{q.title}</span>
                                     <span className="text-[8px] uppercase text-yellow-500">quiz</span>
-                                    <button
-                                      onClick={() => completeQuizItem(q)}
-                                      disabled={done || busy}
-                                      className="text-[9px] uppercase text-yellow-500 hover:text-white disabled:opacity-30 px-2 py-0.5 border border-yellow-500/30 rounded-sm"
-                                    >
+                                      <button
+                                        onClick={(e) => { e.stopPropagation(); completeQuizItem(q); }}
+                                        disabled={done || busy}
+                                        className="text-[9px] uppercase text-yellow-500 hover:text-white disabled:opacity-30 px-2 py-0.5 border border-yellow-500/30 rounded-sm z-20"
+                                      >
                                       {busy ? (
                                         <Loader2 size={9} className="animate-spin" />
                                       ) : done ? (
@@ -721,9 +721,9 @@ function KhanPage() {
                                     <span className="flex-1 truncate text-white/80">{t.title}</span>
                                     <span className="text-[8px] uppercase text-red-500">teste</span>
                                     <button
-                                      onClick={() => completeUnitTestItem(t)}
+                                      onClick={(e) => { e.stopPropagation(); completeUnitTestItem(t); }}
                                       disabled={done || busy}
-                                      className="text-[9px] uppercase text-red-500 hover:text-white disabled:opacity-30 px-2 py-0.5 border border-red-500/30 rounded-sm"
+                                      className="text-[9px] uppercase text-red-500 hover:text-white disabled:opacity-30 px-2 py-0.5 border border-red-500/30 rounded-sm z-20"
                                     >
                                       {busy ? (
                                         <Loader2 size={9} className="animate-spin" />
