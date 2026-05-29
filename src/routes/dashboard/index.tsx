@@ -426,7 +426,7 @@ function DashboardHome() {
         </div>
       </div>
 
-      <PendenciasModal open={pendOpen} onOpenChange={setPendOpen} />
+      <PendenciasModal open={pendOpen} onClose={() => setPendOpen(false)} />
       <WelcomePopup />
     </div>
   );
