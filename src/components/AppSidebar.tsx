@@ -8,13 +8,19 @@ import {
 import {
   Home, CheckSquare, PenTool, MessageCircle, Heart,
   ChevronLeft, ChevronRight, LogOut, Menu, X,
-  GraduationCap, Zap, FileText, Lock
+  GraduationCap, Zap, FileText, Lock, LayoutGrid, Sparkles, Gamepad2
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { clearSession, getSession } from "@/lib/auth";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
+import { 
+  DonationModal, 
+  DiscordModal, 
+  PartnerModal, 
+  RoadmapModal 
+} from "./ExtraModals";
 
 const NAV_ITEMS = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
@@ -53,6 +59,11 @@ export function AppSidebar() {
   const isMobile = useIsMobile();
   const session = getSession();
   const displayName = session?.nick || session?.ra || "Aluno";
+
+  const [donationOpen, setDonationOpen] = useState(false);
+  const [discordOpen, setDiscordOpen] = useState(false);
+  const [partnerOpen, setPartnerOpen] = useState(false);
+  const [roadmapOpen, setRoadmapOpen] = useState(false);
 
   useEffect(() => {
     supabase.from("site_settings").select("*").single().then(({ data }) => {
@@ -107,6 +118,8 @@ export function AppSidebar() {
 
   // ---------- Mobile ----------
   if (isMobile) {
+    const [extraOpen, setExtraOpen] = useState(false);
+
     return (
       <>
         {/* Top bar mobile */}
@@ -152,15 +165,28 @@ export function AppSidebar() {
                   <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground px-3 pt-2 pb-2 font-mono">Plataforma</p>
                   {NAV_ITEMS.map((item) => <NavItem key={item.url} item={item} onClick={() => setMobileOpen(false)} />)}
 
-                  <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground px-3 pt-5 pb-2 font-mono">Comunidade</p>
+                  <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground px-3 pt-5 pb-1 font-mono">Extras</p>
+                  <div className="flex flex-col gap-1 px-1 mb-2">
+                    <button onClick={() => { setRoadmapOpen(true); setMobileOpen(false); }} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/[0.04] transition-all">
+                      <LayoutGrid size={17} />
+                      <span>Roadmap</span>
+                    </button>
+                    <button onClick={() => { setPartnerOpen(true); setMobileOpen(false); }} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/[0.04] transition-all">
+                      <Gamepad2 size={17} />
+                      <span>Parceiro</span>
+                    </button>
+                  </div>
+
+                  <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground px-3 pt-2 pb-2 font-mono">Comunidade</p>
                   <div className="flex flex-col gap-1 px-1">
-                    {COMMUNITY_ITEMS.map((item) => (
-                      <a key={item.url} href={item.url} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/[0.04] transition-all">
-                        <item.icon size={17} />
-                        <span>{item.title}</span>
-                      </a>
-                    ))}
+                    <button onClick={() => { setDiscordOpen(true); setMobileOpen(false); }} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/[0.04] transition-all text-left">
+                      <MessageCircle size={17} />
+                      <span>Discord</span>
+                    </button>
+                    <button onClick={() => { setDonationOpen(true); setMobileOpen(false); }} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/[0.04] transition-all text-left">
+                      <Heart size={17} />
+                      <span>Apoiar</span>
+                    </button>
                   </div>
                 </nav>
 
@@ -175,6 +201,11 @@ export function AppSidebar() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        <DonationModal open={donationOpen} onOpenChange={setDonationOpen} />
+        <DiscordModal open={discordOpen} onOpenChange={setDiscordOpen} />
+        <PartnerModal open={partnerOpen} onOpenChange={setPartnerOpen} />
+        <RoadmapModal open={roadmapOpen} onOpenChange={setRoadmapOpen} />
       </>
     );
   }
@@ -216,16 +247,47 @@ export function AppSidebar() {
         {NAV_ITEMS.map((item) => <NavItem key={item.url} item={item} />)}
 
         {!collapsed ? (
+          <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground px-3 pt-5 pb-1 font-mono">Extras</p>
+        ) : <div className="h-4" />}
+        <div className={`flex flex-col gap-1 ${collapsed ? "px-0" : "px-1"}`}>
+          <button
+            onClick={() => setRoadmapOpen(true)}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/[0.04] transition-all ${collapsed ? "justify-center" : ""}`}
+            title={collapsed ? "Roadmap" : ""}
+          >
+            <LayoutGrid size={17} />
+            {!collapsed && <span className="tracking-tight">Roadmap</span>}
+          </button>
+          <button
+            onClick={() => setPartnerOpen(true)}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/[0.04] transition-all ${collapsed ? "justify-center" : ""}`}
+            title={collapsed ? "Parceiro" : ""}
+          >
+            <Gamepad2 size={17} />
+            {!collapsed && <span className="tracking-tight">Parceiro</span>}
+          </button>
+        </div>
+
+        {!collapsed ? (
           <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground px-3 pt-5 pb-2 font-mono">Comunidade</p>
         ) : <div className="h-4" />}
         <div className={`flex flex-col gap-1 ${collapsed ? "px-0" : "px-1"}`}>
-          {COMMUNITY_ITEMS.map((item) => (
-            <a key={item.url} href={item.url} target="_blank" rel="noopener noreferrer"
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/[0.04] transition-all ${collapsed ? "justify-center" : ""}`}>
-              <item.icon size={17} />
-              {!collapsed && <span>{item.title}</span>}
-            </a>
-          ))}
+          <button
+            onClick={() => setDiscordOpen(true)}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/[0.04] transition-all ${collapsed ? "justify-center text-center" : ""}`}
+            title={collapsed ? "Discord" : ""}
+          >
+            <MessageCircle size={17} />
+            {!collapsed && <span>Discord</span>}
+          </button>
+          <button
+            onClick={() => setDonationOpen(true)}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/[0.04] transition-all ${collapsed ? "justify-center text-center" : ""}`}
+            title={collapsed ? "Apoiar" : ""}
+          >
+            <Heart size={17} />
+            {!collapsed && <span>Apoiar</span>}
+          </button>
         </div>
       </nav>
 
@@ -242,6 +304,11 @@ export function AppSidebar() {
           {!collapsed && <span className="text-[10px] uppercase tracking-widest text-muted-foreground/40">Sync v2.0</span>}
         </div>
       </div>
+
+      <DonationModal open={donationOpen} onOpenChange={setDonationOpen} />
+      <DiscordModal open={discordOpen} onOpenChange={setDiscordOpen} />
+      <PartnerModal open={partnerOpen} onOpenChange={setPartnerOpen} />
+      <RoadmapModal open={roadmapOpen} onOpenChange={setRoadmapOpen} />
     </aside>
   );
 }
