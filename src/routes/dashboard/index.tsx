@@ -346,7 +346,7 @@ function DashboardHome() {
                       <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-mono">{dev.role}</p>
                       <div className="flex items-center gap-3 mt-2">
                         <a href={`https://github.com/${dev.github}`} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-white transition-colors">
-                          <Activity size={14} />
+                          <ExternalLink size={14} />
                         </a>
                         <a href="https://discord.gg/y5tNWGVPSU" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-white transition-colors">
                           <MessageCircle size={14} />
