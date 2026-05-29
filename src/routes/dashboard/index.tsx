@@ -5,6 +5,11 @@ import {
   CheckCircle2, Calendar, TrendingUp, Heart, ArrowUpRight,
   Activity, Zap, Sparkles, Bell, Search, Plus, ShieldAlert, ZapOff
 } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { getSession } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchDashboardStats } from "@/lib/api";
@@ -63,10 +68,28 @@ function Topbar({ name }: { name: string }) {
         <kbd className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-mono text-muted-foreground bg-white/5 border border-white/10 rounded px-1.5 py-0.5">⌘K</kbd>
       </div>
       <div className="flex items-center gap-2 ml-auto">
-        <button className="relative w-9 h-9 rounded-lg bg-white/[0.03] border border-white/5 flex items-center justify-center text-muted-foreground hover:text-white hover:border-primary/40 transition-all">
-          <Bell size={15} />
-          <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-destructive shadow-[0_0_8px_currentColor]" />
-        </button>
+        <Popover>
+          <PopoverTrigger asChild>
+            <button className="relative w-9 h-9 rounded-lg bg-white/[0.03] border border-white/5 flex items-center justify-center text-muted-foreground hover:text-white hover:border-primary/40 transition-all">
+              <Bell size={15} />
+              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-destructive shadow-[0_0_8px_currentColor]" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80 glass-strong border-white/10 p-4">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                <h4 className="text-sm font-bold text-white">Notificações</h4>
+                <span className="text-[10px] font-mono text-muted-foreground uppercase">Sistema Sync</span>
+              </div>
+              <div className="py-8 text-center space-y-2">
+                <div className="w-10 h-10 rounded-full bg-white/[0.03] flex items-center justify-center mx-auto text-muted-foreground/30">
+                  <Bell size={20} />
+                </div>
+                <p className="text-xs text-muted-foreground">Você não tem novas notificações no momento.</p>
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
         <div className="flex items-center gap-2 pl-2 ml-1 border-l border-white/5">
           <div className="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold text-white"
                style={{ background: "var(--gradient-primary)" }}>
