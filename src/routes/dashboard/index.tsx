@@ -90,20 +90,46 @@ function Topbar({ name }: { name: string }) {
         <div className="flex items-center gap-2">
           <Popover>
             <PopoverTrigger asChild>
-              <button className="relative w-8 h-8 rounded-lg bg-white/[0.03] border border-white/5 flex items-center justify-center text-muted-foreground hover:text-white transition-all">
+              <button className="relative w-8 h-8 rounded-lg bg-white/[0.03] border border-white/5 flex items-center justify-center text-muted-foreground hover:text-white hover:border-primary/50 transition-all">
                 <Bell size={14} />
-                <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-destructive shadow-[0_0_8px_currentColor]" />
+                <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_var(--primary)] animate-pulse" />
               </button>
             </PopoverTrigger>
-            <PopoverContent className="w-80 glass-strong border-white/10 p-4">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between border-b border-white/5 pb-2">
+            <PopoverContent className="w-80 glass-strong border-white/10 p-0 overflow-hidden mt-2">
+              <div className="p-4 border-b border-white/5 bg-white/[0.02]">
+                <div className="flex items-center justify-between">
                   <h4 className="text-sm font-bold text-white">Notificações</h4>
-                  <span className="text-[10px] font-mono text-muted-foreground uppercase">Sistema Sync</span>
+                  <span className="text-[10px] font-mono text-primary font-bold uppercase tracking-widest">Sistema Sync</span>
                 </div>
-                <div className="py-4 space-y-2 text-center">
-                  <p className="text-xs text-muted-foreground">Nenhuma nova notificação</p>
+              </div>
+              <div className="max-h-[300px] overflow-y-auto">
+                <div className="p-4 border-b border-white/5 hover:bg-white/[0.02] transition-colors cursor-pointer group">
+                  <div className="flex gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex-shrink-0 flex items-center justify-center text-primary">
+                      <Sparkles size={14} />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-white group-hover:text-primary transition-colors">Novo Script Adicionado</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">O script "Astro G" já está disponível no catálogo.</p>
+                      <p className="text-[9px] text-muted-foreground/40 mt-2 font-mono uppercase">Há 2 horas</p>
+                    </div>
+                  </div>
                 </div>
+                <div className="p-4 border-b border-white/5 hover:bg-white/[0.02] transition-colors cursor-pointer group">
+                  <div className="flex gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-accent/10 flex-shrink-0 flex items-center justify-center text-accent">
+                      <Zap size={14} />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-white group-hover:text-accent transition-colors">Atualização no Sistema</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">Melhorias na performance do dashboard v2.0.</p>
+                      <p className="text-[9px] text-muted-foreground/40 mt-2 font-mono uppercase">Ontem</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="p-2 text-center bg-white/[0.01]">
+                <button className="text-[10px] font-bold text-muted-foreground/60 hover:text-white transition-colors uppercase tracking-widest py-1">Limpar tudo</button>
               </div>
             </PopoverContent>
           </Popover>
@@ -152,18 +178,19 @@ function SectionPanel({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl bg-[#0e0e16]/80 border border-white/[0.05] p-4 sm:p-5">
-      <div className="flex items-center justify-between mb-4">
+    <div className="rounded-2xl bg-[#0e0e16]/80 border border-white/[0.05] p-4 sm:p-5 relative overflow-hidden group/panel">
+      <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/20 to-transparent opacity-0 group-hover/panel:opacity-100 transition-opacity" />
+      <div className="flex items-center justify-between mb-6">
         <h2 className="flex items-center gap-2.5 text-base sm:text-lg font-bold text-white tracking-tight">
-          <span className="w-[3px] h-5 rounded-full bg-red-500" />
+          <span className="w-1 h-5 rounded-full bg-gradient-to-b from-primary to-accent shadow-[0_0_8px_var(--primary)]" />
           {title}
         </h2>
         {action && (
           <a
             href={action.href}
-            className="text-xs font-semibold text-red-400 hover:text-red-300 transition-colors flex items-center gap-1"
+            className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-all flex items-center gap-1.5 bg-white/[0.03] px-3 py-1.5 rounded-lg border border-white/5 hover:border-primary/30"
           >
-            {action.label} <span aria-hidden>→</span>
+            {action.label} <ArrowUpRight size={12} />
           </a>
         )}
       </div>
@@ -323,9 +350,9 @@ function DashboardHome() {
                     <Link
                       to={isDisabled ? "#" : s.url}
                       onClick={(e) => (isDisabled || s.url === "#") && e.preventDefault()}
-                      className={`relative group flex flex-col items-center gap-2 p-3 rounded-xl bg-[#13131c] border border-white/[0.06] hover:border-red-500/40 transition-all ${isDisabled ? "opacity-50 grayscale cursor-not-allowed" : ""}`}
+                      className={`relative group flex flex-col items-center gap-2 p-3 rounded-xl bg-[#13131c] border border-white/[0.06] hover:border-primary/40 transition-all aspect-square justify-center ${isDisabled ? "opacity-50 grayscale cursor-not-allowed" : ""}`}
                     >
-                      <span className="absolute left-2 top-2 bottom-2 w-[2px] rounded-full bg-red-500/80 opacity-80 group-hover:opacity-100" />
+                      <span className="absolute left-2 top-2 bottom-2 w-[2px] rounded-full bg-primary/80 opacity-0 group-hover:opacity-100 transition-opacity shadow-[0_0_8px_var(--primary)]" />
                       <div className="w-12 h-12 rounded-lg bg-black/40 border border-white/5 flex items-center justify-center overflow-hidden">
                         {s.icon ? (
                           <img src={s.icon} alt="" className="w-8 h-8 object-contain" />
