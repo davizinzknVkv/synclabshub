@@ -167,7 +167,7 @@ function DashboardHome() {
                   {stats?.turma || "Sync Labs Hub"}
                 </span>
                 <span className="px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wider bg-emerald-400/10 text-emerald-400 border border-emerald-400/20 flex items-center gap-1">
-                  <span className="status-online w-1 h-1 rounded-full bg-emerald-400" /> @Bz181120
+                  <span className="status-online w-1 h-1 rounded-full bg-emerald-400" /> Online
                 </span>
               </div>
               <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white font-display">
