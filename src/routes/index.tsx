@@ -216,8 +216,20 @@ function Index() {
             className="flex items-center gap-2 text-xs text-muted-foreground hover:text-white transition-colors">
             <Heart size={12} className="text-pink-400" /> Apoiar projeto
           </a>
-          <div className="text-[10px] text-muted-foreground opacity-50 flex items-center gap-1">
-            Desenvolvedores do site: Davizinkn e Zennos
+          <div className="flex flex-col items-end gap-2">
+            <div className="flex -space-x-2">
+              {[
+                { name: "Davizinkn", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Davizinkn" },
+                { name: "Zennos", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Zennos" }
+              ].map((dev) => (
+                <div key={dev.name} className="w-6 h-6 rounded-full border-2 border-background bg-white/10 overflow-hidden shadow-lg shadow-primary/20" title={dev.name}>
+                  <img src={dev.avatar} alt={dev.name} className="w-full h-full object-cover" />
+                </div>
+              ))}
+            </div>
+            <div className="text-[9px] text-muted-foreground uppercase tracking-widest font-mono opacity-60">
+              Desenvolvido por Davizinkn & Zennos
+            </div>
           </div>
         </footer>
       </main>

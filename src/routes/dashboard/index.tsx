@@ -3,7 +3,8 @@ import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import {
   CheckCircle2, Calendar, TrendingUp, Heart, ArrowUpRight,
-  Activity, Zap, Sparkles, Bell, Search, Plus, ShieldAlert, ZapOff
+  Activity, Zap, Sparkles, Bell, Search, Plus, ShieldAlert, ZapOff,
+  MessageCircle, ExternalLink
 } from "lucide-react";
 import {
   Popover,
@@ -298,6 +299,65 @@ function DashboardHome() {
               </div>
             </div>
           </div>
+          {/* Developers Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="pt-8 border-t border-white/5"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-lg font-bold text-white font-display flex items-center gap-2">
+                  <Heart size={16} className="text-pink-400" /> Equipe Sync Labs
+                </h2>
+                <p className="text-xs text-muted-foreground mt-0.5">As mentes por trás da plataforma</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {[
+                { 
+                  name: "Davizinkn", 
+                  role: "Founder & Lead Dev", 
+                  github: "davizinkn",
+                  avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Davizinkn",
+                  gradient: "from-violet-600/20 to-cyan-600/20"
+                },
+                { 
+                  name: "Zennos", 
+                  role: "Co-Founder & UI/UX", 
+                  github: "zennos",
+                  avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Zennos",
+                  gradient: "from-cyan-600/20 to-emerald-600/20"
+                }
+              ].map((dev, i) => (
+                <div key={dev.name} className="card-premium p-4 group">
+                  <div className={`absolute inset-0 bg-gradient-to-br ${dev.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                  <div className="relative flex items-center gap-4">
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-primary/20 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div className="relative w-14 h-14 rounded-2xl overflow-hidden border border-white/10 bg-white/5 p-1">
+                        <img src={dev.avatar} alt={dev.name} className="w-full h-full object-cover rounded-xl" />
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-white mb-0.5">{dev.name}</h3>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-mono">{dev.role}</p>
+                      <div className="flex items-center gap-3 mt-2">
+                        <a href={`https://github.com/${dev.github}`} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-white transition-colors">
+                          <ExternalLink size={14} />
+                        </a>
+                        <a href="https://discord.gg/y5tNWGVPSU" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-white transition-colors">
+                          <MessageCircle size={14} />
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
         </div>
       </div>
 
