@@ -140,8 +140,7 @@ function Topbar({ name }: { name: string }) {
         </div>
       </div>
     </div>
-  );
-  );
+    );
 }
 function SectionPanel({
   title,
