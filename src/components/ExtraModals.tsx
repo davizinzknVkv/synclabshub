@@ -16,7 +16,8 @@ import {
   Sparkles,
   Zap,
   ShieldCheck,
-  Code
+  Code,
+  GraduationCap
 } from "lucide-react";
 import { notify } from "@/components/Notification";
 
