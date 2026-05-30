@@ -12,8 +12,8 @@ interface TaskModalProps {
 export function TaskModal({ open, tasks, onClose, onSubmit }: TaskModalProps) {
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [scores, setScores] = useState<Record<number, number>>({});
-  const [minTime, setMinTime] = useState(1);
-  const [maxTime, setMaxTime] = useState(2);
+  const [minTime, setMinTime] = useState(1800);
+  const [maxTime, setMaxTime] = useState(1800);
 
   const allSelected = useMemo(() => tasks.length > 0 && selected.size === tasks.length, [tasks, selected]);
 
