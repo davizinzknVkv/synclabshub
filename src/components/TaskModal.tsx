@@ -110,42 +110,46 @@ export function TaskModal({ open, tasks, onClose, onSubmit }: TaskModalProps) {
                 <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Configuração de Tempo</label>
                 <div className="grid grid-cols-1 gap-2">
                   <button
-                    onClick={() => { setMinTime(720); setMaxTime(1080); }}
+                    onClick={() => { setMinTime(1800); setMaxTime(1800); }}
                     className={`flex flex-col items-start p-4 rounded-2xl border transition-all ${
-                      minTime === 720 && maxTime === 1080
+                      minTime === 1800 && maxTime === 1800
                         ? "border-primary bg-primary/10 text-white"
                         : "border-surface-border bg-surface text-muted-foreground hover:text-white hover:border-surface-border/80"
                     }`}
                   >
                     <span className="text-[11px] font-bold">Opção 1: Seguro</span>
-                    <span className="text-[9px] opacity-70">720-1080s/pág | ~510min total</span>
+                    <span className="text-[9px] opacity-70">~30 min por página</span>
                   </button>
                   <button
-                    onClick={() => { setMinTime(510); setMaxTime(690); }}
+                    onClick={() => { setMinTime(2700); setMaxTime(2700); }}
                     className={`flex flex-col items-start p-4 rounded-2xl border transition-all ${
-                      minTime === 510 && maxTime === 690
+                      minTime === 2700 && maxTime === 2700
                         ? "border-primary bg-primary/10 text-white"
                         : "border-surface-border bg-surface text-muted-foreground hover:text-white hover:border-surface-border/80"
                     }`}
                   >
                     <span className="text-[11px] font-bold">Opção 2: Recomendado</span>
-                    <span className="text-[9px] opacity-70">510-690s/pág | ~340min total</span>
+                    <span className="text-[9px] opacity-70">~45 min por página</span>
                   </button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 opacity-50 pointer-events-none">
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Mínimo (s)</label>
                   <input
-                    type="number" value={minTime} readOnly
+                    type="number"
+                    value={minTime}
+                    onChange={(e) => setMinTime(Math.max(1, Number(e.target.value) || 0))}
                     className="input-premium w-full text-center py-3 text-sm bg-transparent"
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Máximo (s)</label>
                   <input
-                    type="number" value={maxTime} readOnly
+                    type="number"
+                    value={maxTime}
+                    onChange={(e) => setMaxTime(Math.max(1, Number(e.target.value) || 0))}
                     className="input-premium w-full text-center py-3 text-sm bg-transparent"
                   />
                 </div>
