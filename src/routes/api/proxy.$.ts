@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-const UPSTREAM = "https://edusp.crimsonzerohub.xyz";
+const UPSTREAMS = ["https://edusp.crimsonzerohub.xyz", "https://edusp-api.ip.tv"];
+const RETRYABLE_UPSTREAM_STATUSES = new Set([520, 521, 522, 523, 524, 530]);
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,7 +12,7 @@ const corsHeaders = {
 
 async function proxyRequest(request: Request, splat: string) {
   const url = new URL(request.url);
-  const upstreamUrl = `${UPSTREAM}/${splat}${url.search}`;
+  const upstreamUrls = UPSTREAMS.map((upstream) => `${upstream}/${splat}${url.search}`);
 
   const headers = new Headers();
   // Forward relevant headers
@@ -40,7 +41,20 @@ async function proxyRequest(request: Request, splat: string) {
   }
 
   try {
-    const upstream = await fetch(upstreamUrl, init);
+    let upstream: Response | null = null;
+
+    for (const upstreamUrl of upstreamUrls) {
+      upstream = await fetch(upstreamUrl, init);
+      if (!RETRYABLE_UPSTREAM_STATUSES.has(upstream.status)) break;
+    }
+
+    if (!upstream || RETRYABLE_UPSTREAM_STATUSES.has(upstream.status)) {
+      return new Response(
+        JSON.stringify({ error: "Serviço externo temporariamente indisponível" }),
+        { status: 503, headers: { "Content-Type": "application/json", ...corsHeaders } },
+      );
+    }
+
     const body = await upstream.arrayBuffer();
     const respHeaders = new Headers(corsHeaders);
     const ct = upstream.headers.get("content-type");
