@@ -1,6 +1,7 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
+import { MaintenanceGate } from "@/components/MaintenanceGate";
 
 function NotFoundComponent() {
   return (
@@ -69,5 +70,9 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
-  return <Outlet />;
+  return (
+    <MaintenanceGate>
+      <Outlet />
+    </MaintenanceGate>
+  );
 }
