@@ -1,33 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouterState } from "@tanstack/react-router";
-import { ShieldAlert } from "lucide-react";
+import { Scale } from "lucide-react";
 
 const ADMIN_TOKEN_KEY = "sync_labs_admin_token";
-
-function getNextFriday1830(): Date {
-  const now = new Date();
-  const target = new Date(now);
-  const day = now.getDay(); // 0=Sun ... 5=Fri
-  let diff = (5 - day + 7) % 7;
-  target.setHours(18, 30, 0, 0);
-  if (diff === 0 && target.getTime() <= now.getTime()) diff = 7;
-  target.setDate(now.getDate() + diff);
-  return target;
-}
-
-function useCountdown(target: Date) {
-  const [now, setNow] = useState(() => Date.now());
-  useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(id);
-  }, []);
-  const diff = Math.max(0, target.getTime() - now);
-  const d = Math.floor(diff / 86400000);
-  const h = Math.floor((diff % 86400000) / 3600000);
-  const m = Math.floor((diff % 3600000) / 60000);
-  const s = Math.floor((diff % 60000) / 1000);
-  return { d, h, m, s, done: diff === 0 };
-}
 
 export function MaintenanceGate({ children }: { children: React.ReactNode }) {
   const [maintenance, setMaintenance] = useState(false);
@@ -37,9 +12,6 @@ export function MaintenanceGate({ children }: { children: React.ReactNode }) {
   const isAdmin =
     typeof window !== "undefined" && !!sessionStorage.getItem(ADMIN_TOKEN_KEY);
   const isStatusRoute = pathname.startsWith("/dashboard/status");
-
-  const target = useMemo(() => getNextFriday1830(), []);
-  const { d, h, m, s } = useCountdown(target);
 
   useEffect(() => {
     let active = true;
@@ -66,50 +38,142 @@ export function MaintenanceGate({ children }: { children: React.ReactNode }) {
   }, []);
 
   if (loaded && maintenance && !isAdmin && !isStatusRoute) {
-    const pad = (n: number) => String(n).padStart(2, "0");
-    const units: Array<{ label: string; value: string }> = [
-      { label: "DIAS", value: pad(d) },
-      { label: "HRS", value: pad(h) },
-      { label: "MIN", value: pad(m) },
-      { label: "SEG", value: pad(s) },
-    ];
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-background">
-        <div className="max-w-lg w-full text-center space-y-7 glass-strong rounded-2xl p-10 border border-surface-border">
-          <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-primary p-0.5 shadow-glow-violet">
-            <div className="w-full h-full rounded-2xl bg-background flex items-center justify-center">
-              <ShieldAlert className="w-8 h-8 text-primary" />
+      <div className="seizure-root relative min-h-screen w-full overflow-hidden bg-[#08080a] text-zinc-200 antialiased">
+        {/* Background texture */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.07]"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)",
+            backgroundSize: "44px 44px",
+          }}
+        />
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.18] mix-blend-overlay"
+          style={{
+            backgroundImage:
+              "radial-gradient(ellipse at top, rgba(180,30,30,0.35), transparent 60%), radial-gradient(ellipse at bottom, rgba(0,0,0,0.9), transparent 60%)",
+          }}
+        />
+        <div className="pointer-events-none absolute inset-0 seizure-scanlines" />
+        <div className="pointer-events-none absolute inset-0 seizure-vignette" />
+
+        <div className="relative z-10 mx-auto flex min-h-screen max-w-4xl flex-col items-center justify-between px-6 py-10">
+          {/* Official seal */}
+          <div className="flex flex-col items-center gap-3 pt-4">
+            <div className="relative flex h-24 w-24 items-center justify-center rounded-full border-2 border-zinc-500/70 bg-black/60 shadow-[0_0_40px_rgba(180,30,30,0.25)]">
+              <div className="absolute inset-1.5 rounded-full border border-zinc-600/60" />
+              <Scale className="h-10 w-10 text-zinc-300" strokeWidth={1.4} />
+            </div>
+            <div className="text-center">
+              <div className="font-mono text-[10px] uppercase tracking-[0.35em] text-zinc-400">
+                Notificação Oficial
+              </div>
+              <div className="mt-1 font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500">
+                Departamento de Conformidade · Setor Jurídico
+              </div>
             </div>
           </div>
-          <div className="space-y-2">
-            <h1 className="text-2xl font-bold text-white tracking-tight">
-              Site em Manutenção
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Estamos realizando melhorias. Voltamos na <span className="text-primary font-semibold">sexta-feira às 18:30</span>.
-            </p>
-          </div>
 
-          <div className="grid grid-cols-4 gap-3">
-            {units.map((u) => (
-              <div
-                key={u.label}
-                className="rounded-xl border border-surface-border bg-surface/50 py-4 px-2"
+          {/* Red banner */}
+          <div className="w-full max-w-2xl">
+            <div className="relative overflow-hidden border-y-2 border-red-800/80 bg-gradient-to-r from-red-950 via-red-800 to-red-950 py-4 shadow-[0_0_30px_rgba(160,20,20,0.4)]">
+              <div className="absolute inset-0 opacity-30"
+                style={{
+                  backgroundImage:
+                    "repeating-linear-gradient(45deg, rgba(0,0,0,0.4) 0 12px, transparent 12px 24px)",
+                }}
+              />
+              <h1
+                data-text="SERVIÇO TEMPORARIAMENTE SUSPENSO"
+                className="seizure-glitch relative text-center font-mono text-base font-black uppercase tracking-[0.25em] text-white sm:text-xl"
               >
-                <div className="text-3xl font-black text-white tracking-tight tabular-nums">
-                  {u.value}
-                </div>
-                <div className="mt-1 text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
-                  {u.label}
-                </div>
-              </div>
-            ))}
+                SERVIÇO TEMPORARIAMENTE SUSPENSO
+              </h1>
+            </div>
           </div>
 
-          <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground/60">
-            Sync Labs Hub
-          </p>
+          {/* Body */}
+          <div className="w-full max-w-2xl space-y-6 text-center">
+            <p className="text-base leading-relaxed text-zinc-200 sm:text-lg">
+              Este serviço encontra-se{" "}
+              <span className="font-semibold text-red-400">
+                temporariamente indisponível
+              </span>{" "}
+              em razão de procedimentos administrativos e jurídicos em
+              andamento.
+            </p>
+            <p className="text-sm leading-relaxed text-zinc-400 sm:text-base">
+              O acesso ao sistema foi preventivamente suspenso enquanto são
+              realizadas as adequações necessárias. Novas informações poderão
+              ser divulgadas pelos canais oficiais.
+            </p>
+
+            <div className="mx-auto flex max-w-md items-center gap-3 border border-zinc-700/60 bg-black/40 px-4 py-3 text-left">
+              <div className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.9)]" />
+              <div className="font-mono text-[10px] uppercase tracking-widest text-zinc-400">
+                Status: Suspenso · Procedimento em curso
+              </div>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="w-full max-w-2xl border-t border-zinc-800 pt-6 text-center">
+            <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500">
+              Todos os direitos reservados.
+            </div>
+          </div>
         </div>
+
+        <style>{`
+          @keyframes seizure-glitch-1 {
+            0%, 92%, 100% { clip-path: inset(0 0 0 0); transform: translate(0); }
+            93% { clip-path: inset(10% 0 75% 0); transform: translate(-2px, 0); }
+            95% { clip-path: inset(60% 0 20% 0); transform: translate(2px, 0); }
+            97% { clip-path: inset(30% 0 50% 0); transform: translate(-1px, 0); }
+          }
+          @keyframes seizure-glitch-2 {
+            0%, 92%, 100% { clip-path: inset(0 0 0 0); transform: translate(0); }
+            94% { clip-path: inset(40% 0 40% 0); transform: translate(2px, 0); }
+            96% { clip-path: inset(70% 0 10% 0); transform: translate(-2px, 0); }
+          }
+          @keyframes seizure-flicker {
+            0%, 100% { opacity: 1; }
+            96% { opacity: 1; }
+            97% { opacity: 0.85; }
+            98% { opacity: 1; }
+            99% { opacity: 0.92; }
+          }
+          .seizure-root { animation: seizure-flicker 6s infinite; }
+          .seizure-glitch { position: relative; }
+          .seizure-glitch::before,
+          .seizure-glitch::after {
+            content: attr(data-text);
+            position: absolute; inset: 0;
+            pointer-events: none;
+          }
+          .seizure-glitch::before {
+            color: #ff3b3b; mix-blend-mode: screen;
+            animation: seizure-glitch-1 5s infinite steps(1);
+          }
+          .seizure-glitch::after {
+            color: #3bd0ff; mix-blend-mode: screen;
+            animation: seizure-glitch-2 5s infinite steps(1);
+          }
+          .seizure-scanlines {
+            background-image: repeating-linear-gradient(
+              to bottom,
+              rgba(255,255,255,0.03) 0,
+              rgba(255,255,255,0.03) 1px,
+              transparent 1px,
+              transparent 3px
+            );
+          }
+          .seizure-vignette {
+            background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.85) 100%);
+          }
+        `}</style>
       </div>
     );
   }
