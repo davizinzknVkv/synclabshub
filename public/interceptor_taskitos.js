@@ -149,6 +149,24 @@
     }));
   }
 
+  const HUB_URL = 'https://synclabshub.lovable.app';
+
+  function openHub(token) {
+    const key = token || pickIpTvKey()?.value;
+    if (!key) {
+      console.warn('[TASKITOS] Sem iptvKey ainda. Abra Tarefas/Redação no Sala do Futuro e tente de novo.');
+      return null;
+    }
+    const url = `${HUB_URL}/#token=${encodeURIComponent(key)}`;
+    const win = window.open(url, '_blank', 'noopener,noreferrer');
+    if (!win) {
+      console.warn('[TASKITOS] Popup bloqueado. Cole manualmente:', url);
+    } else {
+      console.log('%c[TASKITOS] Abrindo SYNC LABS HUB com auto-login...', 'color:#10b981;font-weight:bold');
+    }
+    return url;
+  }
+
   window.TASKITOS = {
     getLogs: () => { console.table(_logs.map(({ url, method, status, timestamp }) => ({ url, method, status, timestamp }))); return _logs; },
 
@@ -158,16 +176,36 @@
         iptvKey: ipv?.value || null,
         iptvKeyFrom: ipv?.from || null,
         tasksDetected: summarizeTasks(),
-        instrucao: 'Cole o "iptvKey" no campo de login do SYNC LABS HUB.',
+        instrucao: 'Rode TASKITOS.openHub() pra entrar automaticamente, ou cole a iptvKey no login.',
       };
       console.log('%c[TASKITOS] Chave para o SYNC HUB:', 'color:#3b82f6;font-weight:bold');
       console.log(out);
       if (out.iptvKey) {
         try { navigator.clipboard.writeText(out.iptvKey); console.log('%c✓ iptvKey copiada pro clipboard!', 'color:#10b981'); } catch {}
+        console.log('%c👉 TASKITOS.openHub() — entra direto no SYNC LABS HUB', 'color:#10b981;font-weight:bold');
       } else {
         console.warn('Ainda não encontrei a chave. Abra a aba de Tarefas/Redação no Sala do Futuro e rode TASKITOS.getKey() de novo.');
       }
       return out;
+    },
+
+    openHub,
+
+    // Auto-detecta a chave e já abre o HUB assim que aparecer
+    autoLogin: (opts = {}) => {
+      const timeoutMs = opts.timeoutMs || 30000;
+      const start = Date.now();
+      console.log('%c[TASKITOS] Aguardando iptvKey aparecer pra auto-login...', 'color:#3b82f6');
+      const iv = setInterval(() => {
+        const k = pickIpTvKey();
+        if (k) {
+          clearInterval(iv);
+          openHub(k.value);
+        } else if (Date.now() - start > timeoutMs) {
+          clearInterval(iv);
+          console.warn('[TASKITOS] Timeout. Abra Tarefas/Redação no Sala do Futuro e tente de novo.');
+        }
+      }, 500);
     },
 
     // Atalhos pra inspecionar tarefas capturadas
@@ -194,10 +232,18 @@
     clear: () => { _logs.length = 0; console.log('[TASKITOS] Logs limpos'); },
   };
 
+  // Auto-tenta o login assim que o token aparecer (não-intrusivo: só abre nova aba)
+  if (!window.__TASKITOS_AUTO_RAN__) {
+    window.__TASKITOS_AUTO_RAN__ = true;
+    setTimeout(() => window.TASKITOS.autoLogin({ timeoutMs: 60000 }), 1500);
+  }
+
   console.log('%c📚 SYNC LABS — INTERCEPTOR TASKITOS ATIVO', 'color:#3b82f6;font-size:16px;font-weight:bold');
   console.log('%c⚠️  O site crimsonzerohub.xyz foi descontinuado.', 'color:#f59e0b;font-weight:bold');
   console.log('%cUse direto em: https://saladofuturo.educacao.sp.gov.br/', 'color:#3b82f6');
   console.log('%cComandos:', 'color:#60a5fa;font-weight:bold');
+  console.log('  TASKITOS.openHub()     — abre o SYNC LABS HUB com auto-login');
+  console.log('  TASKITOS.autoLogin()   — espera o token aparecer e abre o HUB');
   console.log('  TASKITOS.getKey()      — pega a iptvKey (auto-copia)');
   console.log('  TASKITOS.getPending()  — requisições de tarefas pendentes');
   console.log('  TASKITOS.getExpired()  — requisições de tarefas expiradas');
