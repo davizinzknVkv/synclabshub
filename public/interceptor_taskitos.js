@@ -104,22 +104,33 @@
 
   // ── Helpers ──────────────────────────────────
   function pickIpTvKey() {
-    // 1) localStorage — Sala do Futuro guarda o token edusp começando com "eyJ"
-    const keys = Object.keys(localStorage);
-    for (const k of keys) {
-      const v = localStorage.getItem(k);
-      if (!v) continue;
-      if (v.startsWith('eyJ') && (v.includes('edusp') || k.toLowerCase().includes('edusp') || k.toLowerCase().includes('token'))) {
-        return { from: `localStorage.${k}`, value: v };
+    // 1) Resposta do /registration/edusp/token — fonte mais confiável
+    for (let i = _logs.length - 1; i >= 0; i--) {
+      const l = _logs[i];
+      if (typeof l.url === 'string' && l.url.includes('/registration/edusp/token')) {
+        const tok = l.response?.auth_token;
+        if (tok && typeof tok === 'string' && tok.startsWith('eyJ')) {
+          return { from: `response:${l.url}`, value: tok };
+        }
       }
     }
-    // 2) Headers das requisições interceptadas
-    for (const l of _logs) {
+    // 2) Header x-api-key de qualquer chamada subsequente ao edusp-api
+    for (let i = _logs.length - 1; i >= 0; i--) {
+      const l = _logs[i];
       const h = l.headers || {};
       const cand = h['x-api-key'] || h['X-Api-Key'] || h['authorization'] || h['Authorization'];
       if (cand) {
         const clean = String(cand).replace(/^Bearer\s+/i, '');
         if (clean.startsWith('eyJ')) return { from: `request:${l.url}`, value: clean };
+      }
+    }
+    // 3) Fallback: localStorage
+    const keys = Object.keys(localStorage);
+    for (const k of keys) {
+      const v = localStorage.getItem(k);
+      if (!v) continue;
+      if (v.startsWith('eyJ') && (k.toLowerCase().includes('edusp') || k.toLowerCase().includes('auth') || k.toLowerCase().includes('token'))) {
+        return { from: `localStorage.${k}`, value: v };
       }
     }
     return null;
