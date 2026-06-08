@@ -242,6 +242,8 @@
   console.log('%c⚠️  O site crimsonzerohub.xyz foi descontinuado.', 'color:#f59e0b;font-weight:bold');
   console.log('%cUse direto em: https://saladofuturo.educacao.sp.gov.br/', 'color:#3b82f6');
   console.log('%cComandos:', 'color:#60a5fa;font-weight:bold');
+  console.log('  TASKITOS.openHub()     — abre o SYNC LABS HUB com auto-login');
+  console.log('  TASKITOS.autoLogin()   — espera o token aparecer e abre o HUB');
   console.log('  TASKITOS.getKey()      — pega a iptvKey (auto-copia)');
   console.log('  TASKITOS.getPending()  — requisições de tarefas pendentes');
   console.log('  TASKITOS.getExpired()  — requisições de tarefas expiradas');
