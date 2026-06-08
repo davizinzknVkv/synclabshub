@@ -21,6 +21,15 @@ const UF_LIST = [
 ];
 
 const API_BASE_URL = "https://edusp-api.ip.tv";
+const PROXY_BASE_URL = "/api/proxy";
+
+function decodeJwt(token: string): Record<string, unknown> | null {
+  try {
+    const part = token.split(".")[1];
+    const json = atob(part.replace(/-/g, "+").replace(/_/g, "/"));
+    return JSON.parse(decodeURIComponent(escape(json)));
+  } catch { return null; }
+}
 
 function Index() {
   const navigate = useNavigate();
@@ -31,9 +40,71 @@ function Index() {
   const [pwd, setPwd] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [autoLogging, setAutoLogging] = useState(false);
 
+  // Auto-login via interceptor: #token=<iptvKey> ou ?token=<iptvKey>
   useEffect(() => {
-    if (getSession()) navigate({ to: "/dashboard" });
+    if (getSession()) { navigate({ to: "/dashboard" }); return; }
+
+    const hash = window.location.hash.replace(/^#/, "");
+    const hashParams = new URLSearchParams(hash);
+    const queryParams = new URLSearchParams(window.location.search);
+    const token = hashParams.get("token") || queryParams.get("token");
+    if (!token || !token.startsWith("eyJ")) return;
+
+    // Limpa imediatamente da URL pra não vazar token
+    window.history.replaceState(null, "", window.location.pathname);
+
+    const payload = decodeJwt(token);
+    const exp = payload && typeof payload.exp === "number" ? (payload.exp as number) : 0;
+    if (exp && exp * 1000 < Date.now()) {
+      notify("TOKEN EXPIRADO — RODE O INTERCEPTOR DE NOVO");
+      return;
+    }
+
+    setAutoLogging(true);
+    notify("AUTO-LOGIN VIA INTERCEPTOR...");
+
+    (async () => {
+      try {
+        const roomRes = await fetch(`${PROXY_BASE_URL}/room/user?list_all=true&with_cards=true`, {
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "x-api-realm": "edusp",
+            "x-api-platform": "webclient",
+            "x-api-key": token,
+          },
+        });
+        if (!roomRes.ok) throw new Error("TOKEN INVÁLIDO OU EXPIRADO");
+        const roomData = await roomRes.json();
+
+        const nick = (payload?.nick as string | undefined) || "";
+        const externalId = payload?.external_id ? String(payload.external_id) : undefined;
+        const skey = (payload?.skey as string | undefined) || "";
+        const raFromSkey = skey.split(":").pop() || nick;
+
+        setSession({
+          ra: raFromSkey.toUpperCase().replace(/-/g, ""),
+          authToken: token,
+          nick: nick,
+          name: nick,
+          externalId,
+          rooms: (roomData.rooms || []).map((r: { id: number; name: string; icon?: string | null; dark_icon?: string | null }) => ({
+            id: r.id,
+            name: r.name,
+            icon: r.icon || FALLBACK_ROOM_ICON,
+            dark_icon: r.dark_icon || r.icon || FALLBACK_ROOM_ICON,
+          })),
+        });
+
+        notify("AUTO-LOGIN OK");
+        navigate({ to: "/dashboard" });
+      } catch (err) {
+        notify(err instanceof Error ? err.message : "FALHA NO AUTO-LOGIN");
+        setAutoLogging(false);
+      }
+    })();
   }, [navigate]);
 
   const fullRa = `${raNumero}${raDigito}${raUf}`;
