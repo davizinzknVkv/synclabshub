@@ -177,6 +177,17 @@ function Index() {
       <div className="absolute bottom-1/4 -right-32 w-[480px] h-[480px] rounded-full opacity-40 pointer-events-none bg-aurora-animated"
            style={{ background: "radial-gradient(circle, oklch(0.82 0.17 200 / 0.4), transparent 70%)", animationDelay: "-9s" }} />
 
+      {autoLogging && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-md">
+          <div className="flex flex-col items-center gap-4 p-8 glass-strong rounded-2xl">
+            <div className="w-10 h-10 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+            <p className="text-sm font-mono uppercase tracking-widest text-white">Auto-login via interceptor</p>
+            <p className="text-[11px] text-muted-foreground">Validando iptvKey...</p>
+          </div>
+        </div>
+      )}
+
+
       {/* Login card */}
       <main className="relative z-10 w-full max-w-[440px] p-8 sm:p-10 glass-strong rounded-2xl shadow-2xl">
         <header className="mb-8">
