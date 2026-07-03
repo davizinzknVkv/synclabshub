@@ -250,7 +250,7 @@ Devolva APENAS o texto reescrito, sem título, sem rótulos, sem comentários.`,
 ];
 
 async function callLovableAI(prompt: string): Promise<string> {
-  const response = await fetch("/api/ai/generate", {
+  const response = await fetch("/api/redacao/generate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ prompt }),
@@ -258,7 +258,7 @@ async function callLovableAI(prompt: string): Promise<string> {
 
   if (!response.ok) {
     const errData = await response.json().catch(() => ({}));
-    throw new Error((errData as any).error || `AI error: ${response.status}`);
+    throw new Error((errData as any).error || `Flux Redação error: ${response.status}`);
   }
 
   const data = await response.json();
