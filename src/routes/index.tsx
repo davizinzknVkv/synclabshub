@@ -8,7 +8,7 @@ import {
   Zap,
   ShieldCheck,
   Sparkles,
-  Github,
+  FileText,
   Circle,
 } from "lucide-react";
 import { NotificationContainer, notify } from "@/components/Notification";
@@ -493,7 +493,7 @@ function Index() {
               href="#"
               className="inline-flex items-center gap-1 hover:text-white transition-colors"
             >
-              <Github size={11} />
+              <FileText size={11} />
               Termos
             </a>
           </div>
