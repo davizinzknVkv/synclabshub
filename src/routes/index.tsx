@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import fluxHubLogo from "@/assets/flux-hub-logo.png.asset.json";
 import { useState, useCallback, useEffect } from "react";
 import {
   Eye,

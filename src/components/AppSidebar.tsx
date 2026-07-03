@@ -1,4 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import fluxHubLogo from "@/assets/flux-hub-logo.png.asset.json";
 import {
   Home,
   CheckSquare,
