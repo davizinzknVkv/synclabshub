@@ -106,24 +106,13 @@ function buildRoomCandidates(redacao: NonNullable<RedacaoSubmitPayload["generate
   return candidates;
 }
 
-async function submitToUpstream(
-  payload: RedacaoSubmitPayload,
-  roomName: string,
-  upstream: string,
-) {
+function buildAnswerBody(payload: RedacaoSubmitPayload, roomName: string, answerId?: string) {
   const generated = payload.generated!;
-  const redacao = generated.redacao!;
-  const authToken = payload.authToken!;
   const questionId = generated.questionId!;
   const questionType = generated.questionType!;
-  const status = payload.status || "submitted";
-  const hasExistingAnswer = Boolean(redacao.answer_id);
-  const method = hasExistingAnswer ? "PUT" : "POST";
-  const answerParam = hasExistingAnswer ? `&answer_id=${encodeURIComponent(String(redacao.answer_id))}` : "";
-  const submitUrl = `${upstream}/tms/task/${redacao.id}/answer?room_name=${encodeURIComponent(roomName)}${answerParam}`;
   const numericQuestionId = Number(questionId);
   const requestBody: Record<string, unknown> = {
-    status,
+    status: payload.status || "submitted",
     accessed_on: "room",
     executed_on: roomName,
     duration: Math.floor(Math.random() * (40 * 60 * 1000 - 30 * 60 * 1000 + 1)) + 30 * 60 * 1000,
@@ -139,12 +128,49 @@ async function submitToUpstream(
     },
   };
 
-  if (hasExistingAnswer) requestBody.id = redacao.answer_id;
+  if (answerId) requestBody.id = answerId;
+  return requestBody;
+}
 
-  return fetch(submitUrl, {
-    method,
+async function submitToUpstream(
+  payload: RedacaoSubmitPayload,
+  roomName: string,
+  upstream: string,
+) {
+  const redacao = generated.redacao!;
+  const authToken = payload.authToken!;
+  let answerId = redacao.answer_id ? String(redacao.answer_id) : "";
+
+  if (!answerId) {
+    const createDraftResponse = await fetch(
+      `${upstream}/tms/task/${redacao.id}/answer?room_name=${encodeURIComponent(roomName)}`,
+      {
+        method: "POST",
+        headers: buildHeaders(authToken),
+        body: JSON.stringify({
+          status: "draft",
+          accessed_on: "room",
+          executed_on: roomName,
+          answers: {},
+        }),
+      },
+    );
+
+    if (!createDraftResponse.ok) return createDraftResponse;
+    const draftData = await createDraftResponse.json().catch(() => ({}));
+    answerId = String(draftData.id || draftData.answer_id || "");
+    if (!answerId) {
+      return new Response(JSON.stringify({ error: "A API não retornou o ID do rascunho da redação." }), {
+        status: 502,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  }
+
+  return fetch(`${upstream}/tms/task/${redacao.id}/answer/${encodeURIComponent(answerId)}`, {
+    method: "PUT",
     headers: buildHeaders(authToken),
-    body: JSON.stringify(requestBody),
+    body: JSON.stringify(buildAnswerBody(payload, roomName, answerId)),
   });
 }
 
