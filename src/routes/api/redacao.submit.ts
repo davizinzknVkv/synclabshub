@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 const EDUSP_UPSTREAMS = ["https://edusp-api.ip.tv", "https://edusp.crimsonzerohub.xyz"];
 const OFFICIAL_ORIGIN = "https://saladofuturo.educacao.sp.gov.br";
+const RETRYABLE_UPSTREAM_STATUSES = new Set([500, 502, 503, 504, 520, 521, 522, 523, 524, 530]);
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -147,6 +148,18 @@ async function submitToUpstream(
   });
 }
 
+async function submitWithFallback(payload: RedacaoSubmitPayload, roomName: string) {
+  let lastResponse: Response | null = null;
+
+  for (const upstream of EDUSP_UPSTREAMS) {
+    const response = await submitToUpstream(payload, roomName, upstream);
+    lastResponse = response;
+    if (!RETRYABLE_UPSTREAM_STATUSES.has(response.status)) return response;
+  }
+
+  return lastResponse!;
+}
+
 function validatePayload(payload: RedacaoSubmitPayload) {
   if (!payload.authToken) return "Sessão inválida. Faça login novamente.";
   if (!payload.generated?.redacao?.id) return "Redação sem ID de tarefa.";
@@ -173,17 +186,15 @@ export const Route = createFileRoute("/api/redacao/submit")({
           let lastBody = "";
 
           for (const roomName of candidates) {
-            for (const upstream of EDUSP_UPSTREAMS) {
-              const response = await submitToUpstream(payload, roomName, upstream);
-              const responseText = await response.text();
-              if (response.ok) return json({ success: true, roomName });
+            const response = await submitWithFallback(payload, roomName);
+            const responseText = await response.text();
+            if (response.ok) return json({ success: true, roomName });
 
-              lastStatus = response.status;
-              lastBody = responseText;
-              const retryableRoomError = response.status === 403 || responseText.toLowerCase().includes("forbidden");
-              if (!retryableRoomError) {
-                return json({ error: `HTTP ${response.status}: ${responseText}` }, { status: response.status });
-              }
+            lastStatus = response.status;
+            lastBody = responseText;
+            const retryableRoomError = response.status === 403 || responseText.toLowerCase().includes("forbidden");
+            if (!retryableRoomError) {
+              return json({ error: `HTTP ${response.status}: ${responseText}` }, { status: response.status });
             }
           }
 
