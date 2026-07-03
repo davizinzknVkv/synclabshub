@@ -5,7 +5,7 @@ export const Route = createFileRoute("/api/catalyst/job/$jobId")({
     handlers: {
       GET: async ({ params }) => {
         try {
-          const upstream = await fetch(`https://catalyst.crimsonzerohub.xyz/job/${params.jobId}`, {
+          const upstream = await fetch(`https://taskitos.cupiditys.lol/api/job/${params.jobId}`, {
             headers: { Accept: "application/json" },
           });
           const responseText = await upstream.text();
