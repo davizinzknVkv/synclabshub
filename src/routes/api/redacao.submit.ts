@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-const EDUSP_UPSTREAMS = ["https://edusp-api.ip.tv", "https://edusp.crimsonzerohub.xyz"];
+const EDUSP_UPSTREAMS = ["https://edusp-api.ip.tv"];
 const OFFICIAL_ORIGIN = "https://saladofuturo.educacao.sp.gov.br";
 const RETRYABLE_UPSTREAM_STATUSES = new Set([500, 502, 503, 504, 520, 521, 522, 523, 524, 530]);
 
