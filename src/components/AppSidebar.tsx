@@ -1,57 +1,79 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Home, CheckSquare, PenTool, MessageCircle, Heart,
-  ChevronLeft, ChevronRight, LogOut, Menu, X,
-  GraduationCap, Zap, FileText, Lock, LayoutGrid, Sparkles, Gamepad2
+  Home,
+  CheckSquare,
+  PenTool,
+  MessageCircle,
+  Heart,
+  LogOut,
+  Menu,
+  X,
+  GraduationCap,
+  FileText,
+  Lock,
+  LayoutGrid,
+  Gamepad2,
+  Search,
+  Command,
+  ChevronsUpDown,
+  Circle,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { clearSession, getSession } from "@/lib/auth";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
-import { 
-  DonationModal, 
-  DiscordModal, 
-  PartnerModal, 
-  RoadmapModal 
+import {
+  DonationModal,
+  DiscordModal,
+  PartnerModal,
+  RoadmapModal,
 } from "./ExtraModals";
 
-const NAV_ITEMS = [
-  { title: "Dashboard", url: "/dashboard", icon: Home },
-  { title: "Tarefa SP", url: "/dashboard/tarefas", icon: CheckSquare, key: "scripts_enabled" },
-  { title: "Prepara SP", url: "/dashboard/preparasp", icon: GraduationCap, key: "preparasp_enabled" },
-  { title: "Redação", url: "/dashboard/redacao", icon: PenTool, key: "scripts_enabled" },
-  { title: "Boletim Escolar", url: "/dashboard/boletim", icon: FileText },
+type NavKey = "scripts_enabled" | "preparasp_enabled";
+
+const NAV_ITEMS: Array<{
+  title: string;
+  url: string;
+  icon: typeof Home;
+  key?: NavKey;
+  shortcut?: string;
+}> = [
+  { title: "Overview", url: "/dashboard", icon: Home, shortcut: "O" },
+  { title: "Tarefa SP", url: "/dashboard/tarefas", icon: CheckSquare, key: "scripts_enabled", shortcut: "T" },
+  { title: "Prepara SP", url: "/dashboard/preparasp", icon: GraduationCap, key: "preparasp_enabled", shortcut: "P" },
+  { title: "Redação", url: "/dashboard/redacao", icon: PenTool, key: "scripts_enabled", shortcut: "R" },
+  { title: "Boletim", url: "/dashboard/boletim", icon: FileText, shortcut: "B" },
 ];
 
-const COMMUNITY_ITEMS = [
-  { title: "Discord", url: "https://discord.gg/y5tNWGVPSU", icon: MessageCircle },
-  { title: "Apoiar", url: "https://livepix.gg/davizinzkn", icon: Heart },
-];
-
-function SyncMark({ size = 32 }: { size?: number }) {
+function FluxMark({ size = 28 }: { size?: number }) {
   return (
     <div
-      className="relative flex items-center justify-center rounded-xl flex-shrink-0"
+      className="relative flex items-center justify-center rounded-[9px] flex-shrink-0 font-display font-black text-white"
       style={{
-        width: size, height: size,
-        background: "var(--gradient-primary)",
-        boxShadow: "0 8px 24px -8px oklch(0.66 0.24 280 / 0.7), inset 0 1px 0 0 oklch(1 0 0 / 0.25)",
+        width: size,
+        height: size,
+        fontSize: size * 0.5,
+        background:
+          "linear-gradient(135deg, oklch(0.62 0.24 292), oklch(0.58 0.22 262))",
+        boxShadow:
+          "0 6px 20px -6px oklch(0.58 0.24 292 / 0.55), inset 0 1px 0 oklch(1 0 0 / 0.22)",
       }}
     >
-      <Zap size={size * 0.55} className="text-white drop-shadow" strokeWidth={2.5} />
+      F
+    </div>
+  );
+}
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="px-2 pt-5 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/60">
+      {children}
     </div>
   );
 }
 
 export function AppSidebar() {
-  const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [settings, setSettings] = useState<Record<string, boolean>>({});
   const currentPath = useRouterState({ select: (s) => s.location.pathname });
@@ -59,6 +81,7 @@ export function AppSidebar() {
   const isMobile = useIsMobile();
   const session = getSession();
   const displayName = session?.nick || session?.ra || "Aluno";
+  const initials = displayName.slice(0, 2).toUpperCase();
 
   const [donationOpen, setDonationOpen] = useState(false);
   const [discordOpen, setDiscordOpen] = useState(false);
@@ -66,9 +89,13 @@ export function AppSidebar() {
   const [roadmapOpen, setRoadmapOpen] = useState(false);
 
   useEffect(() => {
-    supabase.from("site_settings").select("*").single().then(({ data }) => {
-      if (data) setSettings(data as any);
-    });
+    supabase
+      .from("site_settings")
+      .select("*")
+      .single()
+      .then(({ data }) => {
+        if (data) setSettings(data as Record<string, boolean>);
+      });
   }, []);
 
   const handleLogout = () => {
@@ -81,7 +108,13 @@ export function AppSidebar() {
     return currentPath === url || currentPath.startsWith(url + "/");
   };
 
-  const NavItem = ({ item, onClick }: { item: typeof NAV_ITEMS[number]; onClick?: () => void }) => {
+  const NavItem = ({
+    item,
+    onClick,
+  }: {
+    item: (typeof NAV_ITEMS)[number];
+    onClick?: () => void;
+  }) => {
     const active = isActive(item.url);
     const isBlocked = item.key && settings[item.key] === false;
 
@@ -95,111 +128,209 @@ export function AppSidebar() {
           }
           onClick?.();
         }}
-        className={`relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group ${
+        className={`group relative flex items-center gap-2.5 px-2 py-1.5 rounded-[8px] text-[13px] font-medium transition-all ${
           active
-            ? "nav-active text-white"
+            ? "text-white bg-white/[0.06] shadow-[inset_0_0_0_1px_oklch(0.58_0.24_292_/_0.30)]"
             : isBlocked
-            ? "opacity-40 cursor-not-allowed"
-            : "text-muted-foreground hover:text-white hover:bg-white/[0.04]"
+              ? "opacity-40 cursor-not-allowed text-muted-foreground/70"
+              : "text-muted-foreground hover:text-white hover:bg-white/[0.035]"
         }`}
       >
-        <item.icon size={17} className={active ? "text-primary" : "group-hover:text-accent transition-colors"} />
-        {!collapsed && <span className="tracking-tight">{item.title}</span>}
-        {isBlocked && !collapsed && <Lock size={12} className="ml-auto text-muted-foreground" />}
-        {active && !collapsed && !isBlocked && (
-          <motion.div
-            layoutId="nav-dot"
-            className="ml-auto w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_12px_currentColor]"
+        {active && (
+          <motion.span
+            layoutId="nav-marker"
+            className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-[2px] rounded-r-full bg-gradient-to-b from-[oklch(0.62_0.24_292)] to-[oklch(0.58_0.22_262)]"
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
           />
         )}
+        <item.icon
+          size={15}
+          strokeWidth={1.8}
+          className={active ? "text-white" : "text-muted-foreground/70 group-hover:text-white"}
+        />
+        <span className="flex-1 truncate">{item.title}</span>
+        {isBlocked ? (
+          <Lock size={11} className="text-muted-foreground/50" />
+        ) : item.shortcut ? (
+          <span className="kbd-key opacity-0 group-hover:opacity-100 transition-opacity">
+            {item.shortcut}
+          </span>
+        ) : null}
       </Link>
     );
   };
 
-  // ---------- Mobile ----------
-  if (isMobile) {
-    const [extraOpen, setExtraOpen] = useState(false);
+  const SidebarBody = ({ onClose }: { onClose?: () => void }) => (
+    <>
+      {/* Workspace switcher */}
+      <div className="px-3 pt-3 pb-2">
+        <button className="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-[10px] hover:bg-white/[0.035] transition-colors ring-focus">
+          <FluxMark size={26} />
+          <div className="flex-1 min-w-0 text-left">
+            <div className="text-[13px] font-semibold text-white leading-tight truncate">
+              Flux Hub
+            </div>
+            <div className="text-[10px] text-muted-foreground/70 leading-tight mt-0.5">
+              Workspace pessoal
+            </div>
+          </div>
+          <ChevronsUpDown size={13} className="text-muted-foreground/50" />
+        </button>
+      </div>
 
+      {/* Search */}
+      <div className="px-3 pb-3">
+        <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-[8px] bg-white/[0.025] hairline text-[12px] text-muted-foreground/70">
+          <Search size={13} strokeWidth={1.8} />
+          <span className="flex-1">Buscar</span>
+          <span className="kbd-key">
+            <Command size={9} strokeWidth={2.5} />K
+          </span>
+        </div>
+      </div>
+
+      {/* Nav */}
+      <nav className="flex-1 overflow-y-auto px-3 pb-3">
+        <SectionLabel>Plataforma</SectionLabel>
+        <div className="flex flex-col gap-0.5">
+          {NAV_ITEMS.map((item) => (
+            <NavItem key={item.url} item={item} onClick={onClose} />
+          ))}
+        </div>
+
+        <SectionLabel>Recursos</SectionLabel>
+        <div className="flex flex-col gap-0.5">
+          <button
+            onClick={() => {
+              setRoadmapOpen(true);
+              onClose?.();
+            }}
+            className="group flex items-center gap-2.5 px-2 py-1.5 rounded-[8px] text-[13px] font-medium text-muted-foreground hover:text-white hover:bg-white/[0.035] transition-all"
+          >
+            <LayoutGrid size={15} strokeWidth={1.8} className="text-muted-foreground/70 group-hover:text-white" />
+            <span className="flex-1 text-left">Roadmap</span>
+            <span className="chip !py-0 !px-1.5 !text-[9px] text-[oklch(0.72_0.15_290)] bg-[oklch(0.58_0.24_292_/_0.14)] border-[oklch(0.58_0.24_292_/_0.25)]">
+              Novo
+            </span>
+          </button>
+          <button
+            onClick={() => {
+              setPartnerOpen(true);
+              onClose?.();
+            }}
+            className="group flex items-center gap-2.5 px-2 py-1.5 rounded-[8px] text-[13px] font-medium text-muted-foreground hover:text-white hover:bg-white/[0.035] transition-all"
+          >
+            <Gamepad2 size={15} strokeWidth={1.8} className="text-muted-foreground/70 group-hover:text-white" />
+            <span className="flex-1 text-left">Parceria</span>
+          </button>
+        </div>
+
+        <SectionLabel>Comunidade</SectionLabel>
+        <div className="flex flex-col gap-0.5">
+          <button
+            onClick={() => {
+              setDiscordOpen(true);
+              onClose?.();
+            }}
+            className="group flex items-center gap-2.5 px-2 py-1.5 rounded-[8px] text-[13px] font-medium text-muted-foreground hover:text-white hover:bg-white/[0.035] transition-all"
+          >
+            <MessageCircle size={15} strokeWidth={1.8} className="text-muted-foreground/70 group-hover:text-white" />
+            <span className="flex-1 text-left">Discord</span>
+            <Circle size={5} fill="currentColor" className="text-emerald-400" />
+          </button>
+          <button
+            onClick={() => {
+              setDonationOpen(true);
+              onClose?.();
+            }}
+            className="group flex items-center gap-2.5 px-2 py-1.5 rounded-[8px] text-[13px] font-medium text-muted-foreground hover:text-white hover:bg-white/[0.035] transition-all"
+          >
+            <Heart size={15} strokeWidth={1.8} className="text-muted-foreground/70 group-hover:text-white" />
+            <span className="flex-1 text-left">Apoiar</span>
+          </button>
+        </div>
+      </nav>
+
+      {/* User chip */}
+      <div className="hairline-t px-3 py-3">
+        <div className="flex items-center gap-2.5 px-1.5 py-1.5 rounded-[10px] hover:bg-white/[0.035] transition-colors group">
+          <div
+            className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0"
+            style={{
+              background:
+                "linear-gradient(135deg, oklch(0.62 0.24 292), oklch(0.58 0.22 262))",
+            }}
+          >
+            {initials}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[12px] font-semibold text-white leading-tight truncate">
+              {displayName}
+            </div>
+            <div className="flex items-center gap-1 text-[10px] text-muted-foreground/70 leading-tight mt-0.5">
+              <Circle size={5} fill="currentColor" className="text-emerald-400" />
+              Online
+            </div>
+          </div>
+          <button
+            onClick={handleLogout}
+            title="Sair"
+            className="p-1.5 rounded-md text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 transition-colors"
+          >
+            <LogOut size={13} strokeWidth={1.8} />
+          </button>
+        </div>
+      </div>
+    </>
+  );
+
+  if (isMobile) {
     return (
       <>
-        {/* Top bar mobile */}
-        <div className="fixed top-0 left-0 right-0 z-50 flex items-center gap-3 px-4 py-3 glass-strong border-b border-white/5">
-          <button onClick={() => setMobileOpen(true)} className="text-muted-foreground hover:text-white transition-colors">
-            <Menu size={20} />
+        {/* Mobile top bar */}
+        <div className="fixed top-0 left-0 right-0 z-40 flex items-center gap-3 px-4 h-[52px] surface-1 hairline-b">
+          <button
+            onClick={() => setMobileOpen(true)}
+            className="text-muted-foreground hover:text-white transition-colors"
+          >
+            <Menu size={18} />
           </button>
-          <SyncMark size={26} />
-          <span className="text-sm font-bold text-white tracking-tight font-display">Flux<span className="text-gradient">Hub</span></span>
-          <div className="ml-auto flex items-center gap-2 text-[10px] font-mono text-muted-foreground">
-            <span className="status-online w-1.5 h-1.5 rounded-full bg-emerald-400" />
-            <span>ONLINE</span>
+          <FluxMark size={24} />
+          <span className="text-[13px] font-semibold text-white tracking-tight">
+            Flux Hub
+          </span>
+          <div className="ml-auto flex items-center gap-1.5 chip">
+            <Circle size={6} fill="currentColor" className="text-emerald-400" />
+            Online
           </div>
         </div>
 
         <AnimatePresence>
           {mobileOpen && (
             <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
               onClick={() => setMobileOpen(false)}
             >
               <motion.aside
-                initial={{ x: -280 }} animate={{ x: 0 }} exit={{ x: -280 }}
-                transition={{ type: "spring", damping: 28, stiffness: 280 }}
-                className="absolute left-0 top-0 bottom-0 w-72 glass-strong border-r border-white/10 flex flex-col"
+                initial={{ x: -320 }}
+                animate={{ x: 0 }}
+                exit={{ x: -320 }}
+                transition={{ type: "spring", damping: 30, stiffness: 300 }}
+                className="absolute left-0 top-0 bottom-0 w-[280px] surface-1 hairline-r flex flex-col"
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="flex items-center gap-3 p-4 border-b border-white/5">
-                  <SyncMark size={32} />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-bold text-white font-display leading-tight">Flux<span className="text-gradient">Hub</span></div>
-                    <div className="flex items-center gap-1.5 text-[10px] text-emerald-400 font-mono">
-                      <span className="status-online w-1.5 h-1.5 rounded-full bg-emerald-400" /> online
-                    </div>
-                  </div>
-                  <button onClick={() => setMobileOpen(false)} className="text-muted-foreground hover:text-white">
-                    <X size={18} />
+                <div className="absolute top-3 right-3">
+                  <button
+                    onClick={() => setMobileOpen(false)}
+                    className="p-1.5 rounded-md text-muted-foreground/70 hover:text-white hover:bg-white/[0.05] transition-colors"
+                  >
+                    <X size={15} />
                   </button>
                 </div>
-
-                <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-                  <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground px-3 pt-2 pb-2 font-mono">Plataforma</p>
-                  {NAV_ITEMS.map((item) => <NavItem key={item.url} item={item} onClick={() => setMobileOpen(false)} />)}
-
-                  <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground px-3 pt-5 pb-1 font-mono">Extras</p>
-                  <div className="flex flex-col gap-1 px-1 mb-2">
-                    <button onClick={() => { setRoadmapOpen(true); setMobileOpen(false); }} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/[0.04] transition-all">
-                      <LayoutGrid size={17} />
-                      <span>Roadmap</span>
-                    </button>
-                    <button onClick={() => { setPartnerOpen(true); setMobileOpen(false); }} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/[0.04] transition-all">
-                      <Gamepad2 size={17} />
-                      <span>Parceiro</span>
-                    </button>
-                  </div>
-
-                  <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground px-3 pt-2 pb-2 font-mono">Comunidade</p>
-                  <div className="flex flex-col gap-1 px-1">
-                    <button onClick={() => { setDiscordOpen(true); setMobileOpen(false); }} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/[0.04] transition-all text-left">
-                      <MessageCircle size={17} />
-                      <span>Discord</span>
-                    </button>
-                    <button onClick={() => { setDonationOpen(true); setMobileOpen(false); }} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/[0.04] transition-all text-left">
-                      <Heart size={17} />
-                      <span>Apoiar</span>
-                    </button>
-                  </div>
-                </nav>
-
-                <div className="mt-auto p-4 border-t border-white/5">
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground/40 font-mono font-bold text-center w-full">
-                      DESENVOLVIDO POR
-                    </span>
-                    <span className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-mono font-bold text-center w-full">
-                      Davizinkn & Zennos
-                    </span>
-                  </div>
-                </div>
+                <SidebarBody onClose={() => setMobileOpen(false)} />
               </motion.aside>
             </motion.div>
           )}
@@ -213,113 +344,16 @@ export function AppSidebar() {
     );
   }
 
-  // ---------- Desktop ----------
   return (
-    <aside
-      className={`relative flex flex-col h-screen glass-strong border-r border-white/5 transition-all duration-300 ${
-        collapsed ? "w-[72px]" : "w-64"
-      }`}
-    >
-      {/* Header */}
-      <div className="flex items-center gap-3 p-4 border-b border-white/5">
-        <SyncMark size={36} />
-        {!collapsed && (
-          <div className="flex-1 min-w-0">
-            <div className="text-sm font-bold text-white font-display leading-tight tracking-tight">
-              Flux<span className="text-gradient">Hub</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-[10px] text-emerald-400 font-mono mt-0.5">
-              <span className="status-online w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              <span>online</span>
-            </div>
-          </div>
-        )}
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          className="absolute -right-3 top-7 w-6 h-6 rounded-full glass border border-white/10 flex items-center justify-center text-muted-foreground hover:text-white hover:border-primary/50 transition-all z-10"
-        >
-          {collapsed ? <ChevronRight size={13} /> : <ChevronLeft size={13} />}
-        </button>
-      </div>
-
-      {/* Nav */}
-      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-        {!collapsed && (
-          <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground px-3 pt-2 pb-2 font-mono">Plataforma</p>
-        )}
-        {NAV_ITEMS.map((item) => <NavItem key={item.url} item={item} />)}
-
-        {!collapsed ? (
-          <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground px-3 pt-5 pb-1 font-mono">Extras</p>
-        ) : <div className="h-4" />}
-        <div className={`flex flex-col gap-1 ${collapsed ? "px-0" : "px-1"}`}>
-          <button
-            onClick={() => setRoadmapOpen(true)}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/[0.04] transition-all ${collapsed ? "justify-center" : ""}`}
-            title={collapsed ? "Roadmap" : ""}
-          >
-            <LayoutGrid size={17} />
-            {!collapsed && <span className="tracking-tight">Roadmap</span>}
-          </button>
-          <button
-            onClick={() => setPartnerOpen(true)}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/[0.04] transition-all ${collapsed ? "justify-center" : ""}`}
-            title={collapsed ? "Parceiro" : ""}
-          >
-            <Gamepad2 size={17} />
-            {!collapsed && <span className="tracking-tight">Parceiro</span>}
-          </button>
-        </div>
-
-        {!collapsed ? (
-          <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground px-3 pt-5 pb-2 font-mono">Comunidade</p>
-        ) : <div className="h-4" />}
-        <div className={`flex flex-col gap-1 ${collapsed ? "px-0" : "px-1"}`}>
-          <button
-            onClick={() => setDiscordOpen(true)}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/[0.04] transition-all ${collapsed ? "justify-center text-center" : ""}`}
-            title={collapsed ? "Discord" : ""}
-          >
-            <MessageCircle size={17} />
-            {!collapsed && <span>Discord</span>}
-          </button>
-          <button
-            onClick={() => setDonationOpen(true)}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/[0.04] transition-all ${collapsed ? "justify-center text-center" : ""}`}
-            title={collapsed ? "Apoiar" : ""}
-          >
-            <Heart size={17} />
-            {!collapsed && <span>Apoiar</span>}
-          </button>
-        </div>
-      </nav>
-
-      <div className="mt-auto p-4 border-t border-white/5 space-y-4">
-        {!collapsed ? (
-          <div className="flex flex-col items-center gap-1">
-            <span className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground/40 font-mono font-bold text-center w-full">
-              DESENVOLVIDO POR
-            </span>
-            <span className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-mono font-bold text-center w-full">
-              Davizinkn & Zennos
-            </span>
-          </div>
-        ) : (
-           <div className="flex flex-col items-center gap-2 opacity-40">
-             <div className="w-1 h-1 rounded-full bg-white/20" />
-             <div className="w-1 h-1 rounded-full bg-white/20" />
-           </div>
-        )}
-        <div className={`flex items-center gap-3 font-mono ${collapsed ? "justify-center" : "px-1"}`}>
-          <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_var(--primary)]" />
-          {!collapsed && <span className="text-[10px] uppercase tracking-widest text-muted-foreground/40">Flux v2.0</span>}
-        </div>
-      </div>
+    <>
+      <aside className="relative flex flex-col h-screen w-[248px] surface-1 hairline-r flex-shrink-0">
+        <SidebarBody />
+      </aside>
 
       <DonationModal open={donationOpen} onOpenChange={setDonationOpen} />
       <DiscordModal open={discordOpen} onOpenChange={setDiscordOpen} />
       <PartnerModal open={partnerOpen} onOpenChange={setPartnerOpen} />
       <RoadmapModal open={roadmapOpen} onOpenChange={setRoadmapOpen} />
-    </aside>
+    </>
   );
 }
