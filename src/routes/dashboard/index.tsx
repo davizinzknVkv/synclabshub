@@ -546,8 +546,6 @@ function DashboardHome() {
         </section>
       </div>
 
-        </div>
-      </div>
 
       <PendenciasModal open={pendOpen} onClose={() => setPendOpen(false)} />
       <WelcomePopup />
