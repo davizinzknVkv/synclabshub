@@ -53,24 +53,19 @@ function decodeJwt(token: string): Record<string, unknown> | null {
   }
 }
 
+import fluxHubLogo from "@/assets/flux-hub-logo.png.asset.json";
+
 function FluxMark({ size = 32 }: { size?: number }) {
   return (
-    <div
-      className="flex items-center justify-center rounded-[10px] font-display font-black text-white"
-      style={{
-        width: size,
-        height: size,
-        fontSize: size * 0.5,
-        background:
-          "linear-gradient(135deg, oklch(0.62 0.24 292), oklch(0.58 0.22 262))",
-        boxShadow:
-          "0 8px 24px -8px oklch(0.58 0.24 292 / 0.65), inset 0 1px 0 oklch(1 0 0 / 0.24)",
-      }}
-    >
-      F
-    </div>
+    <img
+      src={fluxHubLogo.url}
+      alt="Flux Hub"
+      style={{ width: size, height: size }}
+      className="rounded-[10px] object-contain"
+    />
   );
 }
+
 
 function Index() {
   const navigate = useNavigate();
