@@ -41,7 +41,7 @@ const UF_LIST = [
   "SC", "SE", "TO",
 ];
 
-const API_BASE_URL = "https://edusp-api.ip.tv";
+const API_BASE_URL = "https://proxy-production-bca8.up.railway.app";
 const PROXY_BASE_URL = "/api/proxy";
 
 function decodeJwt(token: string): Record<string, unknown> | null {
