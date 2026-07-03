@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-const UPSTREAMS = ["https://edusp-api.ip.tv"];
+const UPSTREAMS = ["https://proxy-production-bca8.up.railway.app"];
 const RETRYABLE_UPSTREAM_STATUSES = new Set([520, 521, 522, 523, 524, 530]);
 
 const corsHeaders = {
