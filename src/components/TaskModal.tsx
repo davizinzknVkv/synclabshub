@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { createElement, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { TASK_ALTCHA_CHALLENGE_URL, verifyTaskAltcha, type TaskItem } from "@/lib/api";
 
@@ -226,15 +226,14 @@ export function TaskModal({ open, tasks, onClose, onSubmit }: TaskModalProps) {
               <div className="space-y-3 glass p-4 rounded-2xl border-surface-border">
                 <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Verificação</label>
                 <div ref={altchaRef} className="flex justify-center min-h-12">
-                  {open && (
-                    <altcha-widget
-                      challengeurl={TASK_ALTCHA_CHALLENGE_URL}
-                      auto="onfocus"
-                      hidefooter="true"
-                      hidelogo="true"
-                      language="pt-BR"
-                    />
-                  )}
+                  {open &&
+                    createElement("altcha-widget", {
+                      challengeurl: TASK_ALTCHA_CHALLENGE_URL,
+                      auto: "onfocus",
+                      hidefooter: "true",
+                      hidelogo: "true",
+                      language: "pt-BR",
+                    })}
                 </div>
                 <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground text-center">{captchaStatus}</p>
               </div>
