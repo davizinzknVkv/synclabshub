@@ -5,7 +5,7 @@
 // Todas as requests externas passam pelo proxy server-side em /api/cupiditys/*
 
 export const PROXY = "/api/cupiditys";
-export const EDUSP = "https://edusp-api.ip.tv";
+export const EDUSP = "https://proxy-production-bca8.up.railway.app";
 
 const LS = {
   jwt: "khan_cup_jwt",
