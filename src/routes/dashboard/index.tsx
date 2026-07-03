@@ -544,7 +544,10 @@ function DashboardHome() {
             ))}
           </div>
         </section>
+        </div>
       </div>
+
+
 
 
       <PendenciasModal open={pendOpen} onClose={() => setPendOpen(false)} />
