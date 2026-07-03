@@ -1,8 +1,8 @@
 const config = {
   API_BASE_URL: '/api/proxy',
   USER_AGENT: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
-  CATALYST_API_URL: 'https://taskitos.cupiditys.lol/api/complete',
-  CATALYST_JOB_URL: 'https://taskitos.cupiditys.lol/api/job',
+  CATALYST_API_URL: '/api/catalyst/complete',
+  CATALYST_JOB_URL: '/api/catalyst/job',
   STATUS_SERVER_URL: '/api/status'
 };
 
