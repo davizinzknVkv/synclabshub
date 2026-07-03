@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermosRouteImport } from './routes/termos'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
@@ -34,6 +35,11 @@ import { Route as ApiAdminSettingsRouteImport } from './routes/api/admin.setting
 import { Route as ApiAdminLogsRouteImport } from './routes/api/admin.logs'
 import { Route as ApiCatalystJobJobIdRouteImport } from './routes/api/catalyst.job.$jobId'
 
+const TermosRoute = TermosRouteImport.update({
+  id: '/termos',
+  path: '/termos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -158,6 +164,7 @@ const ApiCatalystJobJobIdRoute = ApiCatalystJobJobIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/termos': typeof TermosRoute
   '/api/pdf-proxy': typeof ApiPdfProxyRoute
   '/dashboard/apostilas': typeof DashboardApostilasRoute
   '/dashboard/boletim': typeof DashboardBoletimRoute
@@ -183,6 +190,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/termos': typeof TermosRoute
   '/api/pdf-proxy': typeof ApiPdfProxyRoute
   '/dashboard/apostilas': typeof DashboardApostilasRoute
   '/dashboard/boletim': typeof DashboardBoletimRoute
@@ -210,6 +218,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
+  '/termos': typeof TermosRoute
   '/api/pdf-proxy': typeof ApiPdfProxyRoute
   '/dashboard/apostilas': typeof DashboardApostilasRoute
   '/dashboard/boletim': typeof DashboardBoletimRoute
@@ -238,6 +247,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
+    | '/termos'
     | '/api/pdf-proxy'
     | '/dashboard/apostilas'
     | '/dashboard/boletim'
@@ -263,6 +273,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/termos'
     | '/api/pdf-proxy'
     | '/dashboard/apostilas'
     | '/dashboard/boletim'
@@ -289,6 +300,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/dashboard'
+    | '/termos'
     | '/api/pdf-proxy'
     | '/dashboard/apostilas'
     | '/dashboard/boletim'
@@ -316,6 +328,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRouteWithChildren
+  TermosRoute: typeof TermosRoute
   ApiPdfProxyRoute: typeof ApiPdfProxyRoute
   ApiAdminLogsRoute: typeof ApiAdminLogsRoute
   ApiAdminSettingsRoute: typeof ApiAdminSettingsRoute
@@ -333,6 +346,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/termos': {
+      id: '/termos'
+      path: '/termos'
+      fullPath: '/termos'
+      preLoaderRoute: typeof TermosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -535,6 +555,7 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRouteWithChildren,
+  TermosRoute: TermosRoute,
   ApiPdfProxyRoute: ApiPdfProxyRoute,
   ApiAdminLogsRoute: ApiAdminLogsRoute,
   ApiAdminSettingsRoute: ApiAdminSettingsRoute,
