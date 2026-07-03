@@ -53,7 +53,7 @@ export function WelcomePopup() {
                   <Sparkles size={11} /> Bem-vindo
                 </div>
                 <h2 className="text-2xl font-black text-white tracking-tighter font-display leading-tight">
-                  Apoie o <span className="text-gradient">Sync Labs</span>
+                  Apoie o <span className="text-gradient">Flux Hub</span>
                 </h2>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   Entre no nosso servidor para novidades, suporte e ajude o projeto a continuar gratuito.
@@ -71,7 +71,7 @@ export function WelcomePopup() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-bold text-white">Entrar no Discord</div>
-                    <div className="text-[11px] text-muted-foreground">Comunidade oficial Sync Labs</div>
+                    <div className="text-[11px] text-muted-foreground">Comunidade oficial Flux Hub</div>
                   </div>
                   <ExternalLink size={14} className="text-muted-foreground group-hover:text-white transition-colors" />
                 </a>

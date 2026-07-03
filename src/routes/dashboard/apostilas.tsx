@@ -3,7 +3,7 @@ import { ExternalLink, BookOpen } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard/apostilas")({
   component: ApostilasPage,
-  head: () => ({ meta: [{ title: "Apostilas - SYNC LABS HUB" }] }),
+  head: () => ({ meta: [{ title: "Apostilas - FLUX HUB" }] }),
 });
 
 function ApostilasPage() {
@@ -41,7 +41,7 @@ function ApostilasPage() {
           className="btn-premium inline-flex items-center gap-3 px-8 py-4 text-sm"
         >
           <ExternalLink size={18} />
-          ACESSAR SYNC APOSTILA
+          ACESSAR FLUX APOSTILA
         </a>
       </div>
     </div>

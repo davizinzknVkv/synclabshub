@@ -166,7 +166,7 @@ export function PartnerModal({ open, onOpenChange }: ModalProps) {
                 </div>
                 <div className="flex-1">
                   <p className="text-xs font-bold text-white uppercase tracking-tight">Benefícios Exclusivos</p>
-                  <p className="text-[10px] text-muted-foreground leading-tight">Sorteios mensais de Nitro e skins para apoiadores Sync.</p>
+                  <p className="text-[10px] text-muted-foreground leading-tight">Sorteios mensais de Nitro e skins para apoiadores Flux.</p>
                 </div>
               </div>
 

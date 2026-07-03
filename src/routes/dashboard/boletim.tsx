@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/dashboard/boletim")({
   component: BoletimPage,
-  head: () => ({ meta: [{ title: "Boletim Escolar — Sync Labs" }] }),
+  head: () => ({ meta: [{ title: "Boletim Escolar — Flux Hub" }] }),
 });
 
 interface DisciplinaBoletim {
