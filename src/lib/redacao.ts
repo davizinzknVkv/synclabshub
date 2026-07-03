@@ -374,31 +374,6 @@ export async function submitRedacao(
   const finalBody = editedBody ?? generated.body;
 
   onNotify(status === "draft" ? "SALVANDO RASCUNHO..." : "ENVIANDO REDAÇÃO...");
-  const roomParam = `room_name=${encodeURIComponent(redacao.room_name_for_apply)}`;
-  const hasExistingAnswer = Boolean(redacao.answer_id);
-  const method = hasExistingAnswer ? "PUT" : "POST";
-  const answerParam = hasExistingAnswer ? `&answer_id=${redacao.answer_id}` : "";
-  const submitUrl = `${API_BASE_URL}/tms/task/${redacao.id}/answer?${roomParam}${answerParam}`;
-
-  const requestBody: Record<string, unknown> = {
-    status,
-    accessed_on: "room",
-    executed_on: redacao.room_name_for_apply,
-    duration: Math.floor(Math.random() * (40 * 60 * 1000 - 30 * 60 * 1000 + 1)) + 30 * 60 * 1000,
-    answers: {
-      [questionId]: {
-        question_id: isNaN(Number(questionId)) ? questionId : Number(questionId),
-        question_type: questionType,
-        answer: {
-          title: finalTitle,
-          body: finalBody,
-        },
-      },
-    },
-  };
-  if (hasExistingAnswer) {
-    requestBody.id = redacao.answer_id;
-  }
 
   const submitHeaders = {
     accept: "application/json",
@@ -408,6 +383,65 @@ export async function submitRedacao(
     "x-api-realm": "edusp",
   };
 
-  await makeRequest(submitUrl, method, submitHeaders, requestBody);
-  onNotify(status === "draft" ? "RASCUNHO SALVO!" : "REDAÇÃO CONCLUÍDA E ENVIADA!");
+  // Build candidate room list: preferred first, then all user's rooms as fallback
+  const candidates: string[] = [];
+  const seen = new Set<string>();
+  const push = (name?: string) => {
+    if (name && !seen.has(name)) {
+      seen.add(name);
+      candidates.push(name);
+    }
+  };
+  push(redacao.room_name_for_apply);
+  try {
+    const roomData = await makeRequest(
+      `${API_BASE_URL}/room/user?list_all=true&with_cards=true`,
+      "GET",
+      getDefaultHeaders(authToken),
+    );
+    (roomData.rooms || []).forEach((r: { name: string }) => push(r.name));
+  } catch {
+    // ignore — use only preferred
+  }
+
+  const hasExistingAnswer = Boolean(redacao.answer_id);
+  const method = hasExistingAnswer ? "PUT" : "POST";
+  const answerParam = hasExistingAnswer ? `&answer_id=${redacao.answer_id}` : "";
+
+  let lastError: Error | null = null;
+  for (const roomName of candidates) {
+    const roomParam = `room_name=${encodeURIComponent(roomName)}`;
+    const submitUrl = `${API_BASE_URL}/tms/task/${redacao.id}/answer?${roomParam}${answerParam}`;
+    const requestBody: Record<string, unknown> = {
+      status,
+      accessed_on: "room",
+      executed_on: roomName,
+      duration: Math.floor(Math.random() * (40 * 60 * 1000 - 30 * 60 * 1000 + 1)) + 30 * 60 * 1000,
+      answers: {
+        [questionId]: {
+          question_id: isNaN(Number(questionId)) ? questionId : Number(questionId),
+          question_type: questionType,
+          answer: { title: finalTitle, body: finalBody },
+        },
+      },
+    };
+    if (hasExistingAnswer) requestBody.id = redacao.answer_id;
+
+    try {
+      await makeRequest(submitUrl, method, submitHeaders, requestBody);
+      onNotify(status === "draft" ? "RASCUNHO SALVO!" : "REDAÇÃO CONCLUÍDA E ENVIADA!");
+      return;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      lastError = err instanceof Error ? err : new Error(msg);
+      // Only retry on 403 forbidden (wrong room). Other errors are fatal.
+      if (!msg.includes("403") && !msg.toLowerCase().includes("forbidden")) {
+        throw lastError;
+      }
+      onNotify(`Sala "${roomName}" negada, tentando próxima...`);
+    }
+  }
+
+  throw lastError ?? new Error("Nenhuma sala aceita esta redação");
 }
+
