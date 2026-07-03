@@ -10,7 +10,7 @@ import { NotificationContainer, notify } from "@/components/Notification";
 export const Route = createFileRoute("/dashboard/redacao")({
   component: RedacaoPage,
   head: () => ({
-    meta: [{ title: "Redação Paulista - SYNC LABS HUB" }],
+    meta: [{ title: "Redação Paulista - FLUX HUB" }],
   }),
 });
 

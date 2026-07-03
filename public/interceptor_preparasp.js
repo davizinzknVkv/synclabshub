@@ -1,5 +1,5 @@
 // ============================================
-// 🎓 SYNC LABS — Interceptor Prepara SP
+// 🎓 FLUX HUB — Interceptor Prepara SP
 // Cole TUDO isso no console (F12) do site
 // https://saladofuturo.educacao.sp.gov.br/
 // (faça login primeiro!) e depois abra a aba
@@ -147,9 +147,9 @@
         preparaSpTokens: pre.sedTokens,
         jovensGeniosExternalTokens: pre.externalTokens,
         praxis: praxis || null,
-        instrucao: 'Cole o "iptvKey" no campo de login do SYNC LABS HUB → Prepara SP.',
+        instrucao: 'Cole o "iptvKey" no campo de login do FLUX HUB → Prepara SP.',
       };
-      console.log('%c[PREPARA-SP] Chave para o SYNC HUB:', 'color:#10b981;font-weight:bold');
+      console.log('%c[PREPARA-SP] Chave para o FLUX HUB:', 'color:#10b981;font-weight:bold');
       console.log(out);
       if (out.iptvKey) {
         try { navigator.clipboard.writeText(out.iptvKey); console.log('%c✓ iptvKey copiada pro clipboard!', 'color:#10b981'); } catch {}
@@ -178,7 +178,7 @@
     clear: () => { _logs.length = 0; console.log('[PREPARA-SP] Logs limpos'); },
   };
 
-  console.log('%c🎓 SYNC LABS — INTERCEPTOR PREPARA SP ATIVO', 'color:#10b981;font-size:16px;font-weight:bold');
+  console.log('%c🎓 FLUX HUB — INTERCEPTOR PREPARA SP ATIVO', 'color:#10b981;font-size:16px;font-weight:bold');
   console.log('%cComandos:', 'color:#34d399;font-weight:bold');
   console.log('  PREPARASP.getKey()   — pega a iptvKey (auto-copia)');
   console.log('  PREPARASP.getLogs()  — lista todas as requisições');

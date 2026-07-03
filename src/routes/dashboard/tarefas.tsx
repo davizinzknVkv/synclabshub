@@ -11,7 +11,7 @@ import { TaskModal } from "@/components/TaskModal";
 export const Route = createFileRoute("/dashboard/tarefas")({
   component: TarefasPage,
   head: () => ({
-    meta: [{ title: "Tarefa SP - SYNC LABS HUB" }],
+    meta: [{ title: "Tarefa SP - FLUX HUB" }],
   }),
 });
 

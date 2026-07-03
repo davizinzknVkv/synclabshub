@@ -55,7 +55,7 @@ export function DonationModal({ open, onOpenChange }: ModalProps) {
             <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 space-y-3">
               <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
                 <span>Chave PIX (E-mail)</span>
-                <span className="text-pink-400">Sync Labs Dev</span>
+                <span className="text-pink-400">Flux Hub Dev</span>
               </div>
               <div className="flex items-center gap-3">
                 <div className="flex-1 font-mono text-sm text-white bg-black/40 p-3 rounded-xl border border-white/5 break-all">
@@ -166,7 +166,7 @@ export function PartnerModal({ open, onOpenChange }: ModalProps) {
                 </div>
                 <div className="flex-1">
                   <p className="text-xs font-bold text-white uppercase tracking-tight">Benefícios Exclusivos</p>
-                  <p className="text-[10px] text-muted-foreground leading-tight">Sorteios mensais de Nitro e skins para apoiadores Sync.</p>
+                  <p className="text-[10px] text-muted-foreground leading-tight">Sorteios mensais de Nitro e skins para apoiadores Flux.</p>
                 </div>
               </div>
 
@@ -189,7 +189,7 @@ export function RoadmapModal({ open, onOpenChange }: ModalProps) {
     { title: "Moodle SP Auto", icon: Zap, desc: "Automação para trilhas Moodle." },
     { title: "Apostilas AI", icon: Code, desc: "Resolução de apostilas via IA." },
     { title: "Monitor de Notas", icon: ShieldCheck, desc: "Notificações de novas notas." },
-    { title: "Sync App Mobile", icon: GraduationCap, desc: "Aplicativo nativo iOS/Android." },
+    { title: "Flux App Mobile", icon: GraduationCap, desc: "Aplicativo nativo iOS/Android." },
   ];
 
   return (

@@ -1,5 +1,5 @@
 // ============================================
-// 🩸 SYNC LABS — Interceptor CrimsonZero
+// 🩸 FLUX HUB — Interceptor CrimsonZero
 // Cole TUDO isso no console (F12) do site
 // https://crimsonzerohub.xyz/ após fazer login
 // ============================================
@@ -73,9 +73,9 @@
         apiRequests: apiLogs,
         allStorageKeys: Object.keys(localStorage),
         totalIntercepted: _logs.length,
-        instrucao: 'Copie o authToken e cole no login do SYNC LABS HUB'
+        instrucao: 'Copie o authToken e cole no login do FLUX HUB'
       };
-      console.log('[INTERCEPTOR] Config para SYNC LABS:', JSON.stringify(config, null, 2));
+      console.log('[INTERCEPTOR] Config para FLUX HUB:', JSON.stringify(config, null, 2));
       return config;
     },
 
@@ -97,7 +97,7 @@
     clear: () => { _logs.length = 0; console.log('[INTERCEPTOR] Logs limpos'); }
   };
 
-  console.log('%c🩸 SYNC LABS INTERCEPTOR ATIVO', 'color: #dc2626; font-size: 16px; font-weight: bold');
+  console.log('%c🩸 FLUX HUB INTERCEPTOR ATIVO', 'color: #dc2626; font-size: 16px; font-weight: bold');
   console.log('%cComandos disponíveis:', 'color: #ff4444; font-weight: bold');
   console.log('  INTERCEPTOR.getSyncLabsConfig()  — Exporta config completa');
   console.log('  INTERCEPTOR.getToken()           — Pega tokens');

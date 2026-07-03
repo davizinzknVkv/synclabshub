@@ -48,7 +48,7 @@ declare global {
 
 export const Route = createFileRoute("/dashboard/khan")({
   component: KhanPage,
-  head: () => ({ meta: [{ title: "Khan Academy - SYNC LABS HUB" }] }),
+  head: () => ({ meta: [{ title: "Khan Academy - FLUX HUB" }] }),
 });
 
 interface UnitState {
@@ -416,7 +416,7 @@ function KhanPage() {
             </h1>
             <p className="text-[10px] text-primary font-mono font-bold tracking-[0.3em] uppercase mt-2 opacity-80">
               {profile
-                ? `${profile.nickname || profile.username || "ESTUDANTE_SYNC"}`
+                ? `${profile.nickname || profile.username || "ESTUDANTE_FLUX"}`
                 : "AUTO-COMPLETER / PRAXIS"}
             </p>
           </div>

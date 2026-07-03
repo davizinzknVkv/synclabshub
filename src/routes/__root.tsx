@@ -1,7 +1,7 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
-import { MaintenanceGate } from "@/components/MaintenanceGate";
+
 
 function NotFoundComponent() {
   return (
@@ -30,23 +30,23 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Sync Automaçao Escolar" },
-      { name: "description", content: "Sync Labs — ecossistema digital e hub de automação escolar inteligente para otimizar e monitorizar tarefas escolares." },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Sync Automaçao Escolar" },
-      { property: "og:description", content: "Sync Labs — ecossistema digital e hub de automação escolar inteligente para otimizar e monitorizar tarefas escolares." },
+      { title: "Flux Hub — Plataforma Inteligente de Automação Escolar" },
+      { name: "description", content: "Flux Hub — plataforma SaaS premium para automação escolar inteligente. Rápida, segura e feita para produtividade real." },
+      { name: "author", content: "Flux Hub" },
+      { name: "application-name", content: "Flux Hub" },
+      { name: "theme-color", content: "#7C3AED" },
+      { property: "og:site_name", content: "Flux Hub" },
+      { property: "og:title", content: "Flux Hub — Plataforma Inteligente de Automação Escolar" },
+      { property: "og:description", content: "Automação escolar inteligente, premium e moderna." },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
-      { name: "twitter:title", content: "Sync Automaçao Escolar" },
-      { name: "twitter:description", content: "Sync Labs — ecossistema digital e hub de automação escolar inteligente para otimizar e monitorizar tarefas escolares." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/bce958be-24d2-432a-ad67-e6661cd4e515" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/bce958be-24d2-432a-ad67-e6661cd4e515" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Flux Hub — Plataforma Inteligente de Automação Escolar" },
+      { name: "twitter:description", content: "Automação escolar inteligente, premium e moderna." },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap" },
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" },
       {
         rel: "stylesheet",
         href: appCss,
@@ -73,9 +73,5 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
-  return (
-    <MaintenanceGate>
-      <Outlet />
-    </MaintenanceGate>
-  );
+  return <Outlet />;
 }

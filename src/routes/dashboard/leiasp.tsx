@@ -18,7 +18,7 @@ import { NotificationContainer, notify } from "@/components/Notification";
 export const Route = createFileRoute("/dashboard/leiasp")({
   component: LeiaSPPage,
   head: () => ({
-    meta: [{ title: "Leia SP - SYNC LABS HUB" }],
+    meta: [{ title: "Leia SP - FLUX HUB" }],
   }),
 });
 

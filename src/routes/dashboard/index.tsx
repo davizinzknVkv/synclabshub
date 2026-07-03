@@ -33,7 +33,7 @@ import iconPreparaSp from "@/assets/icons/prepara-sp.png";
 
 export const Route = createFileRoute("/dashboard/")({
   component: DashboardHome,
-  head: () => ({ meta: [{ title: "Dashboard — Sync Labs" }] }),
+  head: () => ({ meta: [{ title: "Dashboard — Flux Hub" }] }),
 });
 
 const SCRIPTS = [
@@ -99,7 +99,7 @@ function Topbar({ name }: { name: string }) {
               <div className="p-4 border-b border-white/5 bg-white/[0.02]">
                 <div className="flex items-center justify-between">
                   <h4 className="text-sm font-bold text-white">Notificações</h4>
-                  <span className="text-[10px] font-mono text-primary font-bold uppercase tracking-widest">Sistema Sync</span>
+                  <span className="text-[10px] font-mono text-primary font-bold uppercase tracking-widest">Sistema Flux</span>
                 </div>
               </div>
               <div className="max-h-[300px] overflow-y-auto">
@@ -154,7 +154,7 @@ function Topbar({ name }: { name: string }) {
               <DropdownMenuContent align="end" className="w-56 glass-strong border-white/10 mt-1">
                 <div className="p-3 border-b border-white/5 mb-1">
                   <p className="text-xs font-bold text-white">{name}</p>
-                  <p className="text-[10px] text-muted-foreground truncate">Sync Labs Account</p>
+                  <p className="text-[10px] text-muted-foreground truncate">Flux Hub Account</p>
                 </div>
                 <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer">
                   <LogOut size={14} className="mr-2" />
@@ -263,7 +263,7 @@ function DashboardHome() {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <span className="px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wider bg-primary/10 text-primary border border-primary/20">
-                  {stats?.turma || "Sync Labs Hub"}
+                  {stats?.turma || "Flux Hub"}
                 </span>
                 <span className="px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wider bg-emerald-400/10 text-emerald-400 border border-emerald-400/20 flex items-center gap-1">
                   <span className="status-online w-1 h-1 rounded-full bg-emerald-400" /> Online
@@ -381,8 +381,8 @@ function DashboardHome() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
                 {
-                  name: "Sync Labs",
-                  subtitle: "Servidor Oficial Da Sync",
+                  name: "Flux Hub",
+                  subtitle: "Servidor Oficial Flux Hub",
                   image: "https://media.discordapp.net/attachments/1415012145971855400/1493336103699222588/download_23.jfif?ex=6a1b3e1f&is=6a19ec9f&hm=8ae05d514a65755f12abf67298dec444edc901f06a6afe905395f210c8c65620&=&format=webp&width=674&height=676",
                   accent: "bg-primary",
                   emoji: "🤖",
