@@ -6,6 +6,17 @@ declare global {
   interface Window {
     __altchaLoaded?: boolean;
   }
+  namespace JSX {
+    interface IntrinsicElements {
+      "altcha-widget": {
+        challengeurl?: string;
+        auto?: string;
+        hidefooter?: string;
+        hidelogo?: string;
+        language?: string;
+      };
+    }
+  }
 }
 
 interface TaskModalProps {
