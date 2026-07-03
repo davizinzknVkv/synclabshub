@@ -66,14 +66,19 @@ const NAV_ITEMS: Array<{
 
 function FluxMark({ size = 28 }: { size?: number }) {
   return (
-    <img
-      src={fluxHubLogo.url}
-      alt="Flux Hub"
-      style={{ width: size, height: size }}
-      className="rounded-[9px] object-contain flex-shrink-0"
-    />
+    <div
+      className="flex items-center justify-center rounded-[9px] flex-shrink-0 bg-white ring-1 ring-white/20 shadow-[0_6px_20px_-6px_oklch(0.58_0.24_292/0.55)]"
+      style={{ width: size, height: size, padding: size * 0.1 }}
+    >
+      <img
+        src={fluxHubLogo.url}
+        alt="Flux Hub"
+        className="w-full h-full object-contain"
+      />
+    </div>
   );
 }
+
 
 
 function SectionLabel({ children }: { children: React.ReactNode }) {

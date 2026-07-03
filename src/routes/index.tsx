@@ -59,14 +59,19 @@ function decodeJwt(token: string): Record<string, unknown> | null {
 
 function FluxMark({ size = 32 }: { size?: number }) {
   return (
-    <img
-      src={fluxHubLogo.url}
-      alt="Flux Hub"
-      style={{ width: size, height: size }}
-      className="rounded-[10px] object-contain"
-    />
+    <div
+      className="flex items-center justify-center rounded-[10px] bg-white ring-1 ring-white/20 shadow-[0_8px_24px_-8px_oklch(0.58_0.24_292/0.65)]"
+      style={{ width: size, height: size, padding: size * 0.1 }}
+    >
+      <img
+        src={fluxHubLogo.url}
+        alt="Flux Hub"
+        className="w-full h-full object-contain"
+      />
+    </div>
   );
 }
+
 
 
 function Index() {
