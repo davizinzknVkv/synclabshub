@@ -110,7 +110,7 @@ function Topbar({ name }: { name: string }) {
 
   return (
     <header className="sticky top-0 z-30 hairline-b surface-1/95 backdrop-blur-xl">
-      <div className="flex items-center justify-between h-[52px] px-5 lg:px-8">
+      <div className="flex items-center justify-between h-[52px] px-4 sm:px-5 lg:px-8 gap-2">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-[12.5px] text-muted-foreground min-w-0">
           <span className="hidden sm:inline">Flux Hub</span>
@@ -270,7 +270,7 @@ function DashboardHome() {
     <div className="min-h-screen surface-1">
       <Topbar name={displayName} />
 
-      <div className="max-w-[1240px] mx-auto px-5 lg:px-8 py-8 lg:py-10 space-y-10">
+      <div className="max-w-[1240px] mx-auto px-4 sm:px-5 lg:px-8 py-6 sm:py-8 lg:py-10 space-y-8 sm:space-y-10">
         {/* Hero */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
@@ -288,7 +288,7 @@ function DashboardHome() {
                 Free
               </span>
             </div>
-            <h1 className="text-[28px] sm:text-[32px] font-bold tracking-tight text-white font-display leading-[1.1]">
+            <h1 className="text-[22px] sm:text-[28px] md:text-[32px] font-bold tracking-tight text-white font-display leading-[1.1] break-words">
               Olá,{" "}
               <span
                 className="bg-clip-text text-transparent"

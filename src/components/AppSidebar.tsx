@@ -21,7 +21,21 @@ import {
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { clearSession, getSession } from "@/lib/auth";
-import { useIsMobile } from "@/hooks/use-mobile";
+
+// Sidebar switches to drawer below `lg` (1024px) so tablets get more content width.
+function useSidebarIsMobile() {
+  const [isMobile, setIsMobile] = useState<boolean>(() =>
+    typeof window !== "undefined" ? window.innerWidth < 1024 : false,
+  );
+  useEffect(() => {
+    const mql = window.matchMedia("(max-width: 1023px)");
+    const on = () => setIsMobile(mql.matches);
+    on();
+    mql.addEventListener("change", on);
+    return () => mql.removeEventListener("change", on);
+  }, []);
+  return isMobile;
+}
 import { supabase } from "@/integrations/supabase/client";
 import {
   DonationModal,
@@ -78,7 +92,7 @@ export function AppSidebar() {
   const [settings, setSettings] = useState<Record<string, boolean>>({});
   const currentPath = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
+  const isMobile = useSidebarIsMobile();
   const session = getSession();
   const displayName = session?.nick || session?.ra || "Aluno";
   const initials = displayName.slice(0, 2).toUpperCase();
