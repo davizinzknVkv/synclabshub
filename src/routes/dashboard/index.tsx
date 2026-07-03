@@ -267,10 +267,22 @@ function DashboardHome() {
   );
 
   return (
-    <div className="min-h-screen surface-1">
-      <Topbar name={displayName} />
+    <div className="relative min-h-screen surface-1 overflow-hidden">
+      {/* Ambient background */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-70"
+        style={{
+          background:
+            "radial-gradient(ellipse 55% 40% at 12% -10%, oklch(0.58 0.24 292 / 0.18) 0%, transparent 60%), radial-gradient(ellipse 45% 35% at 95% 5%, oklch(0.58 0.22 262 / 0.14) 0%, transparent 65%)",
+        }}
+      />
+      <div aria-hidden className="pointer-events-none absolute inset-0 bg-grid-dots opacity-40" />
 
-      <div className="max-w-[1240px] mx-auto px-4 sm:px-5 lg:px-8 py-6 sm:py-8 lg:py-10 space-y-8 sm:space-y-10">
+      <div className="relative z-10">
+        <Topbar name={displayName} />
+
+        <div className="max-w-[1240px] mx-auto px-4 sm:px-5 lg:px-8 py-6 sm:py-8 lg:py-10 space-y-8 sm:space-y-10">
         {/* Hero */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
@@ -532,7 +544,11 @@ function DashboardHome() {
             ))}
           </div>
         </section>
+        </div>
       </div>
+
+
+
 
       <PendenciasModal open={pendOpen} onClose={() => setPendOpen(false)} />
       <WelcomePopup />
