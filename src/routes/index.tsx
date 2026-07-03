@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useCallback, useEffect } from "react";
 import {
   Eye,
@@ -488,14 +488,14 @@ function Index() {
           </div>
 
           <div className="mt-8 flex items-center justify-between text-[10.5px] font-mono uppercase tracking-widest text-muted-foreground/40">
-            <span>Davizinkn · Zennos</span>
-            <a
-              href="#"
+            <span>DavizinzknGOD · Zennos</span>
+            <Link
+              to="/termos"
               className="inline-flex items-center gap-1 hover:text-white transition-colors"
             >
               <FileText size={11} />
               Termos
-            </a>
+            </Link>
           </div>
         </div>
 
