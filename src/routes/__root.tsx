@@ -73,5 +73,9 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
+  if (typeof window !== "undefined") {
+    // Instala interceptador do proxy local (opt-in via localStorage.localProxyUrl)
+    import("@/lib/localProxy").then((m) => m.installLocalProxyInterceptor()).catch(() => {});
+  }
   return <Outlet />;
 }
