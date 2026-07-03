@@ -1,4 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import fluxHubLogo from "@/assets/flux-hub-logo.png.asset.json";
 import {
   Home,
   CheckSquare,
@@ -60,24 +61,20 @@ const NAV_ITEMS: Array<{
   { title: "Boletim", url: "/dashboard/boletim", icon: FileText, shortcut: "B" },
 ];
 
+
+
+
 function FluxMark({ size = 28 }: { size?: number }) {
   return (
-    <div
-      className="relative flex items-center justify-center rounded-[9px] flex-shrink-0 font-display font-black text-white"
-      style={{
-        width: size,
-        height: size,
-        fontSize: size * 0.5,
-        background:
-          "linear-gradient(135deg, oklch(0.62 0.24 292), oklch(0.58 0.22 262))",
-        boxShadow:
-          "0 6px 20px -6px oklch(0.58 0.24 292 / 0.55), inset 0 1px 0 oklch(1 0 0 / 0.22)",
-      }}
-    >
-      F
-    </div>
+    <img
+      src={fluxHubLogo.url}
+      alt="Flux Hub"
+      style={{ width: size, height: size }}
+      className="rounded-[9px] object-contain flex-shrink-0"
+    />
   );
 }
+
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
