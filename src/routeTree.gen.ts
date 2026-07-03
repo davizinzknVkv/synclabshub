@@ -24,6 +24,7 @@ import { Route as DashboardApostilasRouteImport } from './routes/dashboard/apost
 import { Route as ApiPdfProxyRouteImport } from './routes/api/pdf-proxy'
 import { Route as ApiStatusEndpointRouteImport } from './routes/api/status.$endpoint'
 import { Route as ApiRedacaoSubmitRouteImport } from './routes/api/redacao.submit'
+import { Route as ApiRedacaoGenerateRouteImport } from './routes/api/redacao.generate'
 import { Route as ApiProxySplatRouteImport } from './routes/api/proxy.$'
 import { Route as ApiPreparaspSplatRouteImport } from './routes/api/preparasp.$'
 import { Route as ApiLeiaspSplatRouteImport } from './routes/api/leiasp.$'
@@ -111,6 +112,11 @@ const ApiRedacaoSubmitRoute = ApiRedacaoSubmitRouteImport.update({
   path: '/api/redacao/submit',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiRedacaoGenerateRoute = ApiRedacaoGenerateRouteImport.update({
+  id: '/api/redacao/generate',
+  path: '/api/redacao/generate',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiProxySplatRoute = ApiProxySplatRouteImport.update({
   id: '/api/proxy/$',
   path: '/api/proxy/$',
@@ -191,6 +197,7 @@ export interface FileRoutesByFullPath {
   '/api/leiasp/$': typeof ApiLeiaspSplatRoute
   '/api/preparasp/$': typeof ApiPreparaspSplatRoute
   '/api/proxy/$': typeof ApiProxySplatRoute
+  '/api/redacao/generate': typeof ApiRedacaoGenerateRoute
   '/api/redacao/submit': typeof ApiRedacaoSubmitRoute
   '/api/status/$endpoint': typeof ApiStatusEndpointRoute
   '/api/catalyst/job/$jobId': typeof ApiCatalystJobJobIdRoute
@@ -218,6 +225,7 @@ export interface FileRoutesByTo {
   '/api/leiasp/$': typeof ApiLeiaspSplatRoute
   '/api/preparasp/$': typeof ApiPreparaspSplatRoute
   '/api/proxy/$': typeof ApiProxySplatRoute
+  '/api/redacao/generate': typeof ApiRedacaoGenerateRoute
   '/api/redacao/submit': typeof ApiRedacaoSubmitRoute
   '/api/status/$endpoint': typeof ApiStatusEndpointRoute
   '/api/catalyst/job/$jobId': typeof ApiCatalystJobJobIdRoute
@@ -247,6 +255,7 @@ export interface FileRoutesById {
   '/api/leiasp/$': typeof ApiLeiaspSplatRoute
   '/api/preparasp/$': typeof ApiPreparaspSplatRoute
   '/api/proxy/$': typeof ApiProxySplatRoute
+  '/api/redacao/generate': typeof ApiRedacaoGenerateRoute
   '/api/redacao/submit': typeof ApiRedacaoSubmitRoute
   '/api/status/$endpoint': typeof ApiStatusEndpointRoute
   '/api/catalyst/job/$jobId': typeof ApiCatalystJobJobIdRoute
@@ -277,6 +286,7 @@ export interface FileRouteTypes {
     | '/api/leiasp/$'
     | '/api/preparasp/$'
     | '/api/proxy/$'
+    | '/api/redacao/generate'
     | '/api/redacao/submit'
     | '/api/status/$endpoint'
     | '/api/catalyst/job/$jobId'
@@ -304,6 +314,7 @@ export interface FileRouteTypes {
     | '/api/leiasp/$'
     | '/api/preparasp/$'
     | '/api/proxy/$'
+    | '/api/redacao/generate'
     | '/api/redacao/submit'
     | '/api/status/$endpoint'
     | '/api/catalyst/job/$jobId'
@@ -332,6 +343,7 @@ export interface FileRouteTypes {
     | '/api/leiasp/$'
     | '/api/preparasp/$'
     | '/api/proxy/$'
+    | '/api/redacao/generate'
     | '/api/redacao/submit'
     | '/api/status/$endpoint'
     | '/api/catalyst/job/$jobId'
@@ -352,6 +364,7 @@ export interface RootRouteChildren {
   ApiLeiaspSplatRoute: typeof ApiLeiaspSplatRoute
   ApiPreparaspSplatRoute: typeof ApiPreparaspSplatRoute
   ApiProxySplatRoute: typeof ApiProxySplatRoute
+  ApiRedacaoGenerateRoute: typeof ApiRedacaoGenerateRoute
   ApiRedacaoSubmitRoute: typeof ApiRedacaoSubmitRoute
   ApiStatusEndpointRoute: typeof ApiStatusEndpointRoute
   ApiCatalystJobJobIdRoute: typeof ApiCatalystJobJobIdRoute
@@ -462,6 +475,13 @@ declare module '@tanstack/react-router' {
       path: '/api/redacao/submit'
       fullPath: '/api/redacao/submit'
       preLoaderRoute: typeof ApiRedacaoSubmitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/redacao/generate': {
+      id: '/api/redacao/generate'
+      path: '/api/redacao/generate'
+      fullPath: '/api/redacao/generate'
+      preLoaderRoute: typeof ApiRedacaoGenerateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/proxy/$': {
@@ -587,6 +607,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiLeiaspSplatRoute: ApiLeiaspSplatRoute,
   ApiPreparaspSplatRoute: ApiPreparaspSplatRoute,
   ApiProxySplatRoute: ApiProxySplatRoute,
+  ApiRedacaoGenerateRoute: ApiRedacaoGenerateRoute,
   ApiRedacaoSubmitRoute: ApiRedacaoSubmitRoute,
   ApiStatusEndpointRoute: ApiStatusEndpointRoute,
   ApiCatalystJobJobIdRoute: ApiCatalystJobJobIdRoute,
