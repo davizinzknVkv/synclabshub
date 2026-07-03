@@ -337,3 +337,103 @@ div[style*="Edit with Lovable"],
 @utility card-brutal {
   @apply card-premium;
 }
+
+/* ========== Flux Hub 2026 — new design system utilities ========== */
+
+@utility surface-1 { background: oklch(0.105 0.014 270); }
+@utility surface-2 { background: oklch(0.13 0.018 270); }
+@utility surface-3 { background: oklch(0.16 0.022 270); }
+
+@utility hairline { border: 1px solid oklch(1 0 0 / 0.06); }
+@utility hairline-t { border-top: 1px solid oklch(1 0 0 / 0.06); }
+@utility hairline-b { border-bottom: 1px solid oklch(1 0 0 / 0.06); }
+@utility hairline-r { border-right: 1px solid oklch(1 0 0 / 0.06); }
+
+@utility chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.15rem 0.55rem;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  background: oklch(1 0 0 / 0.04);
+  border: 1px solid oklch(1 0 0 / 0.06);
+  color: oklch(0.78 0.015 265);
+}
+
+@utility kbd-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.375rem;
+  border-radius: 0.375rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  background: oklch(1 0 0 / 0.045);
+  border: 1px solid oklch(1 0 0 / 0.08);
+  color: oklch(0.7 0.015 265);
+}
+
+@utility card-flat {
+  background: oklch(0.13 0.018 270);
+  border: 1px solid oklch(1 0 0 / 0.06);
+  border-radius: 16px;
+  transition: border-color .25s ease, transform .25s ease, background .25s ease, box-shadow .25s ease;
+
+  &:hover {
+    border-color: oklch(0.58 0.24 292 / 0.4);
+    background: oklch(0.15 0.02 270);
+    box-shadow: 0 12px 40px -20px oklch(0.58 0.24 292 / 0.5);
+  }
+}
+
+@utility ring-focus {
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px oklch(0.10 0.015 270), 0 0 0 4px oklch(0.58 0.24 292 / 0.6);
+  }
+}
+
+@utility nav-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: oklch(0.72 0.015 265);
+  transition: background .15s ease, color .15s ease;
+
+  &:hover {
+    background: oklch(1 0 0 / 0.035);
+    color: oklch(0.98 0.003 260);
+  }
+}
+
+@utility nav-pill-active {
+  background: linear-gradient(180deg, oklch(0.58 0.24 292 / 0.18), oklch(0.58 0.22 262 / 0.10));
+  color: oklch(0.99 0.003 260);
+  box-shadow: inset 0 0 0 1px oklch(0.58 0.24 292 / 0.35);
+}
+
+@utility mesh-hero {
+  background:
+    radial-gradient(ellipse 55% 45% at 15% 20%, oklch(0.58 0.24 292 / 0.32) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 80%, oklch(0.58 0.22 262 / 0.28) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 35% at 50% 100%, oklch(0.55 0.23 278 / 0.20) 0%, transparent 70%),
+    oklch(0.09 0.012 270);
+}
+
+@utility noise-overlay {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.4 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/></svg>");
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
