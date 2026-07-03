@@ -54,7 +54,8 @@ function decodeJwt(token: string): Record<string, unknown> | null {
   }
 }
 
-import fluxHubLogo from "@/assets/flux-hub-logo.png.asset.json";
+
+
 
 function FluxMark({ size = 32 }: { size?: number }) {
   return (

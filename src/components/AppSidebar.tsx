@@ -61,7 +61,8 @@ const NAV_ITEMS: Array<{
   { title: "Boletim", url: "/dashboard/boletim", icon: FileText, shortcut: "B" },
 ];
 
-import fluxHubLogo from "@/assets/flux-hub-logo.png.asset.json";
+
+
 
 function FluxMark({ size = 28 }: { size?: number }) {
   return (
