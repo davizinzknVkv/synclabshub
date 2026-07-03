@@ -94,7 +94,7 @@ export function AppSidebar() {
       .select("*")
       .single()
       .then(({ data }) => {
-        if (data) setSettings(data as Record<string, boolean>);
+        if (data) setSettings(data as unknown as Record<string, boolean>);
       });
   }, []);
 
