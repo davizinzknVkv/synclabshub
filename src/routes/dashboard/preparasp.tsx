@@ -14,7 +14,7 @@ import { NotificationContainer, notify } from "@/components/Notification";
 
 export const Route = createFileRoute("/dashboard/preparasp")({
   component: PreparaSpPage,
-  head: () => ({ meta: [{ title: "Prepara SP - SYNC LABS HUB" }] }),
+  head: () => ({ meta: [{ title: "Prepara SP - FLUX HUB" }] }),
 });
 
 function PreparaSpPage() {

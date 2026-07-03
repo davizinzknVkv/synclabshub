@@ -1,5 +1,5 @@
 // ============================================
-// 📚 SYNC LABS — Interceptor Taskitos / Sala do Futuro
+// 📚 FLUX HUB — Interceptor Taskitos / Sala do Futuro
 // O site https://crimsonzerohub.xyz/ foi descontinuado.
 // Use este interceptador no site oficial:
 //   https://saladofuturo.educacao.sp.gov.br/
@@ -162,7 +162,7 @@
     if (!win) {
       console.warn('[TASKITOS] Popup bloqueado. Cole manualmente:', url);
     } else {
-      console.log('%c[TASKITOS] Abrindo SYNC LABS HUB com auto-login...', 'color:#10b981;font-weight:bold');
+      console.log('%c[TASKITOS] Abrindo FLUX HUB com auto-login...', 'color:#10b981;font-weight:bold');
     }
     return url;
   }
@@ -178,11 +178,11 @@
         tasksDetected: summarizeTasks(),
         instrucao: 'Rode TASKITOS.openHub() pra entrar automaticamente, ou cole a iptvKey no login.',
       };
-      console.log('%c[TASKITOS] Chave para o SYNC HUB:', 'color:#3b82f6;font-weight:bold');
+      console.log('%c[TASKITOS] Chave para o FLUX HUB:', 'color:#3b82f6;font-weight:bold');
       console.log(out);
       if (out.iptvKey) {
         try { navigator.clipboard.writeText(out.iptvKey); console.log('%c✓ iptvKey copiada pro clipboard!', 'color:#10b981'); } catch {}
-        console.log('%c👉 TASKITOS.openHub() — entra direto no SYNC LABS HUB', 'color:#10b981;font-weight:bold');
+        console.log('%c👉 TASKITOS.openHub() — entra direto no FLUX HUB', 'color:#10b981;font-weight:bold');
       } else {
         console.warn('Ainda não encontrei a chave. Abra a aba de Tarefas/Redação no Sala do Futuro e rode TASKITOS.getKey() de novo.');
       }
@@ -238,11 +238,11 @@
     setTimeout(() => window.TASKITOS.autoLogin({ timeoutMs: 60000 }), 1500);
   }
 
-  console.log('%c📚 SYNC LABS — INTERCEPTOR TASKITOS ATIVO', 'color:#3b82f6;font-size:16px;font-weight:bold');
+  console.log('%c📚 FLUX HUB — INTERCEPTOR TASKITOS ATIVO', 'color:#3b82f6;font-size:16px;font-weight:bold');
   console.log('%c⚠️  O site crimsonzerohub.xyz foi descontinuado.', 'color:#f59e0b;font-weight:bold');
   console.log('%cUse direto em: https://saladofuturo.educacao.sp.gov.br/', 'color:#3b82f6');
   console.log('%cComandos:', 'color:#60a5fa;font-weight:bold');
-  console.log('  TASKITOS.openHub()     — abre o SYNC LABS HUB com auto-login');
+  console.log('  TASKITOS.openHub()     — abre o FLUX HUB com auto-login');
   console.log('  TASKITOS.autoLogin()   — espera o token aparecer e abre o HUB');
   console.log('  TASKITOS.getKey()      — pega a iptvKey (auto-copia)');
   console.log('  TASKITOS.getPending()  — requisições de tarefas pendentes');

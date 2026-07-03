@@ -6,7 +6,7 @@ import { notify, NotificationContainer } from "@/components/Notification";
 export const Route = createFileRoute("/dashboard/status")({
   component: StatusDashboard,
   head: () => ({
-    meta: [{ title: "Status - SYNC LABS HUB" }],
+    meta: [{ title: "Status - FLUX HUB" }],
   }),
 });
 

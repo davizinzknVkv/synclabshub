@@ -128,7 +128,7 @@ export function AppSidebar() {
             <Menu size={20} />
           </button>
           <SyncMark size={26} />
-          <span className="text-sm font-bold text-white tracking-tight font-display">Sync<span className="text-gradient">Labs</span></span>
+          <span className="text-sm font-bold text-white tracking-tight font-display">Flux<span className="text-gradient">Hub</span></span>
           <div className="ml-auto flex items-center gap-2 text-[10px] font-mono text-muted-foreground">
             <span className="status-online w-1.5 h-1.5 rounded-full bg-emerald-400" />
             <span>ONLINE</span>
@@ -151,7 +151,7 @@ export function AppSidebar() {
                 <div className="flex items-center gap-3 p-4 border-b border-white/5">
                   <SyncMark size={32} />
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-bold text-white font-display leading-tight">Sync<span className="text-gradient">Labs</span></div>
+                    <div className="text-sm font-bold text-white font-display leading-tight">Flux<span className="text-gradient">Hub</span></div>
                     <div className="flex items-center gap-1.5 text-[10px] text-emerald-400 font-mono">
                       <span className="status-online w-1.5 h-1.5 rounded-full bg-emerald-400" /> online
                     </div>
@@ -226,7 +226,7 @@ export function AppSidebar() {
         {!collapsed && (
           <div className="flex-1 min-w-0">
             <div className="text-sm font-bold text-white font-display leading-tight tracking-tight">
-              Sync<span className="text-gradient">Labs</span>
+              Flux<span className="text-gradient">Hub</span>
             </div>
             <div className="flex items-center gap-1.5 text-[10px] text-emerald-400 font-mono mt-0.5">
               <span className="status-online w-1.5 h-1.5 rounded-full bg-emerald-400" />
@@ -312,7 +312,7 @@ export function AppSidebar() {
         )}
         <div className={`flex items-center gap-3 font-mono ${collapsed ? "justify-center" : "px-1"}`}>
           <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_var(--primary)]" />
-          {!collapsed && <span className="text-[10px] uppercase tracking-widest text-muted-foreground/40">Sync v2.0</span>}
+          {!collapsed && <span className="text-[10px] uppercase tracking-widest text-muted-foreground/40">Flux v2.0</span>}
         </div>
       </div>
 

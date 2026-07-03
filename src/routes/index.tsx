@@ -9,8 +9,8 @@ export const Route = createFileRoute("/")({
   component: Index,
   head: () => ({
     meta: [
-      { title: "SYNC LABS HUB - Login" },
-      { name: "description", content: "SYNC LABS HUB - Sua plataforma de automação" },
+      { title: "FLUX HUB - Login" },
+      { name: "description", content: "FLUX HUB - Sua plataforma de automação" },
     ],
   }),
 });
@@ -195,10 +195,10 @@ function Index() {
             <div className="flex items-center gap-3">
               <div className="relative w-11 h-11 rounded-xl flex items-center justify-center"
                    style={{ background: "var(--gradient-primary)", boxShadow: "0 8px 24px -8px oklch(0.66 0.24 280 / 0.7), inset 0 1px 0 0 oklch(1 0 0 / 0.25)" }}>
-                <img src={logo} alt="Sync Labs" className="w-6 h-6 brightness-0 invert" />
+                <img src={logo} alt="Flux Hub" className="w-6 h-6 brightness-0 invert" />
               </div>
               <div>
-                <div className="text-base font-bold font-display text-white leading-none">Sync<span className="text-gradient">Labs</span></div>
+                <div className="text-base font-bold font-display text-white leading-none">Flux<span className="text-gradient">Hub</span></div>
                 <div className="text-[10px] text-muted-foreground font-mono mt-1 tracking-wider">PLATAFORMA · v2.0</div>
               </div>
             </div>

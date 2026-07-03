@@ -47,7 +47,7 @@
 
 :root {
   --radius: 0.875rem;
-  /* Sync Labs — Deep space background */
+  /* Flux Hub — Deep space background */
   --background: oklch(0.10 0.025 270);
   --foreground: oklch(0.97 0.005 260);
   /* Glass cards */
