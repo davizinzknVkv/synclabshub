@@ -171,7 +171,7 @@ export async function fetchDashboardStats(authToken: string, externalId?: string
     const codigoAluno = externalId.slice(0, -1);
     try {
       const freqData = await makeRequest(
-        `${config.API_BASE_URL}/apiboletim/api/Frequencia/GetFaltasBimestreAtual?codigoAluno=${encodeURIComponent(codigoAluno)}`,
+        `/api/boletim/apiboletim/api/Frequencia/GetFaltasBimestreAtual?codigoAluno=${encodeURIComponent(codigoAluno)}`,
         'GET',
         { 'Accept': 'application/json' }
       );
