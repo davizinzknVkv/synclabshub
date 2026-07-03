@@ -1,12 +1,40 @@
-import { useState, useMemo } from "react";
+import { createElement, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import type { TaskItem } from "@/lib/api";
+import { TASK_ALTCHA_CHALLENGE_URL, verifyTaskAltcha, type TaskItem } from "@/lib/api";
+
+declare global {
+  interface Window {
+    __altchaLoaded?: boolean;
+  }
+  namespace JSX {
+    interface IntrinsicElements {
+      "altcha-widget": {
+        challengeurl?: string;
+        auto?: string;
+        hidefooter?: string;
+        hidelogo?: string;
+        language?: string;
+      };
+    }
+  }
+}
 
 interface TaskModalProps {
   open: boolean;
   tasks: TaskItem[];
   onClose: () => void;
-  onSubmit: (tasks: TaskItem[], isDraft: boolean, minTime: number, maxTime: number) => void;
+  onSubmit: (tasks: TaskItem[], isDraft: boolean, minTime: number, maxTime: number, captchaToken: string) => void;
+}
+
+function loadAltchaScript() {
+  if (typeof window === "undefined" || window.__altchaLoaded) return;
+  window.__altchaLoaded = true;
+  const script = document.createElement("script");
+  script.src = "https://cdn.jsdelivr.net/npm/altcha/dist/altcha.min.js";
+  script.async = true;
+  script.defer = true;
+  script.type = "module";
+  document.head.appendChild(script);
 }
 
 export function TaskModal({ open, tasks, onClose, onSubmit }: TaskModalProps) {
@@ -14,8 +42,47 @@ export function TaskModal({ open, tasks, onClose, onSubmit }: TaskModalProps) {
   const [scores, setScores] = useState<Record<number, number>>({});
   const [minTime, setMinTime] = useState(1800);
   const [maxTime, setMaxTime] = useState(1800);
+  const [captchaToken, setCaptchaToken] = useState("");
+  const [captchaStatus, setCaptchaStatus] = useState("Resolva a verificação para executar");
+  const altchaRef = useRef<HTMLDivElement | null>(null);
 
   const allSelected = useMemo(() => tasks.length > 0 && selected.size === tasks.length, [tasks, selected]);
+
+  useEffect(() => {
+    if (!open) {
+      setCaptchaToken("");
+      setCaptchaStatus("Resolva a verificação para executar");
+      return;
+    }
+    loadAltchaScript();
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const node = altchaRef.current;
+    if (!node) return;
+
+    const handleStateChange = async (event: Event) => {
+      const detail = (event as CustomEvent).detail as { state?: string; payload?: string } | undefined;
+      if (detail?.state !== "verified" || !detail.payload) {
+        setCaptchaToken("");
+        return;
+      }
+
+      try {
+        setCaptchaStatus("Validando verificação...");
+        const token = await verifyTaskAltcha(detail.payload);
+        setCaptchaToken(token);
+        setCaptchaStatus("Verificação concluída");
+      } catch (error) {
+        setCaptchaToken("");
+        setCaptchaStatus(error instanceof Error ? error.message : "Falha na verificação");
+      }
+    };
+
+    node.addEventListener("statechange", handleStateChange);
+    return () => node.removeEventListener("statechange", handleStateChange);
+  }, [open]);
 
   const toggleAll = () => {
     if (allSelected) setSelected(new Set());
@@ -35,13 +102,14 @@ export function TaskModal({ open, tasks, onClose, onSubmit }: TaskModalProps) {
     tasks.filter(t => selected.has(t.id)).map(t => ({ ...t, score: scores[t.id] ?? 100 }));
 
   const handleAllTasks = (draft: boolean) => {
-    onSubmit(tasks.map(t => ({ ...t, score: scores[t.id] ?? 100 })), draft, minTime, maxTime);
+    if (!captchaToken) return;
+    onSubmit(tasks.map(t => ({ ...t, score: scores[t.id] ?? 100 })), draft, minTime, maxTime, captchaToken);
   };
 
   const handleSelectedTasks = (draft: boolean) => {
     const sel = getSelectedTasks();
-    if (sel.length === 0) return;
-    onSubmit(sel, draft, minTime, maxTime);
+    if (sel.length === 0 || !captchaToken) return;
+    onSubmit(sel, draft, minTime, maxTime, captchaToken);
   };
 
   return (
@@ -155,22 +223,40 @@ export function TaskModal({ open, tasks, onClose, onSubmit }: TaskModalProps) {
                 </div>
               </div>
 
+              <div className="space-y-3 glass p-4 rounded-2xl border-surface-border">
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Verificação</label>
+                <div ref={altchaRef} className="flex justify-center min-h-12">
+                  {open &&
+                    createElement("altcha-widget", {
+                      challengeurl: TASK_ALTCHA_CHALLENGE_URL,
+                      auto: "onfocus",
+                      hidefooter: "true",
+                      hidelogo: "true",
+                      language: "pt-BR",
+                    })}
+                </div>
+                <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground text-center">{captchaStatus}</p>
+              </div>
+
               <div className="grid gap-3 pt-4">
                 <button 
                   onClick={() => handleSelectedTasks(false)} 
-                  className="btn-premium w-full py-4 text-xs flex items-center justify-center gap-2"
+                  disabled={!captchaToken}
+                  className="btn-premium w-full py-4 text-xs flex items-center justify-center gap-2 disabled:opacity-40 disabled:pointer-events-none"
                 >
                   EXECUTAR SELECIONADAS
                 </button>
                 <button 
                   onClick={() => handleSelectedTasks(true)} 
-                  className="w-full py-4 glass hover:bg-surface rounded-2xl border-surface-border font-black text-[10px] uppercase tracking-widest text-white transition-all"
+                  disabled={!captchaToken}
+                  className="w-full py-4 glass hover:bg-surface rounded-2xl border-surface-border font-black text-[10px] uppercase tracking-widest text-white transition-all disabled:opacity-40 disabled:pointer-events-none"
                 >
                   SALVAR COMO RASCUNHO
                 </button>
                 <button 
                   onClick={() => handleAllTasks(false)} 
-                  className="w-full py-4 bg-surface/50 hover:bg-surface rounded-2xl border border-surface-border font-black text-[10px] uppercase tracking-widest text-muted-foreground hover:text-white transition-all"
+                  disabled={!captchaToken}
+                  className="w-full py-4 bg-surface/50 hover:bg-surface rounded-2xl border border-surface-border font-black text-[10px] uppercase tracking-widest text-muted-foreground hover:text-white transition-all disabled:opacity-40 disabled:pointer-events-none"
                 >
                   EXECUTAR TUDO ({tasks.length})
                 </button>

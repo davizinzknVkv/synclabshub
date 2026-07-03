@@ -61,10 +61,10 @@ function TarefasPage() {
     fetchTasks("pending");
   }, [session, fetchTasks]);
 
-  const handleSubmit = useCallback(async (selectedTasks: TaskItem[], isDraft: boolean, minTime: number, maxTime: number) => {
+  const handleSubmit = useCallback(async (selectedTasks: TaskItem[], isDraft: boolean, minTime: number, maxTime: number, captchaToken: string) => {
     setModalOpen(false);
     if (!session) return;
-    await sendTasksToCatalyst(selectedTasks, isDraft, minTime, maxTime, session.ra, notify, targets, session.nick);
+    await sendTasksToCatalyst(selectedTasks, isDraft, minTime, maxTime, session.ra, notify, captchaToken, targets, session.nick);
   }, [session, targets]);
 
   return (

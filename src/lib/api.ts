@@ -6,6 +6,19 @@ const config = {
   STATUS_SERVER_URL: '/api/status'
 };
 
+export const TASK_ALTCHA_CHALLENGE_URL = '/api/cupiditys/task/captcha/challenge';
+
+export async function verifyTaskAltcha(payload: string): Promise<string> {
+  const response = await fetch('/api/cupiditys/task/captcha/verify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ payload }),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok || !data?.token) throw new Error(data?.error || `Captcha HTTP ${response.status}`);
+  return data.token as string;
+}
+
 export interface TaskItem {
   id: number;
   title: string;
@@ -213,6 +226,22 @@ async function fetchTasks(token: string, targetPublications: string[], taskFilte
   }
 }
 
+async function fetchTaskApply(token: string, taskId: number, roomCode: string, answerId?: unknown) {
+  const answerParam = answerId ? `&answer_id=${encodeURIComponent(String(answerId))}` : '';
+  return makeRequest(
+    `${config.API_BASE_URL}/tms/task/${taskId}/apply/?preview_mode=false&room_code=${encodeURIComponent(roomCode)}${answerParam}`,
+    'GET',
+    { ...getDefaultHeaders(), 'x-api-key': token },
+  );
+}
+
+function randomTaskSeconds(minTime: number, maxTime: number) {
+  const min = Math.max(1, Number(minTime) || 1800);
+  const max = Math.max(min, Number(maxTime) || min);
+  const value = min + Math.random() * (max - min);
+  return Math.round(max > 300 ? value : value * 60);
+}
+
 export async function checkJobStatus(jobId: string): Promise<{ status: string; message?: string }> {
   try {
     const res = await fetch(`${config.CATALYST_JOB_URL}/${jobId}`, {
@@ -233,10 +262,12 @@ export async function sendTasksToCatalyst(
   maxTime: number,
   ra: string,
   onNotify: (msg: string) => void,
+  captchaToken: string,
   publicationTargets?: string[],
   userNick?: string
 ) {
   if (tasks.length === 0) { onNotify('NENHUMA ATIVIDADE VÁLIDA'); return; }
+  if (!captchaToken) { onNotify('RESOLVA O CAPTCHA ANTES DE EXECUTAR'); return; }
 
   onNotify(`${tasks.length} ATIVIDADES ENVIADAS PARA PROCESSAMENTO`);
   let successCount = 0;
@@ -245,22 +276,28 @@ export async function sendTasksToCatalyst(
   for (const task of tasks) {
     try {
       onNotify(`ENVIANDO: ${task.title.substring(0, 25)}...`);
-      const taskPayload = { ...task } as Record<string, unknown>;
-      delete taskPayload.id;
-      delete taskPayload.token;
-      delete taskPayload.room;
+      const roomCode = String(task.room || task.publication_target || '').trim();
+      if (!roomCode) throw new Error('Sala da tarefa não encontrada');
+      const lessonInfo = await fetchTaskApply(task.token, task.id, roomCode, task.answer_id);
+      if (lessonInfo?.is_essay || lessonInfo?.is_exam) {
+        successCount++;
+        onNotify(`✓ ${task.title.substring(0, 25)}... ignorada`);
+        continue;
+      }
       const payload = {
-        tasks: [{ ...taskPayload, type: taskFilterToCatalystType(task.type), score: 100, is_prova: false, task_id: task.id }],
-        auth_token: task.token,
-        publication_targets: publicationTargets || [],
-        room_name_for_apply: task.room || task.publication_target,
-        time_min: minTime, time_max: maxTime,
-        is_draft: isDraft, salvar_rascunho: isDraft,
-        user_nick: userNick || '',
+        x_auth_key: task.token,
+        room_code: roomCode,
+        lesson_id: task.id,
+        draft: isDraft,
+        lesson_info: lessonInfo,
+        time_spent: randomTaskSeconds(minTime, maxTime),
+        answer_id: task.answer_id || 0,
+        target_score: task.score || 100,
+        captchaToken,
       };
       const result = await makeRequest(config.CATALYST_API_URL, 'POST', { 'Content-Type': 'application/json' }, payload);
       
-      if (result?.success) {
+      if (result?.success || result?.status === 'success') {
         successCount++;
         const jobId = result.job_ids?.[String(task.id)] || null;
         const estimatedMsg = result.message || '';
