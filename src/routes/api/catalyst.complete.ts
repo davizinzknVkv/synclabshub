@@ -11,7 +11,7 @@ export const Route = createFileRoute("/api/catalyst/complete")({
       POST: async ({ request }) => {
         try {
           const body = await request.text();
-          const upstream = await fetch("https://catalyst.crimsonzerohub.xyz/complete", {
+          const upstream = await fetch("https://taskitos.cupiditys.lol/api/complete", {
             method: "POST",
             headers: jsonHeaders,
             body,
