@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-const UPSTREAMS = ["https://proxy-production-bca8.up.railway.app"];
+const UPSTREAMS = ["https://edusp-api.ip.tv", "https://proxy-production-bca8.up.railway.app"];
 const RETRYABLE_UPSTREAM_STATUSES = new Set([520, 521, 522, 523, 524, 530]);
 
 const corsHeaders = {
@@ -44,10 +44,25 @@ async function fetchWithUpstreamFallback(pathWithSearch: string, init: RequestIn
 
   for (const baseUrl of UPSTREAMS) {
     upstream = await fetch(`${baseUrl}/${pathWithSearch}`, init);
-    if (!RETRYABLE_UPSTREAM_STATUSES.has(upstream.status)) break;
+    if (!(await shouldTryNextUpstream(upstream))) break;
   }
 
   return upstream;
+}
+
+async function shouldTryNextUpstream(response: Response) {
+  if (RETRYABLE_UPSTREAM_STATUSES.has(response.status)) return true;
+
+  if (![401, 403, 503].includes(response.status)) return false;
+
+  const text = await response.clone().text().catch(() => "");
+  const normalized = text.toLowerCase();
+  return (
+    normalized.includes("scrape.do") ||
+    normalized.includes("check your account details") ||
+    normalized.includes("cloudflare") ||
+    normalized.includes("just a moment")
+  );
 }
 
 async function proxyTaskTodoByTarget(request: Request, splat: string, init: RequestInit) {
@@ -105,7 +120,6 @@ async function proxyTaskTodoByTarget(request: Request, splat: string, init: Requ
 
 async function proxyRequest(request: Request, splat: string) {
   const url = new URL(request.url);
-  const upstreamUrls = UPSTREAMS.map((upstream) => `${upstream}/${splat}${url.search}`);
 
   const headers = buildProxyHeaders(request);
 
@@ -122,12 +136,7 @@ async function proxyRequest(request: Request, splat: string) {
     const taskTodoResponse = await proxyTaskTodoByTarget(request, splat, init);
     if (taskTodoResponse) return taskTodoResponse;
 
-    let upstream: Response | null = null;
-
-    for (const upstreamUrl of upstreamUrls) {
-      upstream = await fetch(upstreamUrl, init);
-      if (!RETRYABLE_UPSTREAM_STATUSES.has(upstream.status)) break;
-    }
+    const upstream = await fetchWithUpstreamFallback(`${splat}${url.search}`, init);
 
     if (!upstream || RETRYABLE_UPSTREAM_STATUSES.has(upstream.status)) {
       return new Response(

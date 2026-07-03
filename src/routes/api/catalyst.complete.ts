@@ -4,6 +4,13 @@ const jsonHeaders = {
   "Content-Type": "application/json",
 };
 
+const taskitosHeaders = {
+  ...jsonHeaders,
+  Accept: "application/json",
+  Origin: "https://taskitos.cupiditys.lol",
+  Referer: "https://taskitos.cupiditys.lol/",
+};
+
 export const Route = createFileRoute("/api/catalyst/complete")({
   server: {
     handlers: {
@@ -13,7 +20,7 @@ export const Route = createFileRoute("/api/catalyst/complete")({
           const body = await request.text();
           const upstream = await fetch("https://taskitos.cupiditys.lol/api/complete", {
             method: "POST",
-            headers: jsonHeaders,
+            headers: taskitosHeaders,
             body,
           });
           const responseText = await upstream.text();

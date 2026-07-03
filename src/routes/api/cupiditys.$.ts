@@ -13,11 +13,13 @@ const CORS = {
   "Access-Control-Max-Age": "86400",
 };
 
-const OFFICIAL_ORIGIN = "https://khan.cupiditys.lol";
-
-function targetFor(splat: string): string | null {
-  if (splat.startsWith("khan/")) return "https://khan.cupiditys.lol/" + splat.slice(5);
-  if (splat.startsWith("task/")) return "https://taskitos.cupiditys.lol/" + splat.slice(5);
+function targetFor(splat: string): { url: string; origin: string } | null {
+  if (splat.startsWith("khan/")) {
+    return { url: "https://khan.cupiditys.lol/" + splat.slice(5), origin: "https://khan.cupiditys.lol" };
+  }
+  if (splat.startsWith("task/")) {
+    return { url: "https://taskitos.cupiditys.lol/" + splat.slice(5), origin: "https://taskitos.cupiditys.lol" };
+  }
   return null;
 }
 
@@ -31,7 +33,7 @@ async function handle(request: Request, splat: string): Promise<Response> {
   }
 
   const url = new URL(request.url);
-  const finalUrl = target + (url.search || "");
+  const finalUrl = target.url + (url.search || "");
 
   // Reconstrói headers — só passa adiante o que importa
   const fwdHeaders = new Headers();
@@ -47,8 +49,8 @@ async function handle(request: Request, splat: string): Promise<Response> {
     ) continue;
     fwdHeaders.set(k, v);
   }
-  fwdHeaders.set("Origin", OFFICIAL_ORIGIN);
-  fwdHeaders.set("Referer", OFFICIAL_ORIGIN + "/");
+  fwdHeaders.set("Origin", target.origin);
+  fwdHeaders.set("Referer", target.origin + "/");
 
   const init: RequestInit = {
     method: request.method,
