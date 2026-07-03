@@ -137,7 +137,7 @@ async function submitToUpstream(
   roomName: string,
   upstream: string,
 ) {
-  const redacao = generated.redacao!;
+  const redacao = payload.generated!.redacao!;
   const authToken = payload.authToken!;
   let answerId = redacao.answer_id ? String(redacao.answer_id) : "";
 
