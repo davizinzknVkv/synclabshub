@@ -108,20 +108,23 @@ export async function fetchRedacoes(
 
   const redacoesMap = new Map<number, RedacaoItem>();
 
-  allTasks.filter(isRedacao).forEach((task: any) => {
+    allTasks.filter(isRedacao).forEach((task: any) => {
     const actualStatus: "pending" | "draft" = task.answer_status === "draft" ? "draft" : "pending";
     let roomName = "";
 
-    // Prefer answer_executed_on (actual room name used), then try publication_target
-    if (task.answer_executed_on && task.answer_executed_on.startsWith("r")) {
+    // Prefer explicit room fields, then derive from publication_target.
+    if (task.room_info?.name) {
+      roomName = task.room_info.name;
+    } else if (task.answer_executed_on && task.answer_executed_on.startsWith("r")) {
       roomName = task.answer_executed_on;
     } else if (task.publication_target) {
       if (task.publication_target.includes(":")) {
         roomName = task.publication_target.split(":")[0];
       } else if (roomIdToNameMap.has(task.publication_target)) {
         roomName = roomIdToNameMap.get(task.publication_target)!;
+      } else if (task.publication_target.startsWith("r")) {
+        roomName = task.publication_target;
       } else {
-        // publication_target is a category ID — use first room as fallback
         roomName = rooms.length > 0 ? rooms[0].name : task.publication_target;
       }
     }
@@ -162,7 +165,7 @@ async function fetchRedacaoContent(
   const answerParams = answerId
     ? `&answer_id=${answerId}&answer_fields=id&answer_fields=nick&answer_fields=status&answer_fields=task_id&answer_fields=answers&answer_fields=duration`
     : "";
-  const url = `${API_BASE_URL}/tms/task/${taskId}/apply?preview_mode=false${answerParams}&token_code=null&room_name=${roomName}`;
+  const url = `${API_BASE_URL}/tms/task/${taskId}/apply?preview_mode=false${answerParams}&token_code=null&room_name=${encodeURIComponent(roomName)}`;
   return makeRequest(url, "GET", { "x-api-key": token });
 }
 
@@ -369,79 +372,33 @@ export async function submitRedacao(
   editedBody?: string,
   status: "draft" | "submitted" = "submitted",
 ): Promise<void> {
-  const { redacao, questionId, questionType } = generated;
+  const { redacao } = generated;
   const finalTitle = editedTitle ?? generated.title;
   const finalBody = editedBody ?? generated.body;
 
   onNotify(status === "draft" ? "SALVANDO RASCUNHO..." : "ENVIANDO REDAÇÃO...");
 
-  const submitHeaders = {
-    accept: "application/json",
-    "content-type": "application/json",
-    "x-api-key": authToken,
-    "x-api-platform": "webclient",
-    "x-api-realm": "edusp",
-  };
-
-  // Build candidate room list: preferred first, then all user's rooms as fallback
-  const candidates: string[] = [];
-  const seen = new Set<string>();
-  const push = (name?: string) => {
-    if (name && !seen.has(name)) {
-      seen.add(name);
-      candidates.push(name);
-    }
-  };
-  push(redacao.room_name_for_apply);
-  try {
-    const roomData = await makeRequest(
-      `${API_BASE_URL}/room/user?list_all=true&with_cards=true`,
-      "GET",
-      getDefaultHeaders(authToken),
-    );
-    (roomData.rooms || []).forEach((r: { name: string }) => push(r.name));
-  } catch {
-    // ignore — use only preferred
-  }
-
-  const hasExistingAnswer = Boolean(redacao.answer_id);
-  const method = hasExistingAnswer ? "PUT" : "POST";
-  const answerParam = hasExistingAnswer ? `&answer_id=${redacao.answer_id}` : "";
-
-  let lastError: Error | null = null;
-  for (const roomName of candidates) {
-    const roomParam = `room_name=${encodeURIComponent(roomName)}`;
-    const submitUrl = `${API_BASE_URL}/tms/task/${redacao.id}/answer?${roomParam}${answerParam}`;
-    const requestBody: Record<string, unknown> = {
+  const response = await fetch("/api/redacao/submit", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      generated,
+      authToken,
+      editedTitle: finalTitle,
+      editedBody: finalBody,
       status,
-      accessed_on: "room",
-      executed_on: roomName,
-      duration: Math.floor(Math.random() * (40 * 60 * 1000 - 30 * 60 * 1000 + 1)) + 30 * 60 * 1000,
-      answers: {
-        [questionId]: {
-          question_id: isNaN(Number(questionId)) ? questionId : Number(questionId),
-          question_type: questionType,
-          answer: { title: finalTitle, body: finalBody },
-        },
-      },
-    };
-    if (hasExistingAnswer) requestBody.id = redacao.answer_id;
+    }),
+  });
 
-    try {
-      await makeRequest(submitUrl, method, submitHeaders, requestBody);
-      onNotify(status === "draft" ? "RASCUNHO SALVO!" : "REDAÇÃO CONCLUÍDA E ENVIADA!");
-      return;
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      lastError = err instanceof Error ? err : new Error(msg);
-      // Only retry on 403 forbidden (wrong room). Other errors are fatal.
-      if (!msg.includes("403") && !msg.toLowerCase().includes("forbidden")) {
-        throw lastError;
-      }
-      onNotify(`Sala "${roomName}" negada, tentando próxima...`);
-    }
+  if (!response.ok) {
+    const errorData = await response.json().catch(async () => ({ error: await response.text() }));
+    throw new Error(errorData.error || `HTTP ${response.status}: falha ao enviar redação`);
   }
 
-  throw lastError ?? new Error("Nenhuma sala aceita esta redação");
+  const result = await response.json().catch(() => ({}));
+  if (result.roomName && result.roomName !== redacao.room_name_for_apply) {
+    onNotify(`Redação aceita pela sala "${result.roomName}"`);
+  }
+  onNotify(status === "draft" ? "RASCUNHO SALVO!" : "REDAÇÃO CONCLUÍDA E ENVIADA!");
 }
 
