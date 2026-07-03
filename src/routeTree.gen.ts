@@ -23,6 +23,7 @@ import { Route as DashboardBoletimRouteImport } from './routes/dashboard/boletim
 import { Route as DashboardApostilasRouteImport } from './routes/dashboard/apostilas'
 import { Route as ApiPdfProxyRouteImport } from './routes/api/pdf-proxy'
 import { Route as ApiStatusEndpointRouteImport } from './routes/api/status.$endpoint'
+import { Route as ApiRedacaoSubmitRouteImport } from './routes/api/redacao.submit'
 import { Route as ApiProxySplatRouteImport } from './routes/api/proxy.$'
 import { Route as ApiPreparaspSplatRouteImport } from './routes/api/preparasp.$'
 import { Route as ApiLeiaspSplatRouteImport } from './routes/api/leiasp.$'
@@ -105,6 +106,11 @@ const ApiStatusEndpointRoute = ApiStatusEndpointRouteImport.update({
   path: '/api/status/$endpoint',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiRedacaoSubmitRoute = ApiRedacaoSubmitRouteImport.update({
+  id: '/api/redacao/submit',
+  path: '/api/redacao/submit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiProxySplatRoute = ApiProxySplatRouteImport.update({
   id: '/api/proxy/$',
   path: '/api/proxy/$',
@@ -185,6 +191,7 @@ export interface FileRoutesByFullPath {
   '/api/leiasp/$': typeof ApiLeiaspSplatRoute
   '/api/preparasp/$': typeof ApiPreparaspSplatRoute
   '/api/proxy/$': typeof ApiProxySplatRoute
+  '/api/redacao/submit': typeof ApiRedacaoSubmitRoute
   '/api/status/$endpoint': typeof ApiStatusEndpointRoute
   '/api/catalyst/job/$jobId': typeof ApiCatalystJobJobIdRoute
 }
@@ -211,6 +218,7 @@ export interface FileRoutesByTo {
   '/api/leiasp/$': typeof ApiLeiaspSplatRoute
   '/api/preparasp/$': typeof ApiPreparaspSplatRoute
   '/api/proxy/$': typeof ApiProxySplatRoute
+  '/api/redacao/submit': typeof ApiRedacaoSubmitRoute
   '/api/status/$endpoint': typeof ApiStatusEndpointRoute
   '/api/catalyst/job/$jobId': typeof ApiCatalystJobJobIdRoute
 }
@@ -239,6 +247,7 @@ export interface FileRoutesById {
   '/api/leiasp/$': typeof ApiLeiaspSplatRoute
   '/api/preparasp/$': typeof ApiPreparaspSplatRoute
   '/api/proxy/$': typeof ApiProxySplatRoute
+  '/api/redacao/submit': typeof ApiRedacaoSubmitRoute
   '/api/status/$endpoint': typeof ApiStatusEndpointRoute
   '/api/catalyst/job/$jobId': typeof ApiCatalystJobJobIdRoute
 }
@@ -268,6 +277,7 @@ export interface FileRouteTypes {
     | '/api/leiasp/$'
     | '/api/preparasp/$'
     | '/api/proxy/$'
+    | '/api/redacao/submit'
     | '/api/status/$endpoint'
     | '/api/catalyst/job/$jobId'
   fileRoutesByTo: FileRoutesByTo
@@ -294,6 +304,7 @@ export interface FileRouteTypes {
     | '/api/leiasp/$'
     | '/api/preparasp/$'
     | '/api/proxy/$'
+    | '/api/redacao/submit'
     | '/api/status/$endpoint'
     | '/api/catalyst/job/$jobId'
   id:
@@ -321,6 +332,7 @@ export interface FileRouteTypes {
     | '/api/leiasp/$'
     | '/api/preparasp/$'
     | '/api/proxy/$'
+    | '/api/redacao/submit'
     | '/api/status/$endpoint'
     | '/api/catalyst/job/$jobId'
   fileRoutesById: FileRoutesById
@@ -340,6 +352,7 @@ export interface RootRouteChildren {
   ApiLeiaspSplatRoute: typeof ApiLeiaspSplatRoute
   ApiPreparaspSplatRoute: typeof ApiPreparaspSplatRoute
   ApiProxySplatRoute: typeof ApiProxySplatRoute
+  ApiRedacaoSubmitRoute: typeof ApiRedacaoSubmitRoute
   ApiStatusEndpointRoute: typeof ApiStatusEndpointRoute
   ApiCatalystJobJobIdRoute: typeof ApiCatalystJobJobIdRoute
 }
@@ -442,6 +455,13 @@ declare module '@tanstack/react-router' {
       path: '/api/status/$endpoint'
       fullPath: '/api/status/$endpoint'
       preLoaderRoute: typeof ApiStatusEndpointRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/redacao/submit': {
+      id: '/api/redacao/submit'
+      path: '/api/redacao/submit'
+      fullPath: '/api/redacao/submit'
+      preLoaderRoute: typeof ApiRedacaoSubmitRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/proxy/$': {
@@ -567,6 +587,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiLeiaspSplatRoute: ApiLeiaspSplatRoute,
   ApiPreparaspSplatRoute: ApiPreparaspSplatRoute,
   ApiProxySplatRoute: ApiProxySplatRoute,
+  ApiRedacaoSubmitRoute: ApiRedacaoSubmitRoute,
   ApiStatusEndpointRoute: ApiStatusEndpointRoute,
   ApiCatalystJobJobIdRoute: ApiCatalystJobJobIdRoute,
 }
