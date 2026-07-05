@@ -1,6 +1,12 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
+import { installLocalProxyInterceptor } from "@/lib/localProxy";
+
+// Instala o interceptador o mais cedo possível (antes de qualquer fetch).
+if (typeof window !== "undefined") {
+  installLocalProxyInterceptor();
+}
 
 
 function NotFoundComponent() {
@@ -75,9 +81,5 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
-  if (typeof window !== "undefined") {
-    // Instala interceptador do proxy local (opt-in via localStorage.localProxyUrl)
-    import("@/lib/localProxy").then((m) => m.installLocalProxyInterceptor()).catch(() => {});
-  }
   return <Outlet />;
 }
